@@ -22,13 +22,16 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from powercontext.builtin.persistence.cursors import SourceCursorRepository
 from powercontext.builtin.persistence.processing_intents import (
     ArtifactProcessingIntentRepository,
     StoredArtifactProcessingIntent,
 )
 from powercontext.builtin.persistence.supervision import ArtifactProcessingLeaseRepository
+from powercontext.builtin.persistence.tables import SOURCE_JOURNAL_HEADS_TABLE
 from powercontext.builtin.runtime.processing_contracts import ArtifactProcessingWorkAssignment
 
 
@@ -43,6 +46,7 @@ class ScopeInvocation:
         self,
         assignment: ArtifactProcessingWorkAssignment,
         *,
+        source_count_threshold: int | None = None,
         authorize_transaction: Callable[[AsyncConnection], Awaitable[None]] | None = None,
     ) -> None:
         if assignment.fence.supervisor_group not in {"global", f"artifact:{assignment.artifact_family}"}:
@@ -50,6 +54,12 @@ class ScopeInvocation:
         self.assignment = assignment
         self.intents = ArtifactProcessingIntentRepository()
         self.leases = ArtifactProcessingLeaseRepository()
+        self.cursors = SourceCursorRepository()
+        if source_count_threshold is not None and (
+            type(source_count_threshold) is not int or source_count_threshold < 1
+        ):
+            raise ValueError("source count threshold must be a positive integer")  # noqa: TRY003
+        self.source_count_threshold = source_count_threshold
         self.dirty_generation: int | None = None
         self.authorize_transaction = authorize_transaction
 
@@ -72,11 +82,24 @@ class ScopeInvocation:
     async def complete(self, connection: AsyncConnection, *, remaining_work: bool) -> None:
         await self.guard(connection)
         work = self.assignment
-        await self.intents.acknowledge(
+        completed = await self.intents.acknowledge(
             connection,
             work.scope_id,
             work.binding_name,
             work.claimed_request_generation,
             clean_generation=None if remaining_work else self.dirty_generation,
         )
+        if self.source_count_threshold is not None and completed.requested_generation <= completed.handled_generation:
+            head = int(
+                await connection.scalar(
+                    select(SOURCE_JOURNAL_HEADS_TABLE.c.position).where(
+                        SOURCE_JOURNAL_HEADS_TABLE.c.scope_id == work.scope_id
+                    )
+                )
+                or 0
+            )
+            cursor = await self.cursors.load(connection, work.scope_id, work.binding_name, for_update=True)
+            position = 0 if cursor is None else cursor.cursor.sequence
+            if head - position >= self.source_count_threshold:
+                await self.intents.request(connection, work.scope_id, work.binding_name)
         await self.leases.require_fence(connection, work.fence)

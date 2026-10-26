@@ -187,6 +187,9 @@ async def _process_family_invocation(  # noqa: C901 - one guarded dispatch per r
     scope = assignment.scope_id
     invocation = ScopeInvocation(
         assignment,
+        source_count_threshold=config.runtime.memory_source_count_threshold
+        if assignment.artifact_family == "memory"
+        else None,
         authorize_transaction=None if security is None else partial(security.authorize_transaction, scope_id=scope),
     )
     try:

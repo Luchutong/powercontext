@@ -75,8 +75,13 @@ class TopicMemoryScopeProcessor:
         pending: ArtifactProcessingPendingRepository | None = None,
         commit_authorizer: TopicMemoryCommitAuthorizer | None = None,
         source_window_limit: int = MAX_TOPIC_MEMORY_WINDOW_SOURCES,
+        source_count_threshold: int | None = None,
     ) -> None:
         if type(source_window_limit) is not int or source_window_limit < 1:
+            raise TopicMemoryGenerationError("invalid_window")
+        if source_count_threshold is not None and (
+            type(source_count_threshold) is not int or source_count_threshold < 1
+        ):
             raise TopicMemoryGenerationError("invalid_window")
         self._database = database
         self._processor = processor
@@ -87,6 +92,7 @@ class TopicMemoryScopeProcessor:
         self._pending = ArtifactProcessingPendingRepository() if pending is None else pending
         self._commit_authorizer = commit_authorizer
         self._source_window_limit = min(source_window_limit, MAX_TOPIC_MEMORY_WINDOW_SOURCES)
+        self._source_count_threshold = source_count_threshold
 
     async def process(self, assignment: ArtifactProcessingWorkAssignment, /) -> ArtifactProcessingWorkerCompletion:
         if (
@@ -240,7 +246,7 @@ class TopicMemoryScopeProcessor:
                 cursor=position,
                 source_through_limit=target.source_through,
             )
-        await self._intents.acknowledge(
+        completed = await self._intents.acknowledge(
             connection,
             assignment.scope_id,
             assignment.binding_name,
@@ -249,6 +255,12 @@ class TopicMemoryScopeProcessor:
             if covered and await self._head(connection, assignment.scope_id) <= target.source_through
             else None,
         )
+        if self._source_count_threshold is not None and (
+            completed.requested_generation <= completed.handled_generation
+        ):
+            head = await self._head(connection, assignment.scope_id)
+            if head - position >= self._source_count_threshold:
+                await self._intents.request(connection, assignment.scope_id, assignment.binding_name)
         result = await connection.execute(
             delete(TOPIC_MEMORY_PROCESSING_TARGETS_TABLE).where(*self._target_key(assignment, target))
         )

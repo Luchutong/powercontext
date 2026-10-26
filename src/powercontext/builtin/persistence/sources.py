@@ -30,6 +30,7 @@ from powercontext.builtin.artifacts.experience import EXPERIENCE_INCUBATION_CURS
 from powercontext.builtin.artifacts.profile.models import PROFILE_SOURCE_WINDOW_BINDING
 from powercontext.builtin.artifacts.topic_memory import TOPIC_MEMORY_SOURCE_WINDOW_BINDING
 from powercontext.builtin.persistence.codec import load_model, stored_bytes
+from powercontext.builtin.persistence.cursors import SourceCursorRepository
 from powercontext.builtin.persistence.errors import (
     IdentityMismatchError,
     InvalidRepositoryArgumentError,
@@ -79,12 +80,17 @@ class SourceRepository:
         self,
         definitions: SourceDefinitionRegistry | Iterable[_AnySourceAdapter],
         /,
+        *,
+        source_count_thresholds: Mapping[str, int] | None = None,
     ) -> None:
         self._registry = (
             definitions
             if isinstance(definitions, SourceDefinitionRegistry)
             else SourceDefinitionRegistry.from_adapters(definitions)
         )
+        self._source_count_thresholds = dict(source_count_thresholds or {})
+        if any(type(value) is not int or value < 1 for value in self._source_count_thresholds.values()):
+            raise ValueError("source count thresholds must be positive integers")  # noqa: TRY003
 
     async def add(
         self,
@@ -98,7 +104,7 @@ class SourceRepository:
         stored, _created = await self.add_with_status(connection, scope_id, source)
         return stored
 
-    async def add_with_status(
+    async def add_with_status(  # noqa: C901 - insert identity, dirty state, and optional count admission atomically
         self,
         connection: AsyncConnection,
         scope_id: str,
@@ -169,8 +175,16 @@ class SourceRepository:
         # discoverable input atomically. Replayed Source identities do not dirty
         # a binding again. Disabled processors simply retain ordinary dirty.
         intents = ArtifactProcessingIntentRepository()
+        cursors = SourceCursorRepository()
         for binding_name in SOURCE_PROCESSING_BINDINGS:
-            await intents.mark_dirty(connection, scope_id, binding_name)
+            intent = await intents.mark_dirty(connection, scope_id, binding_name)
+            threshold = self._source_count_thresholds.get(binding_name)
+            if threshold is None or intent.requested_generation > intent.handled_generation:
+                continue
+            cursor = await cursors.load(connection, scope_id, binding_name)
+            position_after = 0 if cursor is None else cursor.cursor.sequence
+            if position - position_after >= threshold:
+                await intents.request(connection, scope_id, binding_name)
         return StoredSource(ref=ref, value=source, journal_position=position), True
 
     async def get(

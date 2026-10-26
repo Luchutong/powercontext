@@ -379,6 +379,7 @@ class TopicMemoryRepository:
             .where(
                 TOPIC_MEMORY_ACTIVE_TOPICS_TABLE.c.scope_id == scope_id,
                 TOPIC_MEMORY_ACTIVE_TOPICS_TABLE.c.family == TopicMemory.family,
+                TOPIC_MEMORY_ACTIVE_TOPICS_TABLE.c.lifecycle_available.is_(True),
             )
         )
         if tag_filter is not None:

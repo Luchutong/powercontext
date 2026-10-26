@@ -137,6 +137,8 @@ class RuntimeConfig(BaseModel):
 
     scope_cache_size: int = Field(default=DEFAULT_SCOPE_CACHE_SIZE, ge=1)
     source_window_limit: int = Field(default=100, ge=1)
+    memory_source_count_threshold: int | None = None
+    topic_memory_source_count_threshold: int | None = None
     context_assembly_max_entries: int = Field(default=8, ge=1)
     memory_extraction_profile: MemoryExtractionProfile = MemoryExtractionProfile.CODING
     memory_rerank_enabled: bool = False
@@ -229,6 +231,15 @@ class RuntimeConfig(BaseModel):
     model_usage_queue_capacity: int = Field(default=256, ge=1, le=16_384)
     model_usage_write_timeout_seconds: float = Field(default=1.0, gt=0, le=30)
     model_usage_flush_timeout_seconds: float = Field(default=0.5, gt=0, le=30)
+
+    @field_validator("memory_source_count_threshold", "topic_memory_source_count_threshold", mode="before")
+    @classmethod
+    def validate_source_count_threshold(cls, value: Any) -> Any:
+        if value is None:
+            return value
+        if type(value) is not int or value < 1:
+            raise ValueError("source count threshold must be a positive integer")  # noqa: TRY003
+        return value
 
     @model_validator(mode="after")
     def validate_topic_memory_history_candidates(self) -> RuntimeConfig:

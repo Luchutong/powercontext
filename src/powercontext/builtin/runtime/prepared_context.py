@@ -17,9 +17,11 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from itertools import chain
+from itertools import chain, pairwise
 from typing import TypeVar
 
 from powercontext.artifacts import ArtifactAddress, ArtifactRef
@@ -47,6 +49,9 @@ _ELLIPSIS = "…"
 _BEGIN_MARKER = "BEGIN_POWERCONTEXT_PREPARED_CONTEXT_V1"
 _END_MARKER = "END_POWERCONTEXT_PREPARED_CONTEXT_V1"
 _Item = TypeVar("_Item")
+_EVIDENCE_TOKEN_PATTERN = re.compile(r"[a-z]+|\d+")
+_SENTENCE_BOUNDARY_PATTERN = re.compile(r"[.!?]+(?:[\"')\]]+)?(?=\s|$)|\n+")
+_CLAUSE_BOUNDARY_PATTERN = re.compile(r"(?<=[,;:])\s+")
 
 
 @dataclass(frozen=True)
@@ -106,6 +111,7 @@ class PreparedContextBuild:
     origins: tuple[PreparedContextOrigin, ...]
     omissions: PreparedContextOmissions = PreparedContextOmissions()
     code_origins: tuple[CodeEvidenceRef, ...] = ()
+    fragments: tuple[PreparedContextFragment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -115,6 +121,44 @@ class MemoryEntryAddress:
     memory: ArtifactAddress
     entry_id: str
     entry_version_id: str
+
+
+@dataclass(frozen=True)
+class PreparedContextFragment:
+    """An exact source interval selected for evidence-aware context preparation."""
+
+    address: MemoryEntryAddress
+    start: int
+    end: int
+    text: str
+
+
+@dataclass(frozen=True)
+class _EvidenceSpan:
+    address: MemoryEntryAddress
+    source_text: str
+    start: int
+    end: int
+    score: float
+    hit_rank: int
+
+    @property
+    def text(self) -> str:
+        return self.source_text[self.start : self.end]
+
+
+@dataclass(frozen=True)
+class _CollectedEvidenceSpan:
+    address: MemoryEntryAddress
+    source_text: str
+    start: int
+    end: int
+    hit_rank: int
+    tokens: tuple[str, ...]
+
+    @property
+    def token_set(self) -> frozenset[str]:
+        return frozenset(self.tokens)
 
 
 PreparedContextOrigin = MemoryCitation | ArtifactRef | MemoryEntryAddress | ArtifactAddress
@@ -211,6 +255,8 @@ class PreparedContextBuilder:
         profile_candidates: Sequence[PreparedProfileCandidate] = (),
         code_candidates: Sequence[PreparedCodeCandidate] = (),
     ) -> PreparedContextBuild:
+        if request.evidence_selection:
+            return self._build_evidence_selection(request, memory_candidates)
         if request.include_code:
 
             def historical(history_request: PrepareContextRequest, entries: int) -> PreparedContextBuild:
@@ -256,6 +302,47 @@ class PreparedContextBuilder:
             omissions=omissions,
         )
 
+    def _build_evidence_selection(
+        self,
+        request: PrepareContextRequest,
+        memory_candidates: Sequence[PreparedMemoryCandidates],
+    ) -> PreparedContextBuild:
+        """Select query-relevant literal intervals and fit the complete envelope."""
+
+        spans = _rank_evidence_spans(request.query, memory_candidates)
+        selected: list[_EvidenceSpan] = []
+        for candidate in spans:
+            address = candidate.address
+            if any(
+                selected_span.address == address
+                and selected_span.start < candidate.end
+                and candidate.start < selected_span.end
+                for selected_span in selected
+            ):
+                continue
+            trial = [*selected, candidate]
+            if len(_render_evidence_fragments(trial).encode("utf-8")) <= request.max_bytes:
+                selected.append(candidate)
+        if not selected:
+            return PreparedContextBuild(context=self.empty(), origins=(), fragments=())
+
+        fragments = tuple(
+            PreparedContextFragment(
+                address=span.address,
+                start=span.start,
+                end=span.end,
+                text=span.text,
+            )
+            for span in selected
+        )
+        content = _render_evidence_fragments(selected)
+        origins: tuple[PreparedContextOrigin, ...] = tuple(fragment.address for fragment in fragments)
+        return PreparedContextBuild(
+            context=PreparedContext(status="ready", content=content, content_bytes=len(content.encode("utf-8"))),
+            origins=origins,
+            fragments=fragments,
+        )
+
     def probe_budget(
         self,
         *,
@@ -276,6 +363,18 @@ class PreparedContextBuilder:
         the same inputs as :meth:`build_scopes_result` are guaranteed to yield the same
         counters because both go through :meth:`_select_entries`.
         """
+
+        if request.evidence_selection:
+            built = self._build_evidence_selection(request, memory_candidates)
+            content = built.context.content
+            content_bytes = 0 if content is None else len(content.encode("utf-8"))
+            return RecallBudgetView(
+                max_bytes=request.max_bytes,
+                delivered_items=len(built.fragments),
+                truncated_items=0,
+                dropped_items=0,
+                unused_bytes=max(0, request.max_bytes - content_bytes),
+            )
 
         content, origins, omissions = self._select_entries(
             request=request,
@@ -722,6 +821,203 @@ def _render_entry(entry: _PreparedContextEntry) -> dict[str, object]:
 
 def _rendered_bytes(entries: Sequence[_PreparedContextEntry]) -> int:
     return len(_render(entries).encode("utf-8"))
+
+
+def _rank_evidence_spans(
+    query: str,
+    memory_candidates: Sequence[PreparedMemoryCandidates],
+) -> tuple[_EvidenceSpan, ...]:
+    query_tokens = _evidence_query_tokens(query)
+    if not query_tokens:
+        return ()
+
+    collected = _collect_evidence_spans(memory_candidates)
+    if not collected:
+        return ()
+    query_weights = _evidence_query_weights(query_tokens, collected)
+    total_query_weight = sum(query_weights.values())
+    ranked = [
+        _EvidenceSpan(
+            address=item.address,
+            source_text=item.source_text,
+            start=item.start,
+            end=item.end,
+            score=_score_evidence_span(item, query_tokens, query_weights, total_query_weight),
+            hit_rank=item.hit_rank,
+        )
+        for item in collected
+    ]
+    ranked.sort(key=lambda item: (-item.score, item.hit_rank, item.start, item.end))
+    return tuple(ranked)
+
+
+def _evidence_query_tokens(query: str) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(_stem_evidence_token(token) for token in _EVIDENCE_TOKEN_PATTERN.findall(query.lower())))
+
+
+def _collect_evidence_spans(
+    memory_candidates: Sequence[PreparedMemoryCandidates],
+) -> tuple[_CollectedEvidenceSpan, ...]:
+    collected: list[_CollectedEvidenceSpan] = []
+    seen_entries: set[tuple[str, str, int, str, str]] = set()
+    for group in memory_candidates:
+        if group.hits and group.memory_ref is None:
+            raise PreparedContextInvariantError("memory-ref-missing")
+        for hit_rank, hit in enumerate(group.hits):
+            if hit.memory_ref != group.memory_ref:
+                raise PreparedContextInvariantError("memory-ref-mismatch")
+            identity = (
+                group.scope_id,
+                hit.memory_ref.artifact_id,
+                hit.memory_ref.revision,
+                hit.entry_id,
+                hit.entry_version_id,
+            )
+            if identity in seen_entries or not hit.entry_id.strip() or not hit.entry_version_id.strip():
+                continue
+            seen_entries.add(identity)
+            address = MemoryEntryAddress(
+                memory=ArtifactAddress(scope_id=group.scope_id, artifact=hit.memory_ref),
+                entry_id=hit.entry_id,
+                entry_version_id=hit.entry_version_id,
+            )
+            for start, end in _evidence_intervals(hit.text):
+                tokens = tuple(
+                    _stem_evidence_token(token)
+                    for token in _EVIDENCE_TOKEN_PATTERN.findall(hit.text[start:end].lower())
+                )
+                if tokens:
+                    collected.append(_CollectedEvidenceSpan(address, hit.text, start, end, hit_rank, tokens))
+    return tuple(collected)
+
+
+def _evidence_query_weights(
+    query_tokens: tuple[str, ...],
+    collected: Sequence[_CollectedEvidenceSpan],
+) -> dict[str, float]:
+    document_frequency: dict[str, int] = {}
+    for candidate in collected:
+        for token in candidate.token_set:
+            document_frequency[token] = document_frequency.get(token, 0) + 1
+    segment_count = len(collected)
+    return {
+        token: math.log(
+            1.0 + (segment_count - document_frequency.get(token, 0) + 0.5) / (document_frequency.get(token, 0) + 0.5)
+        )
+        for token in query_tokens
+    }
+
+
+def _score_evidence_span(
+    candidate: _CollectedEvidenceSpan,
+    query_tokens: tuple[str, ...],
+    query_weights: dict[str, float],
+    total_query_weight: float,
+) -> float:
+    token_counts: dict[str, int] = {}
+    for token in candidate.tokens:
+        token_counts[token] = token_counts.get(token, 0) + 1
+    matched = [token for token in query_tokens if token_counts.get(token, 0)]
+    if not matched:
+        # Retrieval already admitted this document; retain a deterministic low-priority
+        # fallback for semantically retrieved text with no literal query token.
+        return 1e-6 / (candidate.hit_rank + 1)
+    matched_weight = sum(query_weights[token] for token in matched)
+    frequency_weight = sum(query_weights[token] * min(token_counts[token] - 1, 1) for token in matched)
+    coverage = matched_weight / total_query_weight if total_query_weight else 0.0
+    score = (matched_weight + 0.2 * frequency_weight) * (0.75 + 0.5 * coverage)
+    return score / math.sqrt(max(len(candidate.tokens), 1))
+
+
+def _evidence_intervals(text: str) -> tuple[tuple[int, int], ...]:
+    boundaries = [0]
+    boundaries.extend(match.end() for match in _SENTENCE_BOUNDARY_PATTERN.finditer(text))
+    boundaries.append(len(text))
+    intervals: list[tuple[int, int]] = []
+    for start, end in pairwise(boundaries):
+        start, end = _trim_evidence_interval(text, start, end)
+        if start < end:
+            intervals.extend(_split_long_evidence_interval(text, start, end))
+    return tuple(intervals)
+
+
+def _split_long_evidence_interval(text: str, start: int, end: int) -> tuple[tuple[int, int], ...]:  # noqa: C901
+    if len(text[start:end].encode("utf-8")) <= 600:
+        return ((start, end),)
+    cuts = [match.end() for match in _CLAUSE_BOUNDARY_PATTERN.finditer(text, start, end)]
+    if cuts:
+        intervals: list[tuple[int, int]] = []
+        previous = start
+        for cut in cuts:
+            left, right = _trim_evidence_interval(text, previous, cut)
+            if left < right:
+                intervals.extend(_split_long_evidence_interval(text, left, right))
+            previous = cut
+        left, right = _trim_evidence_interval(text, previous, end)
+        if left < right:
+            intervals.extend(_split_long_evidence_interval(text, left, right))
+        if len(intervals) > 1:
+            return tuple(intervals)
+
+    split = start
+    last_space = -1
+    while split < end:
+        if text[split].isspace():
+            last_space = split
+        if len(text[start : split + 1].encode("utf-8")) > 500:
+            break
+        split += 1
+    if last_space <= start:
+        last_space = split
+    first = _trim_evidence_interval(text, start, last_space)
+    second = _trim_evidence_interval(text, last_space, end)
+    if first[0] == first[1] or second[0] == second[1]:
+        return ((start, end),)
+    return (*_split_long_evidence_interval(text, *first), *_split_long_evidence_interval(text, *second))
+
+
+def _trim_evidence_interval(text: str, start: int, end: int) -> tuple[int, int]:
+    while start < end and text[start].isspace():
+        start += 1
+    while end > start and text[end - 1].isspace():
+        end -= 1
+    return start, end
+
+
+def _stem_evidence_token(token: str) -> str:
+    if len(token) > 5 and token.endswith("ies"):
+        return token[:-3] + "y"
+    if len(token) > 4 and token.endswith("ing"):
+        stem = token[:-3]
+        return stem[:-1] if len(stem) > 2 and stem[-1] == stem[-2] else stem
+    if len(token) > 4 and token.endswith("ed"):
+        stem = token[:-2]
+        return stem[:-1] if len(stem) > 2 and stem[-1] == stem[-2] else stem
+    if len(token) > 4 and token.endswith("es"):
+        return token[:-2]
+    if len(token) > 3 and token.endswith("s"):
+        return token[:-1]
+    return token
+
+
+def _render_evidence_fragments(spans: Sequence[_EvidenceSpan]) -> str:
+    items = [
+        {
+            "citation": {
+                "scope_id": span.address.memory.scope_id,
+                "memory_ref": span.address.memory.artifact.model_dump(mode="json"),
+                "entry_id": span.address.entry_id,
+                "entry_version_id": span.address.entry_version_id,
+            },
+            "content": span.text,
+            "start": span.start,
+            "end": span.end,
+        }
+        for span in spans
+    ]
+    envelope = {"trust": "untrusted_history", "items": items}
+    encoded = json.dumps(envelope, ensure_ascii=False, separators=(",", ":"))
+    return "\n\n".join((TRUST_POLICY, f"{_BEGIN_MARKER}\n{encoded}\n{_END_MARKER}"))
 
 
 def _truncate_utf8(text: str, byte_budget: int) -> str:

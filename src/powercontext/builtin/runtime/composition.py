@@ -97,6 +97,7 @@ from powercontext.builtin.persistence.processing_migration import (
     bootstrap_processing_schema,
 )
 from powercontext.builtin.persistence.scope_search_schema import ensure_scope_search_schema
+from powercontext.builtin.persistence.seekdb.memory_index import SeekDBMemoryIndex
 from powercontext.builtin.persistence.seekdb.profile import SeekDBConfig, SeekDBProfile
 from powercontext.builtin.persistence.skill_distribution_schema import ensure_skill_distribution_schema
 from powercontext.builtin.persistence.sqlite.experience_index import SQLiteExperienceFTSIndex
@@ -156,6 +157,7 @@ from powercontext.builtin.runtime.readiness import (
 )
 from powercontext.builtin.runtime.recall_sufficiency import RecallSufficiencyPolicy
 from powercontext.builtin.runtime.relational import RelationalContexts
+from powercontext.builtin.runtime.source_lifecycle import SourceLifecycleStore
 from powercontext.builtin.runtime.topic_memory_processing import (
     TopicMemoryWorkerSpec,
     run_topic_memory_worker,
@@ -165,6 +167,7 @@ from powercontext.builtin.sources import (
     BUILTIN_SOURCE_REGISTRY,
     TEXT_EVIDENCE_PROJECTION_KEY,
 )
+from powercontext.builtin.triggers import SOURCE_WINDOW_TRIGGER_NAME
 from powercontext.errors import InvalidSourceProjectionError, SourceProjectionNotFoundError
 from powercontext.sources import Source, SourceDefinitionRegistry, SourceProjectionKey
 
@@ -634,6 +637,7 @@ async def open_builtin_runtime(
                 topic_memory_embedding_model=configured_embedding,
                 topic_memory_processing_available=topic_memory_processing_available,
                 topic_memory_search_observer=topic_memory_search_observer,
+                source_lifecycle_store=SourceLifecycleStore(contexts.database),
                 external_skill_registry=contexts.external_skills if contexts.external_skill_registry else None,
                 external_skill_importer=contexts.import_external_skill if contexts.external_skill_registry else None,
                 skill_publication_service=contexts.skill_publications,
@@ -770,6 +774,10 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
         else:
             entrypoint = partial(run_family_worker, FamilyWorkerSpec(config=config, worker_security=worker_security))
         interval = None if family == "profile" else automatic[family]
+        source_count_threshold = {
+            "memory": config.runtime.memory_source_count_threshold,
+            "topic-memory": config.runtime.topic_memory_source_count_threshold,
+        }.get(family)
         binding = canonical[family]
         configured.append(
             ArtifactProcessingBinding(
@@ -779,13 +787,19 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
                 max_workers=getattr(config.runtime, f"{prefix}_max_workers"),
                 worker_timeout_seconds=getattr(config.runtime, f"{prefix}_worker_timeout_seconds"),
                 automatic_processing_interval=None if interval is None else timedelta(seconds=float(interval)),
+                automatic_source_count_threshold=source_count_threshold,
                 cron=config.runtime.profile_cron
                 if family == "profile" and config.runtime.profile_schedule_enabled
                 else None,
                 timezone=config.runtime.profile_timezone if family == "profile" else "Asia/Shanghai",
                 pending_provider=None
                 if family == "skill"
-                else SourceProcessingPendingProvider(contexts.database, binding, family),
+                else SourceProcessingPendingProvider(
+                    contexts.database,
+                    binding,
+                    family,
+                    source_count_threshold=source_count_threshold,
+                ),
                 automatic_scope_filter=enabled_profile_scopes if family == "profile" else None,
             )
         )
@@ -939,6 +953,14 @@ async def open_builtin_contexts(
                     min_tombstone_revisions=config.runtime.memory_compaction_min_tombstone_revisions,
                 ),
                 memory_max_history_revisions=config.runtime.memory_max_history_revisions,
+                source_count_thresholds={
+                    binding: threshold
+                    for binding, threshold in (
+                        (SOURCE_WINDOW_TRIGGER_NAME, config.runtime.memory_source_count_threshold),
+                        (TOPIC_MEMORY_SOURCE_WINDOW_BINDING, config.runtime.topic_memory_source_count_threshold),
+                    )
+                    if threshold is not None
+                },
                 prompt_registry=prompt_registry,
                 prompt_demonstrators=prompt_demonstrators,
                 handoff_verification_keys=handoff_verification_keys,
@@ -960,10 +982,7 @@ async def open_builtin_contexts(
                 await contexts.aclose_usage_recorder()
         return
     experience_index = OceanBaseExperienceFTSIndex()
-    indexes = [OceanBaseMemoryFTSIndex()]
-    if embedding_model is not None:
-        indexes.append(OceanBaseMemoryVectorIndex(embedding_model.profile))
-    index = CompositeMemoryIndex(*indexes)
+    index = _memory_search_index(database, embedding_model)
     topic_indexes: list[TopicMemoryIndex] = [OceanBaseTopicMemoryFTSIndex()]
     if embedding_model is not None:
         topic_indexes.append(OceanBaseTopicMemoryVectorIndex(embedding_model.profile))
@@ -1016,6 +1035,14 @@ async def open_builtin_contexts(
                 min_tombstone_revisions=config.runtime.memory_compaction_min_tombstone_revisions,
             ),
             memory_max_history_revisions=config.runtime.memory_max_history_revisions,
+            source_count_thresholds={
+                binding: threshold
+                for binding, threshold in (
+                    (SOURCE_WINDOW_TRIGGER_NAME, config.runtime.memory_source_count_threshold),
+                    (TOPIC_MEMORY_SOURCE_WINDOW_BINDING, config.runtime.topic_memory_source_count_threshold),
+                )
+                if threshold is not None
+            },
             prompt_registry=prompt_registry,
             prompt_demonstrators=prompt_demonstrators,
             handoff_verification_keys=handoff_verification_keys,
@@ -1035,6 +1062,18 @@ async def open_builtin_contexts(
             # Producers are stopped by now, and the profile below still owns the
             # database this recorder writes into.
             await contexts.aclose_usage_recorder()
+
+
+def _memory_search_index(
+    database: OceanBaseConfig | SeekDBConfig,
+    embedding_model: EmbeddingModel | None,
+) -> MemoryIndex:
+    if isinstance(database, SeekDBConfig) and embedding_model is not None:
+        return SeekDBMemoryIndex(embedding_model.profile)
+    indexes: list[MemoryIndex] = [OceanBaseMemoryFTSIndex()]
+    if embedding_model is not None:
+        indexes.append(OceanBaseMemoryVectorIndex(embedding_model.profile))
+    return CompositeMemoryIndex(*indexes)
 
 
 def _register_prompt_demonstrators(

@@ -640,6 +640,7 @@ TOPIC_MEMORY_ACTIVE_TOPICS_TABLE = Table(
     Column("summary", _entry_text_type(), nullable=False),
     Column("searchable_text", _entry_text_type(), nullable=False),
     Column("source_count", Integer, nullable=False),
+    Column("lifecycle_available", Boolean, nullable=False, server_default="1"),
     ForeignKeyConstraint(
         ("scope_id", "family", "artifact_id", "revision"),
         (
@@ -1015,6 +1016,38 @@ MEMORY_ENTRY_HEADS_TABLE = Table(
 
 MEMORY_TABLES = (MEMORY_ENTRY_VERSIONS_TABLE, MEMORY_ENTRY_HEADS_TABLE)
 
+SOURCE_LIFECYCLE_NODES_TABLE = Table(
+    "pc_source_lifecycle_nodes",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("node_id", identity_string(512), primary_key=True),
+    Column("kind", identity_string(16), nullable=False),
+    Column("reference_payload", _canonical_payload_type(), nullable=False),
+    Column("parents_payload", _canonical_payload_type(), nullable=False),
+    Column("policy", identity_string(8)),
+    Column("available", Boolean, nullable=False),
+    Column("source_revision", Integer),
+    Column("artifact_id", identity_string(MAX_ARTIFACT_ID_LENGTH)),
+    Column("artifact_revision", Integer),
+    Column("entry_id", identity_string(MAX_MEMORY_ENTRY_ID_LENGTH)),
+    Column("last_sequence", Integer),
+    Column("last_event_payload", _canonical_payload_type()),
+    CheckConstraint("kind IN ('source', 'memory', 'topic')", name="ck_pc_source_lifecycle_node_kind"),
+    CheckConstraint("policy IS NULL OR policy IN ('all', 'any')", name="ck_pc_source_lifecycle_node_policy"),
+    CheckConstraint("source_revision IS NULL OR source_revision > 0", name="ck_pc_source_lifecycle_source_revision"),
+    CheckConstraint(
+        "artifact_revision IS NULL OR artifact_revision > 0", name="ck_pc_source_lifecycle_artifact_revision"
+    ),
+    CheckConstraint("last_sequence IS NULL OR last_sequence > 0", name="ck_pc_source_lifecycle_sequence"),
+    CheckConstraint(
+        "(kind = 'source' AND source_revision IS NOT NULL AND policy IS NULL) OR "
+        "(kind <> 'source' AND source_revision IS NULL AND policy IS NOT NULL)",
+        name="ck_pc_source_lifecycle_node_shape",
+    ),
+)
+
+SOURCE_LIFECYCLE_TABLES = (SOURCE_LIFECYCLE_NODES_TABLE,)
+
 TOPIC_MEMORY_TABLES = (
     TOPIC_MEMORY_RETRIEVAL_SHAPE_TABLE,
     TOPIC_MEMORY_REVISION_PUBLICATIONS_TABLE,
@@ -1185,6 +1218,7 @@ BUILTIN_TABLES = (
     + SHARED_TABLES
     + TOPIC_MEMORY_TABLES
     + MEMORY_TABLES
+    + SOURCE_LIFECYCLE_TABLES
     + STATISTICS_TABLES
     + RECURRENCE_TABLES
     + (ARTIFACT_TAGS_TABLE, DREAM_RUNS_TABLE, RECEIPT_MIGRATION_REVIEW_TABLE)

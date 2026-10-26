@@ -249,6 +249,7 @@ from powercontext.builtin.runtime.recall_sufficiency import (
     build_recall_candidates,
     recall_effort,
 )
+from powercontext.builtin.runtime.source_lifecycle import SourceLifecycleApplication, SourceLifecycleStore
 from powercontext.builtin.runtime.statistics import RelationalScopedStatistics, overview_selection
 from powercontext.builtin.scope import ScopeApplication, ScopeDescriptor, ScopeSelection
 from powercontext.builtin.scope.subject_sources import SubjectSourceService
@@ -859,7 +860,10 @@ class ScopedContextApplication:
         if base_pack is not None and not isinstance(base_pack, ContextPack):
             raise ContextPackError("base_pack must be a ContextPack")  # noqa: TRY003
         prepared = await self.prepare(request)
-        target = ContextPack.from_content(prepared.content if prepared.content is not None else "")
+        target = ContextPack.from_content(
+            prepared.content if prepared.content is not None else "",
+            chunk_bytes=128,
+        )
         if base_pack is None:
             return target
         return ContextPackDelta.between(base_pack, target)
@@ -3024,6 +3028,7 @@ class BuiltinRuntime:
         topic_memory_embedding_model: EmbeddingModel | None = None,
         topic_memory_processing_available: bool = False,
         topic_memory_search_observer: TopicMemorySearchObserver | None = None,
+        source_lifecycle_store: SourceLifecycleStore | None = None,
         external_skill_registry: ExternalSkillRegistryFactory | None = None,
         external_skill_importer: ExternalSkillImporter | None = None,
         skill_publication_service: SkillPublicationServiceFactory | None = None,
@@ -3080,6 +3085,7 @@ class BuiltinRuntime:
         self._topic_memory_embedding_model = topic_memory_embedding_model
         self._topic_memory_processing_available = topic_memory_processing_available
         self._topic_memory_search_observer = topic_memory_search_observer
+        self._source_lifecycle_store = source_lifecycle_store
         self._external_skill_registry = external_skill_registry
         self._external_skill_importer = external_skill_importer
         self._skill_publication_service = skill_publication_service
@@ -3127,6 +3133,9 @@ class BuiltinRuntime:
         self.work = WorkApplication(self)
         self.memory = MemoryApplication(self)
         self.topic_memory = TopicMemoryApplication(self)
+        self.lifecycle = (
+            None if source_lifecycle_store is None else SourceLifecycleApplication(self, source_lifecycle_store)
+        )
         self.records = RecordApplication(self)
         self.prompts = PromptApplication(self)
         self.review = ReviewApplication(self)
