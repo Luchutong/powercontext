@@ -256,6 +256,8 @@ class PreparedContextBuilder:
         code_candidates: Sequence[PreparedCodeCandidate] = (),
     ) -> PreparedContextBuild:
         if request.evidence_selection:
+            if sum(len(candidates.hits) for candidates in memory_candidates) > self.memory_candidate_limit:
+                raise PreparedContextInvariantError("memory-candidate-limit")
             return self._build_evidence_selection(request, memory_candidates)
         if request.include_code:
 
@@ -365,6 +367,8 @@ class PreparedContextBuilder:
         """
 
         if request.evidence_selection:
+            if sum(len(candidates.hits) for candidates in memory_candidates) > self.memory_candidate_limit:
+                raise PreparedContextInvariantError("memory-candidate-limit")
             built = self._build_evidence_selection(request, memory_candidates)
             content = built.context.content
             content_bytes = 0 if content is None else len(content.encode("utf-8"))

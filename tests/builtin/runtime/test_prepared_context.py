@@ -916,6 +916,43 @@ def test_code_off_is_identical_and_degradation_returns_history_budget() -> None:
     assert baseline == disabled == degraded
 
 
+def test_evidence_selection_preserves_memory_candidate_limit() -> None:
+    builder = PreparedContextBuilder()
+    request = PrepareContextRequest(query="relevant evidence", evidence_selection=True)
+    at_limit = (
+        PreparedMemoryCandidates(
+            scope_id="scope",
+            memory_ref=MEMORY_REF,
+            hits=tuple(_hit(str(index), "relevant evidence for the query") for index in range(16)),
+        ),
+    )
+    built = builder.build_scopes_result(request=request, current_scope_id="scope", memory_candidates=at_limit)
+    probed = builder.probe_budget(request=request, current_scope_id="scope", memory_candidates=at_limit)
+    assert built.context.status == "ready"
+    assert probed.delivered_items == len(built.fragments) == 16
+
+    over_limit = (
+        PreparedMemoryCandidates(
+            scope_id="scope",
+            memory_ref=MEMORY_REF,
+            hits=(*at_limit[0].hits, _hit("over-limit", "relevant evidence for the query")),
+        ),
+    )
+
+    with pytest.raises(PreparedContextInvariantError, match="memory-candidate-limit"):
+        builder.build_scopes_result(
+            request=request,
+            current_scope_id="scope",
+            memory_candidates=over_limit,
+        )
+    with pytest.raises(PreparedContextInvariantError, match="memory-candidate-limit"):
+        builder.probe_budget(
+            request=request,
+            current_scope_id="scope",
+            memory_candidates=over_limit,
+        )
+
+
 def test_unavailable_code_preserves_explicit_history_section_limits() -> None:
     builder = PreparedContextBuilder()
     request = PrepareContextRequest(
