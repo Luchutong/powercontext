@@ -930,7 +930,8 @@ def _score_evidence_span(
     frequency_weight = sum(query_weights[token] * min(token_counts[token] - 1, 1) for token in matched)
     coverage = matched_weight / total_query_weight if total_query_weight else 0.0
     score = (matched_weight + 0.2 * frequency_weight) * (0.75 + 0.5 * coverage)
-    return score / math.sqrt(max(len(candidate.tokens), 1))
+    # Apply a mild length penalty so longer spans are not systematically ranked last.
+    return score / max(len(candidate.tokens), 1) ** 0.25
 
 
 def _evidence_intervals(text: str) -> tuple[tuple[int, int], ...]:
