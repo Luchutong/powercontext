@@ -1,0 +1,64 @@
+# re-applied response of mmx-20261028T040706Z-7cb5e1 to a fresh copy of sample_app
+# files: ['taskboard/service.py']
+# command: python -m pytest -q -rfE tests
+# exit_code: 1
+st_invalid_limit_raises_query_error[101] __________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = '101'
+
+    @pytest.mark.spec("LIST-003")
+    @pytest.mark.parametrize("raw", ["0", "101", "ten"])
+    def test_invalid_limit_raises_query_error(tasks, raw):
+>       with pytest.raises(QueryError, match="limit"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'limit'
+E         Actual message: 'tag must not be empty or whitespace'
+
+tests/test_list_api.py:43: AssertionError
+__________________ test_invalid_limit_raises_query_error[ten] __________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = 'ten'
+
+    @pytest.mark.spec("LIST-003")
+    @pytest.mark.parametrize("raw", ["0", "101", "ten"])
+    def test_invalid_limit_raises_query_error(tasks, raw):
+>       with pytest.raises(QueryError, match="limit"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'limit'
+E         Actual message: 'tag must not be empty or whitespace'
+
+tests/test_list_api.py:43: AssertionError
+________________________ test_response_shape_over_http _________________________
+
+client = <conftest.WsgiClient object at 0x7fa9671a7290>
+
+    @pytest.mark.spec("LIST-004")
+    def test_response_shape_over_http(client):
+        status, body = client.get("/tasks", "limit=1")
+>       assert status == 200
+E       assert 400 == 200
+
+tests/test_list_api.py:50: AssertionError
+__________________ test_unknown_query_parameters_are_ignored ___________________
+
+client = <conftest.WsgiClient object at 0x7fa9671a5970>
+
+    @pytest.mark.spec("LIST-005")
+    def test_unknown_query_parameters_are_ignored(client):
+        status, body = client.get("/tasks", "status=done&sort=desc&page=2")
+>       assert status == 200
+E       assert 400 == 200
+
+tests/test_list_api.py:60: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id
+FAILED tests/test_list_api.py::test_status_filter_returns_matching_tasks - ta...
+FAILED tests/test_list_api.py::test_limit_truncates_items_but_not_total - tas...
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[0] - Ass...
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[101] - A...
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[ten] - A...
+FAILED tests/test_list_api.py::test_response_shape_over_http - assert 400 == 200
+FAILED tests/test_list_api.py::test_unknown_query_parameters_are_ignored - as...
+8 failed, 19 passed in 0.04s

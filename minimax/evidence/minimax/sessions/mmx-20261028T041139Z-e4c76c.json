@@ -1,0 +1,179 @@
+{
+  "schema": "minimax-sdd.minimax-session.v1",
+  "session_id": "mmx-20261028T041139Z-e4c76c",
+  "created_at": "2026-10-28T04:12:25Z",
+  "transport": "hf-space",
+  "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
+  "endpoint": "https://huggingface.co/spaces/MiniMaxAI/MiniMax-Text-01 (gradio api_name=/chat)",
+  "request_params": {
+    "max_tokens": 12800,
+    "temperature": 0.1,
+    "top_p": 0.9
+  },
+  "note": "Space 的 /chat 只接收单条消息：system、user 及后续轮次按顺序拼接（后续轮次带角色标题）后发送。",
+  "task": {
+    "id": "TASK-TAG-FILTER",
+    "title": "任务列表接口支持按标签过滤",
+    "description": "为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。",
+    "file": "/workspace/minimax/sample_task/task.toml"
+  },
+  "context": {
+    "change_specs": [
+      "TAG-001",
+      "TAG-002",
+      "TAG-003",
+      "TAG-004"
+    ],
+    "preserve_specs": [
+      "LIST-001",
+      "LIST-002",
+      "LIST-003",
+      "LIST-004",
+      "LIST-005"
+    ],
+    "code_targets": [
+      {
+        "symbol": "taskboard/service.py::search_tasks",
+        "role": "modify"
+      },
+      {
+        "symbol": "taskboard/service.py::QueryError",
+        "role": "related"
+      },
+      {
+        "symbol": "taskboard/api.py::list_tasks_view",
+        "role": "related"
+      },
+      {
+        "symbol": "taskboard/service.py::_parse_limit",
+        "role": "related"
+      }
+    ],
+    "target_tests": [
+      "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+      "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+      "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+    ],
+    "regression_tests": [
+      "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+      "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "tests/test_list_api.py::test_response_shape_over_http",
+      "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+    ],
+    "state_status": "restored",
+    "seekdb_queries": [
+      "Q0",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q5",
+      "Q6",
+      "Q7",
+      "Q8",
+      "Q9",
+      "Q10",
+      "Q11"
+    ],
+    "import": {
+      "import_id": 1,
+      "first_import": true,
+      "imported_at": "2026-10-28 04:11:14.561483",
+      "spec_digest": "84e4b299421f80cbed5c96c9928622317de140cf51f7d150243545dec8a93c00",
+      "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
+      "test_digest": "48eddf4988344a49f1ade6ce4cae70d982bd78e5e1342cbbda77a147fbd76672",
+      "added": [
+        "TAG-001",
+        "TAG-002",
+        "TAG-003",
+        "TAG-004",
+        "CRT-001",
+        "CRT-002",
+        "CRT-003",
+        "EXP-001",
+        "EXP-002",
+        "LIST-001",
+        "LIST-002",
+        "LIST-003",
+        "LIST-004",
+        "LIST-005"
+      ],
+      "modified": [],
+      "removed": []
+    }
+  },
+  "request": {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一名资深 Python 工程师，通过“SDD 上下文模块”提供的规格、代码、测试和任务状态完成一次局部代码修改。\n规则：\n1. 只修改“需要修改的代码”所在的文件；不要修改 tests/ 或 specs/ 下的任何文件，不要新增第三方依赖。\n2. 实现全部“需要实现的规格（变更）”，同时保持“必须保持的现有规格”中的行为不变。\n3. 保持现有函数签名、异常类型和模块结构；只做完成任务所需的最小修改。\n4. 输出格式：对每个需要修改的文件，先单独一行写 `FILE: <相对路径>`，紧接着用 ```python 代码块给出该文件修改后的完整内容。\n5. 代码块之后用不超过 5 行说明修改点，并注明对应的规格条目编号。"
+      },
+      {
+        "role": "user",
+        "content": "## 任务\nTASK-TAG-FILTER 任务列表接口支持按标签过滤\n\n为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。\n\n## 需要实现的规格（变更）\n\n### TAG-001 按标签过滤任务（rev 1，来源 specs/tag-filter.md#L9-L13）\n`GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\"items\": [], \"total\": 0}`。\n\n### TAG-002 标签匹配规则（rev 1，来源 specs/tag-filter.md#L15-L19）\n`tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。\n\n### TAG-003 与现有过滤、排序和分页组合（rev 1，来源 specs/tag-filter.md#L21-L25）\n`tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。\n\n### TAG-004 空标签参数（rev 1，来源 specs/tag-filter.md#L27-L31）\n`tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。\n\n## 必须保持的现有规格\n\n### LIST-001 默认排序（rev 1，来源 specs/tasks-list.md#L9-L13）\n`GET /tasks` 返回的任务按优先级 high → medium → low 排序；同一优先级内按 `id` 升序。\n\n### LIST-002 状态过滤（rev 1，来源 specs/tasks-list.md#L15-L19）\n查询参数 `status` 取值为 `open`、`in_progress`、`done` 之一时，只返回该状态的任务；其他取值（包括空字符串）返回 HTTP 400，错误信息包含 `status`。\n\n### LIST-003 数量限制（rev 1，来源 specs/tasks-list.md#L21-L25）\n查询参数 `limit` 为 1–100 的整数时，最多返回 `limit` 条任务；非整数或超出范围返回 HTTP 400，错误信息包含 `limit`。\n\n### LIST-004 响应结构（rev 1，来源 specs/tasks-list.md#L27-L31）\n响应体为 `{\"items\": [...], \"total\": n}`。`items` 中每项依次包含 `id`、`title`、`status`、`priority`、`tags`；`total` 是应用过滤条件之后、`limit` 截断之前的任务数量。\n\n### LIST-005 未知查询参数（rev 1，来源 specs/tasks-list.md#L33-L37）\n接口不认识的查询参数（例如 `sort`、`page`）被忽略，不影响结果，也不返回错误，以兼容旧客户端。\n\n## 需要修改的代码\n\n- taskboard/service.py::search_tasks（L35-L52）：被 5 个目标测试直接调用/引用；实现规格 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；与变更条目全文相关度 1.0\n\n相关代码（供参考，非必要不改）：\n\n- taskboard/service.py::QueryError（L14-L15）：被 1 个目标测试直接调用/引用；实现规格 LIST-002, LIST-003；与变更条目全文相关度 0.6986\n\n- taskboard/api.py::list_tasks_view（L36-L42）：实现规格 LIST-002, LIST-003, LIST-004；与变更条目全文相关度 0.5225\n\n- taskboard/service.py::_parse_limit（L22-L32）：实现规格 LIST-003；与变更条目全文相关度 0.5049\n\n### 文件 taskboard/service.py（当前完整内容）\n```python\n\"\"\"Business rules for listing and creating tasks.\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Iterable, Mapping\nfrom typing import Any\n\nfrom taskboard.models import PRIORITY_ORDER, VALID_STATUSES, Task\n\nMAX_LIMIT = 100\nMAX_TITLE_LENGTH = 80\n\n\nclass QueryError(ValueError):\n    \"\"\"Invalid GET /tasks query parameter; the API maps it to HTTP 400 (LIST-002, LIST-003).\"\"\"\n\n\nclass ValidationError(ValueError):\n    \"\"\"Invalid POST /tasks payload; the API maps it to HTTP 422 (CRT-001).\"\"\"\n\n\ndef _parse_limit(raw: str | None) -> int | None:\n    \"\"\"Parse the ``limit`` query parameter: an integer from 1 to 100 (LIST-003).\"\"\"\n    if raw is None:\n        return None\n    try:\n        value = int(raw)\n    except ValueError:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\") from None\n    if not 1 <= value <= MAX_LIMIT:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\")\n    return value\n\n\ndef search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:\n    \"\"\"Filter, sort and paginate tasks for GET /tasks.\n\n    Query parameters handled here: ``status`` (LIST-002) and ``limit`` (LIST-003).\n    Results are sorted by priority, then id (LIST-001); ``total`` counts matches\n    before ``limit`` is applied (LIST-004). Unknown parameters are ignored (LIST-005).\n    \"\"\"\n    status = params.get(\"status\")\n    if status is not None and status not in VALID_STATUSES:\n        raise QueryError(f\"status must be one of {', '.join(VALID_STATUSES)}\")\n    limit = _parse_limit(params.get(\"limit\"))\n\n    matched = [task for task in tasks if status is None or task.status == status]\n    matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))\n    total = len(matched)\n    if limit is not None:\n        matched = matched[:limit]\n    return {\"items\": [task.to_dict() for task in matched], \"total\": total}\n\n\ndef _normalize_tags(raw: Any) -> tuple[str, ...]:\n    \"\"\"Normalize tags for storage: strip, lower-case, drop empties, keep first occurrence (CRT-003).\"\"\"\n    if raw is None:\n        return ()\n    if not isinstance(raw, list) or not all(isinstance(tag, str) for tag in raw):\n        raise ValidationError(\"tags must be a list of strings\")\n    normalized: list[str] = []\n    for tag in raw:\n        value = tag.strip().lower()\n        if value and value not in normalized:\n            normalized.append(value)\n    return tuple(normalized)\n\n\ndef create_task(tasks: list[Task], payload: Mapping[str, Any]) -> Task:\n    \"\"\"Validate a POST /tasks payload and append the new task (CRT-001, CRT-002, CRT-003).\"\"\"\n    title = payload.get(\"title\")\n    if not isinstance(title, str) or not title.strip():\n        raise ValidationError(\"title is required\")\n    title = title.strip()\n    if len(title) > MAX_TITLE_LENGTH:\n        raise ValidationError(f\"title must be at most {MAX_TITLE_LENGTH} characters\")\n    priority = payload.get(\"priority\", \"medium\")\n    if priority not in PRIORITY_ORDER:\n        raise ValidationError(\"priority must be one of high, medium, low\")\n    task = Task(\n        id=max((existing.id for existing in tasks), default=0) + 1,\n        title=title,\n        status=\"open\",\n        priority=priority,\n        tags=_normalize_tags(payload.get(\"tags\")),\n    )\n    tasks.append(task)\n    return task\n```\n\n### 相关片段 taskboard/api.py::list_tasks_view\n```python\ndef list_tasks_view(environ: dict[str, Any], start_response: StartResponse, tasks: list[Task]) -> list[bytes]:\n    \"\"\"GET /tasks: delegate to search_tasks and map QueryError to HTTP 400 (LIST-002, LIST-003, LIST-004).\"\"\"\n    try:\n        result = search_tasks(tasks, _query_params(environ))\n    except QueryError as error:\n        return _json(start_response, 400, {\"error\": str(error)})\n    return _json(start_response, 200, result)\n```\n\n## 验证测试\n\n目标测试（修改后必须全部通过）：\n- tests/test_tag_filter.py::test_blank_tag_is_rejected（验证 TAG-004）\n- tests/test_tag_filter.py::test_blank_tag_returns_400_over_http（验证 TAG-004）\n- tests/test_tag_filter.py::test_get_tasks_with_tag_over_http（验证 TAG-001, TAG-003）\n- tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag（验证 TAG-001）\n- tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total（验证 TAG-003）\n- tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace（验证 TAG-002）\n- tests/test_tag_filter.py::test_unknown_tag_returns_empty_result（验证 TAG-001）\n\n回归测试（必须继续通过）：\n- tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id（验证 LIST-001）\n- tests/test_list_api.py::test_invalid_limit_raises_query_error（验证 LIST-003）\n- tests/test_list_api.py::test_invalid_status_is_rejected_with_400（验证 LIST-002）\n- tests/test_list_api.py::test_limit_truncates_items_but_not_total（验证 LIST-003, LIST-004）\n- tests/test_list_api.py::test_response_shape_over_http（验证 LIST-004）\n- tests/test_list_api.py::test_status_filter_returns_matching_tasks（验证 LIST-002）\n- tests/test_list_api.py::test_unknown_query_parameters_are_ignored（验证 LIST-005）\n\n### 测试文件 tests/test_tag_filter.py\n```python\n\"\"\"Target behaviour for the tag filter on GET /tasks (TAG-001..TAG-004).\"\"\"\n\nimport pytest\n\nfrom taskboard.service import QueryError, search_tasks\n\n\ndef ids(result):\n    return [item[\"id\"] for item in result[\"items\"]]\n\n\n@pytest.mark.spec(\"TAG-001\")\ndef test_search_tasks_returns_only_tasks_with_tag(tasks):\n    result = search_tasks(tasks, {\"tag\": \"backend\"})\n    assert ids(result) == [1, 4, 8, 6]\n    assert result[\"total\"] == 4\n    assert all(\"backend\" in item[\"tags\"] for item in result[\"items\"])\n\n\n@pytest.mark.spec(\"TAG-001\")\ndef test_unknown_tag_returns_empty_result(tasks):\n    result = search_tasks(tasks, {\"tag\": \"mobile\"})\n    assert result == {\"items\": [], \"total\": 0}\n\n\n@pytest.mark.spec(\"TAG-002\")\n@pytest.mark.parametrize(\"raw\", [\"Backend\", \"  backend  \", \"BACKEND\"])\ndef test_tag_match_ignores_case_and_surrounding_whitespace(tasks, raw):\n    result = search_tasks(tasks, {\"tag\": raw})\n    assert ids(result) == [1, 4, 8, 6]\n\n\n@pytest.mark.spec(\"TAG-003\")\ndef test_tag_combines_with_status_and_keeps_order_limit_and_total(tasks):\n    result = search_tasks(tasks, {\"tag\": \"backend\", \"status\": \"open\", \"limit\": \"2\"})\n    assert ids(result) == [1, 8]\n    assert result[\"total\"] == 3\n\n\n@pytest.mark.spec(\"TAG-001\", \"TAG-003\")\ndef test_get_tasks_with_tag_over_http(client):\n    status, body = client.get(\"/tasks\", \"tag=bug\")\n    assert status == 200\n    assert ids(body) == [1, 5, 8]\n    assert body[\"total\"] == 3\n\n\n@pytest.mark.spec(\"TAG-004\")\n@pytest.mark.parametrize(\"raw\", [\"\", \"   \"])\ndef test_blank_tag_is_rejected(tasks, raw):\n    with pytest.raises(QueryError, match=\"tag\"):\n        search_tasks(tasks, {\"tag\": raw})\n\n\n@pytest.mark.spec(\"TAG-004\")\ndef test_blank_tag_returns_400_over_http(client):\n    status, body = client.get(\"/tasks\", \"tag=\")\n    assert status == 400\n    assert \"tag\" in body[\"error\"]\n```\n\n### 测试文件 tests/test_list_api.py\n```python\n\"\"\"Existing GET /tasks behaviour that every change must preserve (LIST-001..LIST-005).\"\"\"\n\nimport pytest\n\nfrom taskboard.service import QueryError, search_tasks\n\n\ndef ids(result):\n    return [item[\"id\"] for item in result[\"items\"]]\n\n\n@pytest.mark.spec(\"LIST-001\")\ndef test_default_listing_sorted_by_priority_then_id(tasks):\n    result = search_tasks(tasks, {})\n    assert ids(result) == [1, 4, 5, 2, 7, 8, 3, 6]\n    assert result[\"total\"] == 8\n\n\n@pytest.mark.spec(\"LIST-002\")\ndef test_status_filter_returns_matching_tasks(tasks):\n    result = search_tasks(tasks, {\"status\": \"open\"})\n    assert ids(result) == [1, 5, 2, 8, 6]\n    assert {item[\"status\"] for item in result[\"items\"]} == {\"open\"}\n\n\n@pytest.mark.spec(\"LIST-002\")\ndef test_invalid_status_is_rejected_with_400(client):\n    status, body = client.get(\"/tasks\", \"status=archived\")\n    assert status == 400\n    assert \"status\" in body[\"error\"]\n\n\n@pytest.mark.spec(\"LIST-003\", \"LIST-004\")\ndef test_limit_truncates_items_but_not_total(tasks):\n    result = search_tasks(tasks, {\"limit\": \"3\"})\n    assert ids(result) == [1, 4, 5]\n    assert result[\"total\"] == 8\n\n\n@pytest.mark.spec(\"LIST-003\")\n@pytest.mark.parametrize(\"raw\", [\"0\", \"101\", \"ten\"])\ndef test_invalid_limit_raises_query_error(tasks, raw):\n    with pytest.raises(QueryError, match=\"limit\"):\n        search_tasks(tasks, {\"limit\": raw})\n\n\n@pytest.mark.spec(\"LIST-004\")\ndef test_response_shape_over_http(client):\n    status, body = client.get(\"/tasks\", \"limit=1\")\n    assert status == 200\n    assert set(body) == {\"items\", \"total\"}\n    assert body[\"items\"] == [\n        {\"id\": 1, \"title\": \"修复登录超时\", \"status\": \"open\", \"priority\": \"high\", \"tags\": [\"backend\", \"bug\"]}\n    ]\n\n\n@pytest.mark.spec(\"LIST-005\")\ndef test_unknown_query_parameters_are_ignored(client):\n    status, body = client.get(\"/tasks\", \"status=done&sort=desc&page=2\")\n    assert status == 200\n    assert ids(body) == [7, 3]\n```\n\n## 任务状态（来自 PowerContext）\n- 状态来源：PowerContext（已恢复）\n- 已完成：ingest、context、baseline\n- 已有验证（baseline）：regression 9/9 通过；target 0/10 通过（失败类型：AssertionError 8，DidNotRaise 2）\n- 待办：edit、verify\n- 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。\n\n## 输出要求\n请按系统提示中的格式输出修改后的完整文件：taskboard/service.py。不要输出测试文件或规格文件。"
+      }
+    ],
+    "prompt_sha256": "de92e0542ccf6246aa801a3c89464ad13ba8e9e24bc45e7125b9b56399d8f2eb"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "request_sha256": "de92e0542ccf6246aa801a3c89464ad13ba8e9e24bc45e7125b9b56399d8f2eb",
+      "feedback": null,
+      "response": {
+        "text": "```\nFILE: taskboard/service.py\n```python\n\"\"\"Business rules for listing and creating tasks.\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Iterable, Mapping\nfrom typing import Any\n\nfrom taskboard.models import PRIORITY_ORDER, VALID_STATUSES, Task\n\nMAX_LIMIT = 100\nMAX_TITLE_LENGTH = 80\n\n\nclass QueryError(ValueError):\n    \"\"\"Invalid GET /tasks query parameter; the API maps it to HTTP 400 (LIST-002, LIST-003).\"\"\"\n\n\nclass ValidationError(ValueError):\n    \"\"\"Invalid POST /tasks payload; the API maps it to HTTP 422 (CRT-001).\"\"\"\n\n\ndef _parse_limit(raw: str | None) -> int | None:\n    \"\"\"Parse the ``limit`` query parameter: an integer from 1 to 100 (LIST-003).\"\"\"\n    if raw is None:\n        return None\n    try:\n        value = int(raw)\n    except ValueError:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\") from None\n    if not 1 <= value <= MAX_LIMIT:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\")\n    return value\n\n\ndef search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:\n    \"\"\"Filter, sort and paginate tasks for GET /tasks.\n\n    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).\n    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).\n    Unknown parameters are ignored (LIST-005).\n    \"\"\"\n    # Handle the 'tag' parameter (TAG-001, TAG-002, TAG-004)\n    tag = params.get(\"tag\")\n    if tag is not None:\n        if not tag.strip():\n            raise QueryError(\"tag must not be empty or whitespace\")\n        normalized_tag = tag.strip().lower()\n    else:\n        normalized_tag = None\n\n    # Handle the 'status' parameter (LIST-002)\n    status = params.get(\"status\")\n    if status is not None and status not in VALID_STATUSES:\n        raise QueryError(f\"status must be one of {', '.join(VALID_STATUSES)}\")\n\n    # Parse the 'limit' parameter (LIST-003)\n    limit = _parse_limit(params.get(\"limit\"))\n\n    # Filter tasks by 'status' and 'tag' (TAG-001, TAG-002, TAG-003)\n    matched = [\n        task for task in tasks\n        if (status is None or task.status == status) and\n           (normalized_tag is None or any(tag.strip().lower() == normalized_tag for tag in task.tags))\n    ]\n\n    # Sort tasks by priority and id (LIST-001)\n    matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))\n\n    # Calculate total before applying limit (LIST-004)\n    total = len(matched)\n\n    # Apply limit (LIST-003)\n    if limit is not None:\n        matched = matched[:limit]\n\n    # Return the result (LIST-004)\n    return {\"items\": [task.to_dict() for task in matched], \"total\": total}\n\n\ndef _normalize_tags(raw: Any) -> tuple[str, ...]:\n    \"\"\"Normalize tags for storage: strip, lower-case, drop empties, keep first occurrence (CRT-003).\"\"\"\n    if raw is None:\n        return ()\n    if not isinstance(raw, list) or not all(isinstance(tag, str) for tag in raw):\n        raise ValidationError(\"tags must be a list of strings\")\n    normalized: list[str] = []\n    for tag in raw:\n        value = tag.strip().lower()\n        if value and value not in normalized:\n            normalized.append(value)\n    return tuple(normalized)\n\n\ndef create_task(tasks: list[Task], payload: Mapping[str, Any]) -> Task:\n    \"\"\"Validate a POST /tasks payload and append the new task (CRT-001, CRT-002, CRT-003).\"\"\"\n    title = payload.get(\"title\")\n    if not isinstance(title, str) or not title.strip():\n        raise ValidationError(\"title is required\")\n    title = title.strip()\n    if len(title) > MAX_TITLE_LENGTH:\n        raise ValidationError(f\"title must be at most {MAX_TITLE_LENGTH} characters\")\n    priority = payload.get(\"priority\", \"medium\")\n    if priority not in PRIORITY_ORDER:\n        raise ValidationError(\"priority must be one of high, medium, low\")\n    task = Task(\n        id=max((existing.id for existing in tasks), default=0) + 1,\n        title=title,\n        status=\"open\",\n        priority=priority,\n        tags=_normalize_tags(payload.get(\"tags\")),\n    )\n    tasks.append(task)\n    return task\n```\n\n### 修改点说明：\n1. 在 `search_tasks` 函数中增加了对 `tag` 参数的处理逻辑，包括检查是否为空（TAG-004）、去除首尾空白并转换为小写（TAG-002）。\n2. 在过滤任务时，增加了对标签的匹配逻辑，确保只返回包含指定标签的任务（TAG-001）。\n3. 在计算 `total` 时，确保其是在应用所有过滤条件之后、`limit` 截断之前的数量（TAG-003）。\n4. 保持原有的排序、状态过滤、limit 分页和响应结构不变（LIST-001, LIST-002, LIST-003, LIST-004, LIST-005）。\n",
+        "sha256": "720ba0fc7532503235d1f700630d46004306be5429288903704debfe35b4233b",
+        "reasoning_removed": false
+      },
+      "latency_s": 45.78,
+      "files_written": [
+        "taskboard/service.py"
+      ],
+      "rejected": [],
+      "diff": "diff --git a/taskboard/service.py b/taskboard/service.py\n--- a/taskboard/service.py\n+++ b/taskboard/service.py\n@@ -35,20 +35,45 @@\n def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:\n     \"\"\"Filter, sort and paginate tasks for GET /tasks.\n \n-    Query parameters handled here: ``status`` (LIST-002) and ``limit`` (LIST-003).\n-    Results are sorted by priority, then id (LIST-001); ``total`` counts matches\n-    before ``limit`` is applied (LIST-004). Unknown parameters are ignored (LIST-005).\n+    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).\n+    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).\n+    Unknown parameters are ignored (LIST-005).\n     \"\"\"\n+    # Handle the 'tag' parameter (TAG-001, TAG-002, TAG-004)\n+    tag = params.get(\"tag\")\n+    if tag is not None:\n+        if not tag.strip():\n+            raise QueryError(\"tag must not be empty or whitespace\")\n+        normalized_tag = tag.strip().lower()\n+    else:\n+        normalized_tag = None\n+\n+    # Handle the 'status' parameter (LIST-002)\n     status = params.get(\"status\")\n     if status is not None and status not in VALID_STATUSES:\n         raise QueryError(f\"status must be one of {', '.join(VALID_STATUSES)}\")\n+\n+    # Parse the 'limit' parameter (LIST-003)\n     limit = _parse_limit(params.get(\"limit\"))\n \n-    matched = [task for task in tasks if status is None or task.status == status]\n+    # Filter tasks by 'status' and 'tag' (TAG-001, TAG-002, TAG-003)\n+    matched = [\n+        task for task in tasks\n+        if (status is None or task.status == status) and\n+           (normalized_tag is None or any(tag.strip().lower() == normalized_tag for tag in task.tags))\n+    ]\n+\n+    # Sort tasks by priority and id (LIST-001)\n     matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))\n+\n+    # Calculate total before applying limit (LIST-004)\n     total = len(matched)\n+\n+    # Apply limit (LIST-003)\n     if limit is not None:\n         matched = matched[:limit]\n+\n+    # Return the result (LIST-004)\n     return {\"items\": [task.to_dict() for task in matched], \"total\": total}\n \n \n",
+      "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+      "check": {
+        "command": "python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+        "exit_code": 0,
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "errors": 0,
+        "failures": [],
+        "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
+        "log": "evidence/minimax/attempts/mmx-20261028T041139Z-e4c76c/attempt1-target+regression.log"
+      }
+    }
+  ],
+  "response": {
+    "text": "```\nFILE: taskboard/service.py\n```python\n\"\"\"Business rules for listing and creating tasks.\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Iterable, Mapping\nfrom typing import Any\n\nfrom taskboard.models import PRIORITY_ORDER, VALID_STATUSES, Task\n\nMAX_LIMIT = 100\nMAX_TITLE_LENGTH = 80\n\n\nclass QueryError(ValueError):\n    \"\"\"Invalid GET /tasks query parameter; the API maps it to HTTP 400 (LIST-002, LIST-003).\"\"\"\n\n\nclass ValidationError(ValueError):\n    \"\"\"Invalid POST /tasks payload; the API maps it to HTTP 422 (CRT-001).\"\"\"\n\n\ndef _parse_limit(raw: str | None) -> int | None:\n    \"\"\"Parse the ``limit`` query parameter: an integer from 1 to 100 (LIST-003).\"\"\"\n    if raw is None:\n        return None\n    try:\n        value = int(raw)\n    except ValueError:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\") from None\n    if not 1 <= value <= MAX_LIMIT:\n        raise QueryError(f\"limit must be an integer between 1 and {MAX_LIMIT}\")\n    return value\n\n\ndef search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:\n    \"\"\"Filter, sort and paginate tasks for GET /tasks.\n\n    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).\n    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).\n    Unknown parameters are ignored (LIST-005).\n    \"\"\"\n    # Handle the 'tag' parameter (TAG-001, TAG-002, TAG-004)\n    tag = params.get(\"tag\")\n    if tag is not None:\n        if not tag.strip():\n            raise QueryError(\"tag must not be empty or whitespace\")\n        normalized_tag = tag.strip().lower()\n    else:\n        normalized_tag = None\n\n    # Handle the 'status' parameter (LIST-002)\n    status = params.get(\"status\")\n    if status is not None and status not in VALID_STATUSES:\n        raise QueryError(f\"status must be one of {', '.join(VALID_STATUSES)}\")\n\n    # Parse the 'limit' parameter (LIST-003)\n    limit = _parse_limit(params.get(\"limit\"))\n\n    # Filter tasks by 'status' and 'tag' (TAG-001, TAG-002, TAG-003)\n    matched = [\n        task for task in tasks\n        if (status is None or task.status == status) and\n           (normalized_tag is None or any(tag.strip().lower() == normalized_tag for tag in task.tags))\n    ]\n\n    # Sort tasks by priority and id (LIST-001)\n    matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))\n\n    # Calculate total before applying limit (LIST-004)\n    total = len(matched)\n\n    # Apply limit (LIST-003)\n    if limit is not None:\n        matched = matched[:limit]\n\n    # Return the result (LIST-004)\n    return {\"items\": [task.to_dict() for task in matched], \"total\": total}\n\n\ndef _normalize_tags(raw: Any) -> tuple[str, ...]:\n    \"\"\"Normalize tags for storage: strip, lower-case, drop empties, keep first occurrence (CRT-003).\"\"\"\n    if raw is None:\n        return ()\n    if not isinstance(raw, list) or not all(isinstance(tag, str) for tag in raw):\n        raise ValidationError(\"tags must be a list of strings\")\n    normalized: list[str] = []\n    for tag in raw:\n        value = tag.strip().lower()\n        if value and value not in normalized:\n            normalized.append(value)\n    return tuple(normalized)\n\n\ndef create_task(tasks: list[Task], payload: Mapping[str, Any]) -> Task:\n    \"\"\"Validate a POST /tasks payload and append the new task (CRT-001, CRT-002, CRT-003).\"\"\"\n    title = payload.get(\"title\")\n    if not isinstance(title, str) or not title.strip():\n        raise ValidationError(\"title is required\")\n    title = title.strip()\n    if len(title) > MAX_TITLE_LENGTH:\n        raise ValidationError(f\"title must be at most {MAX_TITLE_LENGTH} characters\")\n    priority = payload.get(\"priority\", \"medium\")\n    if priority not in PRIORITY_ORDER:\n        raise ValidationError(\"priority must be one of high, medium, low\")\n    task = Task(\n        id=max((existing.id for existing in tasks), default=0) + 1,\n        title=title,\n        status=\"open\",\n        priority=priority,\n        tags=_normalize_tags(payload.get(\"tags\")),\n    )\n    tasks.append(task)\n    return task\n```\n\n### 修改点说明：\n1. 在 `search_tasks` 函数中增加了对 `tag` 参数的处理逻辑，包括检查是否为空（TAG-004）、去除首尾空白并转换为小写（TAG-002）。\n2. 在过滤任务时，增加了对标签的匹配逻辑，确保只返回包含指定标签的任务（TAG-001）。\n3. 在计算 `total` 时，确保其是在应用所有过滤条件之后、`limit` 截断之前的数量（TAG-003）。\n4. 保持原有的排序、状态过滤、limit 分页和响应结构不变（LIST-001, LIST-002, LIST-003, LIST-004, LIST-005）。\n",
+    "sha256": "720ba0fc7532503235d1f700630d46004306be5429288903704debfe35b4233b",
+    "reasoning_removed": false
+  },
+  "result": {
+    "files": [
+      {
+        "path": "taskboard/service.py",
+        "before_sha256": "7918885d9b17957e1c430ffd12eac8db8807621d1bbecb17a593150f89009c30",
+        "after_sha256": "46c59dddea8ebb578c73d831b808960f82107692682191c2a732b1a06ad8ab5b"
+      }
+    ],
+    "diff": "diff --git a/taskboard/service.py b/taskboard/service.py\n--- a/taskboard/service.py\n+++ b/taskboard/service.py\n@@ -35,20 +35,45 @@\n def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:\n     \"\"\"Filter, sort and paginate tasks for GET /tasks.\n \n-    Query parameters handled here: ``status`` (LIST-002) and ``limit`` (LIST-003).\n-    Results are sorted by priority, then id (LIST-001); ``total`` counts matches\n-    before ``limit`` is applied (LIST-004). Unknown parameters are ignored (LIST-005).\n+    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).\n+    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).\n+    Unknown parameters are ignored (LIST-005).\n     \"\"\"\n+    # Handle the 'tag' parameter (TAG-001, TAG-002, TAG-004)\n+    tag = params.get(\"tag\")\n+    if tag is not None:\n+        if not tag.strip():\n+            raise QueryError(\"tag must not be empty or whitespace\")\n+        normalized_tag = tag.strip().lower()\n+    else:\n+        normalized_tag = None\n+\n+    # Handle the 'status' parameter (LIST-002)\n     status = params.get(\"status\")\n     if status is not None and status not in VALID_STATUSES:\n         raise QueryError(f\"status must be one of {', '.join(VALID_STATUSES)}\")\n+\n+    # Parse the 'limit' parameter (LIST-003)\n     limit = _parse_limit(params.get(\"limit\"))\n \n-    matched = [task for task in tasks if status is None or task.status == status]\n+    # Filter tasks by 'status' and 'tag' (TAG-001, TAG-002, TAG-003)\n+    matched = [\n+        task for task in tasks\n+        if (status is None or task.status == status) and\n+           (normalized_tag is None or any(tag.strip().lower() == normalized_tag for tag in task.tags))\n+    ]\n+\n+    # Sort tasks by priority and id (LIST-001)\n     matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))\n+\n+    # Calculate total before applying limit (LIST-004)\n     total = len(matched)\n+\n+    # Apply limit (LIST-003)\n     if limit is not None:\n         matched = matched[:limit]\n+\n+    # Return the result (LIST-004)\n     return {\"items\": [task.to_dict() for task in matched], \"total\": total}\n \n \n",
+    "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+    "snapshots": {
+      "before:taskboard/service.py": "snapshots/before/taskboard/service.py",
+      "after:taskboard/service.py": "snapshots/after/taskboard/service.py"
+    },
+    "modify_targets": [
+      "taskboard/service.py"
+    ],
+    "final_check_passed": true
+  }
+}
