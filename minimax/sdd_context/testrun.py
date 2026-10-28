@@ -18,6 +18,7 @@ from sdd_context.config import Settings
 from sdd_context.ingest import collect_project, digest_files
 
 FUNCTIONAL_FAILURES = {"AssertionError", "DidNotRaise"}
+VERSIONED_PATHS = ("sample_app", "sample_task", "sdd_context", "scripts", "sdd", "requirements.txt")
 EXCEPTION_LINE = re.compile(r"^E\s+([A-Za-z_][\w.]*(?:Error|Exception|Exit|Interrupt))\b", re.MULTILINE)
 TRACE_LINE = re.compile(r"^(>.*|E\s.*|\S+\.py:\d+: \S+)$")
 
@@ -26,7 +27,11 @@ def code_version(settings: Settings) -> dict[str, Any]:
     files = collect_project(settings.project_dir)
     try:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=settings.minimax_dir, capture_output=True, text=True, check=True).stdout.strip()
-        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "."], cwd=settings.minimax_dir, capture_output=True, text=True, check=True).stdout.strip())
+        dirty = bool(
+            subprocess.run(
+                ["git", "status", "--porcelain", "--", *VERSIONED_PATHS], cwd=settings.minimax_dir, capture_output=True, text=True, check=True
+            ).stdout.strip()
+        )
     except (OSError, subprocess.CalledProcessError):
         commit, dirty = "unknown", None
     return {
@@ -113,9 +118,9 @@ def run_suite(settings: Settings, suite: str, selectors: list[str], label: str, 
         f"# cwd: {summary['cwd']}",
         f"# command: {display}",
         f"# exit_code: {proc.returncode}",
-        f"# git_commit: {version['git_commit']} (dirty={version['git_dirty']})",
-        f"# code_digest: {version['code_digest']}",
-        f"# tests_digest: {version['tests_digest']}",
+        f"# git_commit: {version['git_commit']} (dirty={version['git_dirty']}, checked paths: {' '.join(VERSIONED_PATHS)})",
+        f"# code_digest: {version['code_digest']} (non-test .py files of the tested working copy; before = sample_app/, after = snapshots/after/)",
+        f"# tests_digest: {version['tests_digest']} (tests/*.py of the tested working copy)",
         f"# result: total={len(cases)} passed={counts['passed']} failed={counts['failed']} errors={counts['error']} skipped={counts['skipped']} failure_kinds={json.dumps(kinds)}",
         "",
     ]
