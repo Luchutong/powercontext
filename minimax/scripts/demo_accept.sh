@@ -74,4 +74,5 @@ run context-v2 0 ./sdd context --out "${EV}/context_v2.json" --md "${EV}/context
 run accept 0 ./sdd accept
 
 echo "# demo_accept.sh finished_at=$(date -u +%Y-%m-%dT%H:%M:%SZ) failed_steps=${FAILED}" | tee -a "${LOG}"
+echo "# PowerContext Server 仍在运行，可用 ./sdd resume 或 http://127.0.0.1:${SDD_PC_PORT:-17439}/dashboard/home 查看状态；结束后运行 ./sdd server stop 或 bash scripts/reset.sh" | tee -a "${LOG}"
 exit "${FAILED}"

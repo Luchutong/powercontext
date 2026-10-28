@@ -14,18 +14,29 @@ def _explanation(text: str) -> str:
     return "\n".join(lines).strip() or "（回复中没有额外说明）"
 
 
-def render_devlog(session: dict[str, Any]) -> str:
+def _state_lines(session: dict[str, Any]) -> str:
+    prompt = session["request"]["messages"][1]["content"]
+    picked = [line[2:] for line in prompt.splitlines() if line.startswith(("- 已完成：", "- 待办："))]
+    return "；".join(picked) or "无"
+
+
+def render_devlog(session: dict[str, Any], session_file: str = "session_recorded.json", recorded: bool = True) -> str:
     task = session["task"]
     ctx = session["context"]
     result = session["result"]
     attempts = session["attempts"]
     progress = " → ".join(f"第 {a['attempt']} 轮 {a['check']['passed']}/{a['check']['total']} 通过" for a in attempts)
+    diff_row = (
+        f"| 最终 diff | [`evidence/code.diff`](../code.diff)，sha256 `{result['diff_sha256']}` |"
+        if recorded
+        else f"| 最终 diff | 会话 JSON 的 `result.diff`，sha256 `{result['diff_sha256']}`（不是回放用的录制会话） |"
+    )
     lines = [
         f"# MiniMax 开发记录：{task['id']} {task['title']}",
         "",
-        "本文件由 `./sdd edit --mode hf-space|live --record` 根据会话 JSON 自动生成；"
+        "本文件由 `./sdd devlog` 根据会话 JSON 自动生成；"
         "逐字内容（提示词、各轮回复、反馈、diff、测试结果）以 "
-        "[`session_recorded.json`](session_recorded.json) 为准。模型私有思维链不在记录范围内。",
+        f"[`{session_file}`]({session_file}) 为准。模型私有思维链不在记录范围内。",
         "",
         "| 项目 | 内容 |",
         "| --- | --- |",
@@ -36,8 +47,8 @@ def render_devlog(session: dict[str, Any]) -> str:
         f"| 请求参数 | `{session.get('request_params')}` |",
         f"| 修改轮次 | {len(attempts)}（{progress}） |",
         f"| 修改文件 | {', '.join('`' + f['path'] + '`' for f in result['files'])} |",
-        f"| 最终 diff | [`evidence/code.diff`](../code.diff)，sha256 `{result['diff_sha256']}` |",
-        f"| 快照 | `snapshots/before/`、`snapshots/after/` |",
+        diff_row,
+        *(["| 快照 | `snapshots/before/`、`snapshots/after/` |"] if recorded else []),
         "",
         "## 1. 本次任务",
         "",
@@ -53,7 +64,7 @@ def render_devlog(session: dict[str, Any]) -> str:
         f"- 必须保持的规格：{', '.join(ctx['preserve_specs'])}",
         "- 代码目标：" + "；".join(f"{t['symbol']}（{'修改' if t['role'] == 'modify' else '相关'}）" for t in ctx["code_targets"]),
         f"- 目标测试：{len(ctx['target_tests'])} 个；回归测试：{len(ctx['regression_tests'])} 个",
-        f"- PowerContext 状态：{ctx['state_status']}（已完成 ingest、context、baseline；待办 edit、verify）",
+        f"- PowerContext 状态：{ctx['state_status']}（{_state_lines(session)}）",
         f"- seekdb 导入批次：#{ctx['import']['import_id']}，spec_digest `{ctx['import']['spec_digest']}`",
         f"- 首轮提示词 sha256：`{session['request']['prompt_sha256']}`（全文见附录 A）",
         "",
@@ -84,25 +95,34 @@ def render_devlog(session: dict[str, Any]) -> str:
             lines.append("- 失败用例：")
             lines += [f"  - `{f['nodeid']}`：{f['message']}" for f in check["failures"]]
         lines.append("")
-    lines += [
-        "## 4. 与提交的代码差异的对应关系",
-        "",
-        "| 核对项 | 值 |",
-        "| --- | --- |",
-        f"| 会话最终 diff sha256 | `{result['diff_sha256']}` |",
-        "| `evidence/code.diff` | 由最终轮次写出，sha256 与上一行相同（`./sdd accept` 自动核对） |",
-    ]
-    for entry in result["files"]:
-        lines.append(f"| `snapshots/before/{entry['path']}` sha256 | `{entry['before_sha256']}` |")
-        lines.append(f"| `snapshots/after/{entry['path']}` sha256 | `{entry['after_sha256']}` |")
-    lines += [
-        "",
-        "回放（`./sdd edit --mode replay`，`demo_accept.sh` 默认方式）会重新生成首轮提示词并与本记录逐字节比较，"
-        "再依次应用每一轮回复、重跑测试，核对每轮 diff 与测试结果，结果写入 `evidence/minimax/replay_check.json`。",
-        "",
-        "## 附录 A：首轮完整提示词",
-        "",
-    ]
+    if recorded:
+        lines += [
+            "## 4. 与提交的代码差异的对应关系",
+            "",
+            "| 核对项 | 值 |",
+            "| --- | --- |",
+            f"| 会话最终 diff sha256 | `{result['diff_sha256']}` |",
+            "| `evidence/code.diff` | 由最终轮次写出，sha256 与上一行相同（`./sdd accept` 自动核对） |",
+        ]
+        for entry in result["files"]:
+            lines.append(f"| `snapshots/before/{entry['path']}` sha256 | `{entry['before_sha256']}` |")
+            lines.append(f"| `snapshots/after/{entry['path']}` sha256 | `{entry['after_sha256']}` |")
+        lines += [
+            "",
+            "回放（`./sdd edit --mode replay`，`demo_accept.sh` 默认方式）会重新生成首轮提示词并与本记录逐字节比较，"
+            "再依次应用每一轮回复、重跑测试，核对每轮 diff 与测试结果，结果写入 `evidence/minimax/replay_check.json`。",
+            "",
+        ]
+    else:
+        lines += [
+            "## 4. 修改结果",
+            "",
+            "| 文件 | 修改前 sha256 | 修改后 sha256 |",
+            "| --- | --- | --- |",
+            *(f"| `{entry['path']}` | `{entry['before_sha256']}` | `{entry['after_sha256']}` |" for entry in result["files"]),
+            "",
+        ]
+    lines += ["## 附录 A：首轮完整提示词", ""]
     for message in session["request"]["messages"]:
         lines += [f"### role: {message['role']}", "", "````markdown", message["content"], "````", ""]
     lines += ["## 附录 B：各轮完整回复", ""]

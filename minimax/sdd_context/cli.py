@@ -262,8 +262,10 @@ def cmd_devlog(settings: Settings, args: argparse.Namespace) -> int:
     from sdd_context.devlog import render_devlog
 
     session_path = Path(args.session) if args.session else settings.evidence_dir / "minimax" / "session_recorded.json"
-    target = session_path.parent / "开发记录.md"
-    target.write_text(render_devlog(json.loads(session_path.read_text(encoding="utf-8"))), encoding="utf-8")
+    target = Path(args.out) if args.out else session_path.parent / "开发记录.md"
+    recorded = session_path.name == "session_recorded.json"
+    link = os.path.relpath(session_path, target.parent)
+    target.write_text(render_devlog(json.loads(session_path.read_text(encoding="utf-8")), link, recorded), encoding="utf-8")
     emit({"command": "devlog", "session": _rel(settings, session_path), "written": _rel(settings, target)})
     return 0
 
@@ -343,6 +345,7 @@ def main(argv: list[str] | None = None) -> int:
     edit.add_argument("--max-attempts", type=int, default=3, help="live/hf-space 模式下最多与 MiniMax 往返的轮次")
     devlog = commands.add_parser("devlog", help="根据录制的会话重新生成 evidence/minimax/开发记录.md")
     devlog.add_argument("--session")
+    devlog.add_argument("--out", help="输出文件（默认与会话同目录的 开发记录.md）")
     server = commands.add_parser("server", help="管理本地 PowerContext Server")
     server.add_argument("action", choices=("start", "stop", "restart", "status"))
     spec = commands.add_parser("spec-update", help="把更新后的规格复制到工作副本（随后需重新 ingest）")
