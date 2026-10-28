@@ -1,0 +1,6 @@
+# Top-level dependencies of the SDD context module (compiled into requirements.txt).
+powercontext[cli,server]==1.4.1
+pylibseekdb==1.4.0.post2
+PyMySQL==1.2.0
+httpx==0.28.1
+pytest==9.2.0
