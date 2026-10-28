@@ -85,6 +85,24 @@ def test_unified_diff_headers():
     assert "-x = 0\n+x = 1\n" in diff
 
 
+def test_feedback_separates_regressions_and_shows_trace():
+    from sdd_context.minimax import feedback_message
+
+    check = {
+        "passed": 1,
+        "total": 3,
+        "failures": [
+            {"nodeid": "tests/t.py::test_new", "group": "target", "message": "assert 1 == 2", "details": None},
+            {"nodeid": "tests/t.py::test_old[0]", "group": "regression", "message": "pkg.QueryError: boom",
+             "details": ">       search(x, {})\nE       pkg.QueryError: boom\npkg/a.py:3: QueryError"},
+        ],
+    }
+    text = feedback_message(check, ["pkg/a.py"])
+    assert text.index("失败的回归测试") < text.index("tests/t.py::test_old[0]") < text.index("失败的目标测试") < text.index("tests/t.py::test_new")
+    assert "  >       search(x, {})" in text and "只修改 pkg/a.py" in text
+    assert "无法应用" in feedback_message({"apply_error": "没有 FILE 块"}, ["pkg/a.py"])
+
+
 def test_flatten_messages_labels_later_turns():
     text = flatten_messages(
         [{"role": "system", "content": "S"}, {"role": "user", "content": "U"}, {"role": "assistant", "content": "A"}, {"role": "user", "content": "F"}]

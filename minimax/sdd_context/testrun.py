@@ -19,6 +19,7 @@ from sdd_context.ingest import collect_project, digest_files
 
 FUNCTIONAL_FAILURES = {"AssertionError", "DidNotRaise"}
 EXCEPTION_LINE = re.compile(r"^E\s+([A-Za-z_][\w.]*(?:Error|Exception|Exit|Interrupt))\b", re.MULTILINE)
+TRACE_LINE = re.compile(r"^(>.*|E\s.*|\S+\.py:\d+: \S+)$")
 
 
 def code_version(settings: Settings) -> dict[str, Any]:
@@ -52,16 +53,18 @@ def parse_junit(path: Path) -> list[dict[str, Any]]:
     for case in ET.parse(path).getroot().iter("testcase"):
         module = case.attrib.get("classname", "").replace(".", "/")
         nodeid = f"{module}.py::{case.attrib.get('name')}"
-        outcome, kind, message = "passed", None, None
+        outcome, kind, message, details = "passed", None, None, None
         for child in case:
             if child.tag in {"failure", "error"}:
                 outcome = "failed" if child.tag == "failure" else "error"
                 kind = _classify(child) if child.tag == "failure" else "SetupOrCollectionError"
                 message = child.attrib.get("message", "")[:300]
+                trace = [line.rstrip() for line in (child.text or "").splitlines() if TRACE_LINE.match(line)]
+                details = "\n".join(trace[-12:])
                 break
             if child.tag == "skipped":
                 outcome = "skipped"
-        cases.append({"nodeid": nodeid, "outcome": outcome, "failure_kind": kind, "message": message})
+        cases.append({"nodeid": nodeid, "outcome": outcome, "failure_kind": kind, "message": message, "details": details})
     return cases
 
 

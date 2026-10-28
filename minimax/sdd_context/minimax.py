@@ -152,10 +152,20 @@ def feedback_message(check: dict[str, Any], modify_files: list[str]) -> str:
     if check.get("apply_error"):
         lines = [f"上一轮回复无法应用：{check['apply_error']}"]
     else:
-        lines = [f"按你上一轮给出的代码运行了上下文中的目标测试与回归测试：{check['passed']}/{check['total']} 通过，以下用例失败："]
-        lines += [f"- {failure['nodeid']}：{failure['message']}" for failure in check["failures"]]
+        lines = [f"按你上一轮给出的代码运行了上下文中的目标测试与回归测试：{check['passed']}/{check['total']} 通过。"]
+        shown = 0
+        for group, title in (("regression", "失败的回归测试（修改前全部通过，属于必须保持的行为）："), ("target", "失败的目标测试：")):
+            failures = [failure for failure in check["failures"] if failure.get("group", "target") == group]
+            if not failures:
+                continue
+            lines.append(title)
+            for failure in failures:
+                lines.append(f"- {failure['nodeid']}：{failure['message']}")
+                if failure.get("details") and shown < 5:
+                    lines += ["  ```text", *("  " + line for line in failure["details"].splitlines()), "  ```"]
+                    shown += 1
     lines.append(
-        "请找出失败原因并修正。仍然只修改 " + "、".join(modify_files)
+        "请对照失败用例的调用参数、断言和报错位置找出原因并修正。仍然只修改 " + "、".join(modify_files)
         + "，按 `FILE: <相对路径>` 加 ```python 代码块的格式输出修改后的完整文件；必须同时满足变更规格和必须保持的现有规格。"
     )
     return "\n".join(lines)
@@ -303,9 +313,16 @@ def new_session_id() -> str:
 
 def check_attempt(settings: Settings, context: dict[str, Any], attempt: int, out_dir: Path) -> dict[str, Any]:
     selectors = [test["id"] for test in context["tests"]["target"] + context["tests"]["regression"]]
+    regression = {test["id"] for test in context["tests"]["regression"]}
     summary = run_suite(settings, "target+regression", selectors, f"attempt{attempt}", out_dir=out_dir)
     failures = [
-        {"nodeid": case["nodeid"], "kind": case["failure_kind"], "message": (case["message"] or "").splitlines()[0][:200] if case["message"] else ""}
+        {
+            "nodeid": case["nodeid"],
+            "group": "regression" if case["nodeid"].split("[", 1)[0] in regression else "target",
+            "kind": case["failure_kind"],
+            "message": (case["message"] or "").splitlines()[0][:200] if case["message"] else "",
+            "details": case.get("details"),
+        }
         for case in summary["cases"]
         if case["outcome"] != "passed"
     ]
