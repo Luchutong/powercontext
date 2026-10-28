@@ -1,0 +1,170 @@
+# suite: target (before)
+# started_at: 2026-10-28T04:41:32Z
+# cwd: /workspace/minimax/.runtime/workspace/sample_app
+# command: python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result
+# exit_code: 1
+# git_commit: eb0d57d3e53f11820b9652e64a72e2f8748debdb (dirty=True)
+# code_digest: f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace
+# tests_digest: 5e8790b10c4544dd075a477f41e3c463b893a9175318b03c9a0b8c56695d94d1
+# result: total=10 passed=0 failed=10 errors=0 skipped=0 failure_kinds={"DidNotRaise": 2, "AssertionError": 8}
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+_________________________ test_blank_tag_is_rejected[] _________________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = ''
+
+    @pytest.mark.spec("TAG-004")
+    @pytest.mark.parametrize("raw", ["", "   "])
+    def test_blank_tag_is_rejected(tasks, raw):
+>       with pytest.raises(QueryError, match="tag"):
+E       Failed: DID NOT RAISE QueryError
+
+tests/test_tag_filter.py:51: Failed
+_______________________ test_blank_tag_is_rejected[   ] ________________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = '   '
+
+    @pytest.mark.spec("TAG-004")
+    @pytest.mark.parametrize("raw", ["", "   "])
+    def test_blank_tag_is_rejected(tasks, raw):
+>       with pytest.raises(QueryError, match="tag"):
+E       Failed: DID NOT RAISE QueryError
+
+tests/test_tag_filter.py:51: Failed
+_____________________ test_blank_tag_returns_400_over_http _____________________
+
+client = <conftest.WsgiClient object at 0x7f36202e7b30>
+
+    @pytest.mark.spec("TAG-004")
+    def test_blank_tag_returns_400_over_http(client):
+        status, body = client.get("/tasks", "tag=")
+>       assert status == 400
+E       assert 200 == 400
+
+tests/test_tag_filter.py:58: AssertionError
+______________________ test_get_tasks_with_tag_over_http _______________________
+
+client = <conftest.WsgiClient object at 0x7f36202e7aa0>
+
+    @pytest.mark.spec("TAG-001", "TAG-003")
+    def test_get_tasks_with_tag_over_http(client):
+        status, body = client.get("/tasks", "tag=bug")
+        assert status == 200
+>       assert ids(body) == [1, 5, 8]
+E       assert [1, 4, 5, 2, 7, 8, ...] == [1, 5, 8]
+E         
+E         At index 1 diff: 4 != 5
+E         Left contains 5 more items, first extra item: 2
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:44: AssertionError
+________________ test_search_tasks_returns_only_tasks_with_tag _________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("TAG-001")
+    def test_search_tasks_returns_only_tasks_with_tag(tasks):
+        result = search_tasks(tasks, {"tag": "backend"})
+>       assert ids(result) == [1, 4, 8, 6]
+E       assert [1, 4, 5, 2, 7, 8, ...] == [1, 4, 8, 6]
+E         
+E         At index 2 diff: 5 != 8
+E         Left contains 4 more items, first extra item: 7
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:15: AssertionError
+________ test_tag_combines_with_status_and_keeps_order_limit_and_total _________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("TAG-003")
+    def test_tag_combines_with_status_and_keeps_order_limit_and_total(tasks):
+        result = search_tasks(tasks, {"tag": "backend", "status": "open", "limit": "2"})
+>       assert ids(result) == [1, 8]
+E       assert [1, 5] == [1, 8]
+E         
+E         At index 1 diff: 5 != 8
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:36: AssertionError
+_______ test_tag_match_ignores_case_and_surrounding_whitespace[Backend] ________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = 'Backend'
+
+    @pytest.mark.spec("TAG-002")
+    @pytest.mark.parametrize("raw", ["Backend", "  backend  ", "BACKEND"])
+    def test_tag_match_ignores_case_and_surrounding_whitespace(tasks, raw):
+        result = search_tasks(tasks, {"tag": raw})
+>       assert ids(result) == [1, 4, 8, 6]
+E       assert [1, 4, 5, 2, 7, 8, ...] == [1, 4, 8, 6]
+E         
+E         At index 2 diff: 5 != 8
+E         Left contains 4 more items, first extra item: 7
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:30: AssertionError
+_____ test_tag_match_ignores_case_and_surrounding_whitespace[  backend  ] ______
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = '  backend  '
+
+    @pytest.mark.spec("TAG-002")
+    @pytest.mark.parametrize("raw", ["Backend", "  backend  ", "BACKEND"])
+    def test_tag_match_ignores_case_and_surrounding_whitespace(tasks, raw):
+        result = search_tasks(tasks, {"tag": raw})
+>       assert ids(result) == [1, 4, 8, 6]
+E       assert [1, 4, 5, 2, 7, 8, ...] == [1, 4, 8, 6]
+E         
+E         At index 2 diff: 5 != 8
+E         Left contains 4 more items, first extra item: 7
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:30: AssertionError
+_______ test_tag_match_ignores_case_and_surrounding_whitespace[BACKEND] ________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = 'BACKEND'
+
+    @pytest.mark.spec("TAG-002")
+    @pytest.mark.parametrize("raw", ["Backend", "  backend  ", "BACKEND"])
+    def test_tag_match_ignores_case_and_surrounding_whitespace(tasks, raw):
+        result = search_tasks(tasks, {"tag": raw})
+>       assert ids(result) == [1, 4, 8, 6]
+E       assert [1, 4, 5, 2, 7, 8, ...] == [1, 4, 8, 6]
+E         
+E         At index 2 diff: 5 != 8
+E         Left contains 4 more items, first extra item: 7
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:30: AssertionError
+____________________ test_unknown_tag_returns_empty_result _____________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("TAG-001")
+    def test_unknown_tag_returns_empty_result(tasks):
+        result = search_tasks(tasks, {"tag": "mobile"})
+>       assert result == {"items": [], "total": 0}
+E       AssertionError: assert {'items': [{'...], 'total': 8} == {'items': [], 'total': 0}
+E         
+E         Differing items:
+E         {'total': 8} != {'total': 0}
+E         {'items': [{'id': 1, 'title': '修复登录超时', 'status': 'open', 'priority': 'high', ...}, {'id': 4, 'title': '订单导出接口', 'stat...': 'done', 'priority': 'medium', ...}, {'id': 8, 'title': '权限校验遗漏', 'status': 'open', 'priority': 'medium', ...}, ...]} != {'items': []}
+E         Use -v to get more diff
+
+tests/test_tag_filter.py:23: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_tag_filter.py::test_blank_tag_is_rejected[] - Failed: DID N...
+FAILED tests/test_tag_filter.py::test_blank_tag_is_rejected[   ] - Failed: DI...
+FAILED tests/test_tag_filter.py::test_blank_tag_returns_400_over_http - asser...
+FAILED tests/test_tag_filter.py::test_get_tasks_with_tag_over_http - assert [...
+FAILED tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag
+FAILED tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total
+FAILED tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[Backend]
+FAILED tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[  backend  ]
+FAILED tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[BACKEND]
+FAILED tests/test_tag_filter.py::test_unknown_tag_returns_empty_result - Asse...
+10 failed in 0.04s

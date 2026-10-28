@@ -1,11 +1,16 @@
 # MiniMax 会话原始记录
 
-两次都是对 MiniMax 官方 Hugging Face Space `MiniMaxAI/MiniMax-Text-01` 的真实调用，首轮提示词完全相同
+三次都是对 MiniMax 官方 Hugging Face Space `MiniMaxAI/MiniMax-Text-01` 的真实调用，首轮提示词完全相同
 （`prompt_sha256 = de92e0542ccf…`，由 `sdd_context` 根据 seekdb 查询结果和 PowerContext 状态生成）。
 
 | 会话 | 用途 | 结果 |
 | --- | --- | --- |
-| `mmx-20261028T041139Z-e4c76c.json` | **正式记录**，与 `../session_recorded.json` 内容相同，`demo_accept.sh` 回放的就是它 | 第 1 轮即让上下文中的目标 + 回归测试 19/19 通过；diff 即 `evidence/code.diff` |
-| `mmx-20261028T040706Z-7cb5e1.json` | 开发 `edit` 命令时的第一次单轮调用（当时还没有“测试反馈→再修改”的回路），未被采用 | 补丁把“未提供 tag”也当成空标签抛出 `QueryError`，回归测试 8 个用例失败（见 `mmx-20261028T040706Z-7cb5e1.check.log`）。这次失败促成了 `edit` 的反馈回路：每轮修改后运行目标 + 回归测试，失败信息作为下一轮输入发回 MiniMax（最多 3 轮） |
+| `mmx-20261028T041139Z-e4c76c.json` | **正式记录**，与 `../session_recorded.json` 内容相同，`demo_accept.sh` 默认回放的就是它；可读版 `../开发记录.md` | 第 1 轮即让上下文中的目标 + 回归测试 19/19 通过；diff 即 `evidence/code.diff` |
+| `mmx-20261028T043730Z-94e11f.json` | 在全新克隆的仓库中运行 `SDD_EDIT_MODE=hf-space bash scripts/demo_accept.sh`（Python 3.11、空 uv 缓存）产生的实时会话；可读版 `mmx-20261028T043730Z-94e11f.md`，该次运行的六项验收、步骤与日志见 `../live_run_hf_space/` | 第 1 轮补丁把“未提供 tag”也当成空标签，回归测试失败（11/19）；模块把失败用例的调用、报错行和位置作为反馈发回，第 2 轮 MiniMax 修正为 19/19；六项验收全部通过 |
+| `mmx-20261028T040706Z-7cb5e1.json` | 开发 `edit` 命令时的第一次单轮调用（当时还没有反馈回路），未被采用 | 同样的“未提供 tag 也报错”问题，回归测试 8 个用例失败（`mmx-20261028T040706Z-7cb5e1.check.log`）；这次失败促成了“每轮修改后运行目标 + 回归测试，失败信息发回 MiniMax（最多 3 轮）”的回路 |
 
 早期记录的格式（单轮、无 `attempts` 字段）比正式记录旧，只作为开发过程留档。
+另有一次实时运行（`mmx-20261028T043205Z-629ee7`，当时反馈只包含一行错误信息）三轮都没有修正同一问题，
+模块按设计把工作副本恢复为修改前代码并返回非零退出码；该会话文件在清理临时克隆时没有保留。之后反馈加入了
+pytest 的调用行、报错行和位置，下一次实时运行（上表第二行）在第 2 轮修正成功。
+同一提示词三次调用得到不同补丁，说明实时调用的结果不保证一致；这正是默认验收采用“回放录制会话 + 逐字节核对提示词与 diff”的原因。

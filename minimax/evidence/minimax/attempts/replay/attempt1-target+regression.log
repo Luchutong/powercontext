@@ -1,0 +1,11 @@
+# suite: target+regression (attempt1)
+# started_at: 2026-10-28T04:41:46Z
+# cwd: /workspace/minimax/.runtime/workspace/sample_app
+# command: python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored
+# exit_code: 0
+# git_commit: eb0d57d3e53f11820b9652e64a72e2f8748debdb (dirty=True)
+# code_digest: 3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464
+# tests_digest: 5e8790b10c4544dd075a477f41e3c463b893a9175318b03c9a0b8c56695d94d1
+# result: total=19 passed=19 failed=0 errors=0 skipped=0 failure_kinds={}
+...................                                                      [100%]
+19 passed in 0.03s

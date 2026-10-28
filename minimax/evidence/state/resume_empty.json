@@ -1,0 +1,18 @@
+{
+  "command": "resume",
+  "server": "http://127.0.0.1:17439",
+  "server_pid": 20918,
+  "process_pid": 20930,
+  "state": {
+    "status": "empty",
+    "source": "powercontext",
+    "server": "http://127.0.0.1:17439",
+    "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
+    "done": [],
+    "todo": [],
+    "verification": [],
+    "memories": []
+  },
+  "next_step": null,
+  "note": "seekdb 中没有该项目的导入记录，请先运行 `sdd ingest`"
+}

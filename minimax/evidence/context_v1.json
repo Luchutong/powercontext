@@ -1,0 +1,940 @@
+{
+  "schema": "minimax-sdd.context.v1",
+  "generated_at": "2026-10-28T04:41:29Z",
+  "task": {
+    "id": "TASK-TAG-FILTER",
+    "title": "任务列表接口支持按标签过滤",
+    "description": "为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。",
+    "file": "/workspace/minimax/sample_task/task.toml"
+  },
+  "import": {
+    "import_id": 1,
+    "first_import": true,
+    "imported_at": "2026-10-28 04:41:25.674933",
+    "spec_digest": "84e4b299421f80cbed5c96c9928622317de140cf51f7d150243545dec8a93c00",
+    "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
+    "test_digest": "48eddf4988344a49f1ade6ce4cae70d982bd78e5e1342cbbda77a147fbd76672",
+    "added": [
+      "TAG-001",
+      "TAG-002",
+      "TAG-003",
+      "TAG-004",
+      "CRT-001",
+      "CRT-002",
+      "CRT-003",
+      "EXP-001",
+      "EXP-002",
+      "LIST-001",
+      "LIST-002",
+      "LIST-003",
+      "LIST-004",
+      "LIST-005"
+    ],
+    "modified": [],
+    "removed": []
+  },
+  "selection": {
+    "components": [
+      "GET /tasks"
+    ],
+    "matched_change_items": [
+      "TAG-003",
+      "TAG-004",
+      "TAG-002",
+      "TAG-001"
+    ],
+    "rule": "Q1 中类型为变更且得分 ≥ 最高分×0.3 的条目确定组件；Q2 取这些组件的全部有效条目；Q7 补充修改目标影响到的条目"
+  },
+  "specs": {
+    "change": [
+      {
+        "id": "TAG-001",
+        "title": "按标签过滤任务",
+        "component": "GET /tasks",
+        "type": "change",
+        "text": "`GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\"items\": [], \"total\": 0}`。",
+        "source": "specs/tag-filter.md#L9-L13",
+        "path": "specs/tag-filter.md",
+        "lines": [
+          9,
+          13
+        ],
+        "sha256": "b0f1cb106241f896d5335babd30d7b6beefe28b73d9c682dee8bb2df5a14fd69",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "b0f1cb106241f896d5335babd30d7b6beefe28b73d9c682dee8bb2df5a14fd69"
+          }
+        ],
+        "score": 5.826,
+        "tests": [
+          "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+          "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+          "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+        ],
+        "implemented_by": [],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "TAG-002",
+        "title": "标签匹配规则",
+        "component": "GET /tasks",
+        "type": "change",
+        "text": "`tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。",
+        "source": "specs/tag-filter.md#L15-L19",
+        "path": "specs/tag-filter.md",
+        "lines": [
+          15,
+          19
+        ],
+        "sha256": "65bba3cacb12e4c667771047d53383eaed9480f9cef5f731ddd7e10824927919",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "65bba3cacb12e4c667771047d53383eaed9480f9cef5f731ddd7e10824927919"
+          }
+        ],
+        "score": 7.288,
+        "tests": [
+          "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace"
+        ],
+        "implemented_by": [],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "TAG-003",
+        "title": "与现有过滤、排序和分页组合",
+        "component": "GET /tasks",
+        "type": "change",
+        "text": "`tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。",
+        "source": "specs/tag-filter.md#L21-L25",
+        "path": "specs/tag-filter.md",
+        "lines": [
+          21,
+          25
+        ],
+        "sha256": "f780a1ef2c6e1436e8979a31f8b2ffb229e3c059b384549de1e044421077ceeb",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "f780a1ef2c6e1436e8979a31f8b2ffb229e3c059b384549de1e044421077ceeb"
+          }
+        ],
+        "score": 9.3209,
+        "tests": [
+          "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+          "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total"
+        ],
+        "implemented_by": [],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "TAG-004",
+        "title": "空标签参数",
+        "component": "GET /tasks",
+        "type": "change",
+        "text": "`tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。",
+        "source": "specs/tag-filter.md#L27-L31",
+        "path": "specs/tag-filter.md",
+        "lines": [
+          27,
+          31
+        ],
+        "sha256": "8f6e45ed583eceb2d43798c66315be2bebc726a84c36885560e26c764adfd1f1",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "8f6e45ed583eceb2d43798c66315be2bebc726a84c36885560e26c764adfd1f1"
+          }
+        ],
+        "score": 8.373,
+        "tests": [
+          "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+          "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http"
+        ],
+        "implemented_by": [],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      }
+    ],
+    "preserve": [
+      {
+        "id": "LIST-001",
+        "title": "默认排序",
+        "component": "GET /tasks",
+        "type": "preserve",
+        "text": "`GET /tasks` 返回的任务按优先级 high → medium → low 排序；同一优先级内按 `id` 升序。",
+        "source": "specs/tasks-list.md#L9-L13",
+        "path": "specs/tasks-list.md",
+        "lines": [
+          9,
+          13
+        ],
+        "sha256": "2997209d18c79f84e4b5f878dcc0742c03a065367741e90d2e1cbe2a44e00fb9",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "2997209d18c79f84e4b5f878dcc0742c03a065367741e90d2e1cbe2a44e00fb9"
+          }
+        ],
+        "score": 3.8679,
+        "tests": [
+          "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id"
+        ],
+        "implemented_by": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "LIST-002",
+        "title": "状态过滤",
+        "component": "GET /tasks",
+        "type": "preserve",
+        "text": "查询参数 `status` 取值为 `open`、`in_progress`、`done` 之一时，只返回该状态的任务；其他取值（包括空字符串）返回 HTTP 400，错误信息包含 `status`。",
+        "source": "specs/tasks-list.md#L15-L19",
+        "path": "specs/tasks-list.md",
+        "lines": [
+          15,
+          19
+        ],
+        "sha256": "2e1325df42a261d077268052aafe072816a870200a04bb9100c63d97d4ace71c",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "2e1325df42a261d077268052aafe072816a870200a04bb9100c63d97d4ace71c"
+          }
+        ],
+        "score": 5.9464,
+        "tests": [
+          "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+          "tests/test_list_api.py::test_status_filter_returns_matching_tasks"
+        ],
+        "implemented_by": [
+          "taskboard/api.py::list_tasks_view",
+          "taskboard/service.py::QueryError",
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "LIST-003",
+        "title": "数量限制",
+        "component": "GET /tasks",
+        "type": "preserve",
+        "text": "查询参数 `limit` 为 1–100 的整数时，最多返回 `limit` 条任务；非整数或超出范围返回 HTTP 400，错误信息包含 `limit`。",
+        "source": "specs/tasks-list.md#L21-L25",
+        "path": "specs/tasks-list.md",
+        "lines": [
+          21,
+          25
+        ],
+        "sha256": "d469b027ddcec045c9bb91a3f239d369c8253e37fd62c7836b46288973d7a810",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "d469b027ddcec045c9bb91a3f239d369c8253e37fd62c7836b46288973d7a810"
+          }
+        ],
+        "score": 5.2803,
+        "tests": [
+          "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+          "tests/test_list_api.py::test_limit_truncates_items_but_not_total"
+        ],
+        "implemented_by": [
+          "taskboard/api.py::list_tasks_view",
+          "taskboard/service.py::QueryError",
+          "taskboard/service.py::_parse_limit",
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "LIST-004",
+        "title": "响应结构",
+        "component": "GET /tasks",
+        "type": "preserve",
+        "text": "响应体为 `{\"items\": [...], \"total\": n}`。`items` 中每项依次包含 `id`、`title`、`status`、`priority`、`tags`；`total` 是应用过滤条件之后、`limit` 截断之前的任务数量。",
+        "source": "specs/tasks-list.md#L27-L31",
+        "path": "specs/tasks-list.md",
+        "lines": [
+          27,
+          31
+        ],
+        "sha256": "7cb1f05d37ddfb4859ff4a2fbf5f29dbb4b9245082227c6d881c60e66a2eeab9",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "7cb1f05d37ddfb4859ff4a2fbf5f29dbb4b9245082227c6d881c60e66a2eeab9"
+          }
+        ],
+        "score": 4.8524,
+        "tests": [
+          "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+          "tests/test_list_api.py::test_response_shape_over_http"
+        ],
+        "implemented_by": [
+          "taskboard/api.py::list_tasks_view",
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      },
+      {
+        "id": "LIST-005",
+        "title": "未知查询参数",
+        "component": "GET /tasks",
+        "type": "preserve",
+        "text": "接口不认识的查询参数（例如 `sort`、`page`）被忽略，不影响结果，也不返回错误，以兼容旧客户端。",
+        "source": "specs/tasks-list.md#L33-L37",
+        "path": "specs/tasks-list.md",
+        "lines": [
+          33,
+          37
+        ],
+        "sha256": "9d5b4ed01cc5b200b92d2100c95561954b8c1e29dbf6ffe7aef402840e924c35",
+        "revision": 1,
+        "changed_in_latest_import": false,
+        "history": [
+          {
+            "revision": 1,
+            "change": "added",
+            "import_id": 1,
+            "sha256": "9d5b4ed01cc5b200b92d2100c95561954b8c1e29dbf6ffe7aef402840e924c35"
+          }
+        ],
+        "score": 7.5161,
+        "tests": [
+          "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+        ],
+        "implemented_by": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q1",
+          "Q2"
+        ]
+      }
+    ]
+  },
+  "code_targets": [
+    {
+      "symbol_id": "taskboard/service.py::search_tasks",
+      "path": "taskboard/service.py",
+      "symbol": "search_tasks",
+      "kind": "function",
+      "lines": [
+        35,
+        52
+      ],
+      "source": "taskboard/service.py#L35-L52",
+      "signature": "def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]",
+      "implements": [
+        "LIST-001",
+        "LIST-002",
+        "LIST-003",
+        "LIST-004",
+        "LIST-005"
+      ],
+      "used_by_target_tests": [
+        "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+        "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+        "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+        "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+        "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+      ],
+      "fulltext_score": 1.0,
+      "via": [
+        "Q4",
+        "Q5",
+        "Q6"
+      ],
+      "rank_score": 4.0,
+      "reasons": [
+        "被 5 个目标测试直接调用/引用",
+        "实现规格 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005",
+        "与变更条目全文相关度 1.0"
+      ],
+      "role": "modify"
+    },
+    {
+      "symbol_id": "taskboard/service.py::QueryError",
+      "path": "taskboard/service.py",
+      "symbol": "QueryError",
+      "kind": "class",
+      "lines": [
+        14,
+        15
+      ],
+      "source": "taskboard/service.py#L14-L15",
+      "signature": "class QueryError(ValueError)",
+      "implements": [
+        "LIST-002",
+        "LIST-003"
+      ],
+      "used_by_target_tests": [
+        "tests/test_tag_filter.py::test_blank_tag_is_rejected"
+      ],
+      "fulltext_score": 0.6986,
+      "via": [
+        "Q4",
+        "Q5",
+        "Q6"
+      ],
+      "rank_score": 1.6986,
+      "reasons": [
+        "被 1 个目标测试直接调用/引用",
+        "实现规格 LIST-002, LIST-003",
+        "与变更条目全文相关度 0.6986"
+      ],
+      "role": "related"
+    },
+    {
+      "symbol_id": "taskboard/api.py::list_tasks_view",
+      "path": "taskboard/api.py",
+      "symbol": "list_tasks_view",
+      "kind": "function",
+      "lines": [
+        36,
+        42
+      ],
+      "source": "taskboard/api.py#L36-L42",
+      "signature": "def list_tasks_view(environ: dict[str, Any], start_response: StartResponse, tasks: list[Task]) -> list[bytes]",
+      "implements": [
+        "LIST-002",
+        "LIST-003",
+        "LIST-004"
+      ],
+      "used_by_target_tests": [],
+      "fulltext_score": 0.5225,
+      "via": [
+        "Q4",
+        "Q6"
+      ],
+      "rank_score": 1.5225,
+      "reasons": [
+        "实现规格 LIST-002, LIST-003, LIST-004",
+        "与变更条目全文相关度 0.5225"
+      ],
+      "role": "related"
+    },
+    {
+      "symbol_id": "taskboard/service.py::_parse_limit",
+      "path": "taskboard/service.py",
+      "symbol": "_parse_limit",
+      "kind": "function",
+      "lines": [
+        22,
+        32
+      ],
+      "source": "taskboard/service.py#L22-L32",
+      "signature": "def _parse_limit(raw: str | None) -> int | None",
+      "implements": [
+        "LIST-003"
+      ],
+      "used_by_target_tests": [],
+      "fulltext_score": 0.5049,
+      "via": [
+        "Q4",
+        "Q6"
+      ],
+      "rank_score": 1.5049,
+      "reasons": [
+        "实现规格 LIST-003",
+        "与变更条目全文相关度 0.5049"
+      ],
+      "role": "related"
+    }
+  ],
+  "tests": {
+    "target": [
+      {
+        "id": "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_blank_tag_is_rejected",
+        "lines": [
+          48,
+          52
+        ],
+        "source": "tests/test_tag_filter.py#L48-L52",
+        "verifies": [
+          "TAG-004"
+        ],
+        "uses": [
+          "taskboard/service.py::QueryError",
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_blank_tag_returns_400_over_http",
+        "lines": [
+          55,
+          59
+        ],
+        "source": "tests/test_tag_filter.py#L55-L59",
+        "verifies": [
+          "TAG-004"
+        ],
+        "uses": [],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_get_tasks_with_tag_over_http",
+        "lines": [
+          40,
+          45
+        ],
+        "source": "tests/test_tag_filter.py#L40-L45",
+        "verifies": [
+          "TAG-001",
+          "TAG-003"
+        ],
+        "uses": [],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_search_tasks_returns_only_tasks_with_tag",
+        "lines": [
+          12,
+          17
+        ],
+        "source": "tests/test_tag_filter.py#L12-L17",
+        "verifies": [
+          "TAG-001"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_tag_combines_with_status_and_keeps_order_limit_and_total",
+        "lines": [
+          33,
+          37
+        ],
+        "source": "tests/test_tag_filter.py#L33-L37",
+        "verifies": [
+          "TAG-003"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_tag_match_ignores_case_and_surrounding_whitespace",
+        "lines": [
+          26,
+          30
+        ],
+        "source": "tests/test_tag_filter.py#L26-L30",
+        "verifies": [
+          "TAG-002"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result",
+        "path": "tests/test_tag_filter.py",
+        "name": "test_unknown_tag_returns_empty_result",
+        "lines": [
+          20,
+          23
+        ],
+        "source": "tests/test_tag_filter.py#L20-L23",
+        "verifies": [
+          "TAG-001"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      }
+    ],
+    "regression": [
+      {
+        "id": "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+        "path": "tests/test_list_api.py",
+        "name": "test_default_listing_sorted_by_priority_then_id",
+        "lines": [
+          12,
+          16
+        ],
+        "source": "tests/test_list_api.py#L12-L16",
+        "verifies": [
+          "LIST-001"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+        "path": "tests/test_list_api.py",
+        "name": "test_invalid_limit_raises_query_error",
+        "lines": [
+          40,
+          44
+        ],
+        "source": "tests/test_list_api.py#L40-L44",
+        "verifies": [
+          "LIST-003"
+        ],
+        "uses": [
+          "taskboard/service.py::QueryError",
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+        "path": "tests/test_list_api.py",
+        "name": "test_invalid_status_is_rejected_with_400",
+        "lines": [
+          26,
+          30
+        ],
+        "source": "tests/test_list_api.py#L26-L30",
+        "verifies": [
+          "LIST-002"
+        ],
+        "uses": [],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+        "path": "tests/test_list_api.py",
+        "name": "test_limit_truncates_items_but_not_total",
+        "lines": [
+          33,
+          37
+        ],
+        "source": "tests/test_list_api.py#L33-L37",
+        "verifies": [
+          "LIST-003",
+          "LIST-004"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_response_shape_over_http",
+        "path": "tests/test_list_api.py",
+        "name": "test_response_shape_over_http",
+        "lines": [
+          47,
+          54
+        ],
+        "source": "tests/test_list_api.py#L47-L54",
+        "verifies": [
+          "LIST-004"
+        ],
+        "uses": [],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+        "path": "tests/test_list_api.py",
+        "name": "test_status_filter_returns_matching_tasks",
+        "lines": [
+          19,
+          23
+        ],
+        "source": "tests/test_list_api.py#L19-L23",
+        "verifies": [
+          "LIST-002"
+        ],
+        "uses": [
+          "taskboard/service.py::search_tasks"
+        ],
+        "via": [
+          "Q3"
+        ]
+      },
+      {
+        "id": "tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+        "path": "tests/test_list_api.py",
+        "name": "test_unknown_query_parameters_are_ignored",
+        "lines": [
+          57,
+          61
+        ],
+        "source": "tests/test_list_api.py#L57-L61",
+        "verifies": [
+          "LIST-005"
+        ],
+        "uses": [],
+        "via": [
+          "Q3"
+        ]
+      }
+    ],
+    "commands": {
+      "target": "python -m pytest tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result",
+      "regression": "python -m pytest tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+      "full": "python -m pytest"
+    }
+  },
+  "coverage_gaps": [],
+  "sources": [
+    {
+      "path": "specs/tag-filter.md",
+      "kind": "spec",
+      "sha256": "5dab011080cfb8cc9acc7a89c9015eca8be6baad99b343bfd3759c1daba91873",
+      "lines": 31,
+      "via": [
+        "Q9"
+      ]
+    },
+    {
+      "path": "specs/tasks-list.md",
+      "kind": "spec",
+      "sha256": "7d38bbe4f00a8be75444e1f6e90832d8d00c31527e01b254d38e73cee1e80511",
+      "lines": 37,
+      "via": [
+        "Q9"
+      ]
+    },
+    {
+      "path": "taskboard/api.py",
+      "kind": "code",
+      "sha256": "d7b5cb70d25e311b770f55442efdd063ca4f4f79b7966ce0eb1a3f7740e8a5bc",
+      "lines": 82,
+      "via": [
+        "Q9"
+      ]
+    },
+    {
+      "path": "taskboard/service.py",
+      "kind": "code",
+      "sha256": "7918885d9b17957e1c430ffd12eac8db8807621d1bbecb17a593150f89009c30",
+      "lines": 88,
+      "via": [
+        "Q9"
+      ]
+    },
+    {
+      "path": "tests/test_list_api.py",
+      "kind": "test",
+      "sha256": "1819510158a87f24ae48cf4cff988c65868548288d9a2c52bf09c4d1557e3c5f",
+      "lines": 61,
+      "via": [
+        "Q9"
+      ]
+    },
+    {
+      "path": "tests/test_tag_filter.py",
+      "kind": "test",
+      "sha256": "41c5a1c5d3c1e2419a06429488e355edbc2bd2f575cd7c0a146fca746730b46a",
+      "lines": 59,
+      "via": [
+        "Q9"
+      ]
+    }
+  ],
+  "retrieval": {
+    "engine": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "mode": "embedded",
+    "database": "sdd_context",
+    "query_log": "/workspace/minimax/evidence/seekdb_queries.log",
+    "queries": [
+      {
+        "id": "Q0",
+        "purpose": "最近一次导入批次",
+        "sql": "SELECT import_id, imported_at, spec_digest, code_digest, test_digest, spec_items, code_symbols, test_cases, added_items, modified_items, removed_items, (SELECT MIN(import_id) FROM sdd_import WHERE project = 'taskboard') AS first_import_id FROM sdd_import WHERE project = 'taskboard' ORDER BY import_id DESC LIMIT 1",
+        "rows": 1,
+        "elapsed_ms": 8.37
+      },
+      {
+        "id": "Q1",
+        "purpose": "规格条目全文检索（任务描述，ik 分词）",
+        "sql": "SELECT item_id, component, item_type, title, revision, ROUND(MATCH(search_text) AGAINST('任务列表接口支持按标签过滤\\n为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。' IN NATURAL LANGUAGE MODE), 4) AS score FROM sdd_spec_item WHERE project = 'taskboard' AND MATCH(search_text) AGAINST('任务列表接口支持按标签过滤\\n为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。' IN NATURAL LANGUAGE MODE) ORDER BY score DESC, item_id LIMIT 30",
+        "rows": 14,
+        "elapsed_ms": 88.51
+      },
+      {
+        "id": "Q2",
+        "purpose": "命中组件下的全部有效规格条目（变更 + 必须保持）",
+        "sql": "SELECT item_id, doc_path, doc_title, component, item_type, title, keywords, body, start_line, end_line, sha256, revision, import_id FROM sdd_spec_item WHERE project = 'taskboard' AND component IN ('GET /tasks') ORDER BY item_type, item_id",
+        "rows": 9,
+        "elapsed_ms": 1.99
+      },
+      {
+        "id": "Q3",
+        "purpose": "验证这些规格条目的测试（pytest spec 标记）",
+        "sql": "SELECT l.dst_id AS spec_id, t.test_id, t.path, t.name, t.start_line, t.end_line, t.spec_refs, t.uses FROM sdd_link l JOIN sdd_test_case t ON t.project = l.project AND t.test_id = l.src_id WHERE l.project = 'taskboard' AND l.relation = 'verifies' AND l.dst_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY t.path, t.start_line",
+        "rows": 16,
+        "elapsed_ms": 10.0
+      },
+      {
+        "id": "Q4",
+        "purpose": "实现这些规格条目的代码符号（docstring/注释中的规格编号）",
+        "sql": "SELECT l.dst_id AS spec_id, s.symbol_id, s.path, s.symbol, s.kind, s.start_line, s.end_line, s.signature FROM sdd_link l JOIN sdd_code_symbol s ON s.project = l.project AND s.symbol_id = l.src_id WHERE l.project = 'taskboard' AND l.relation = 'implements' AND l.dst_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY s.path, s.start_line",
+        "rows": 11,
+        "elapsed_ms": 6.43
+      },
+      {
+        "id": "Q5",
+        "purpose": "目标测试直接调用/引用的代码符号",
+        "sql": "SELECT l.src_id AS test_id, s.symbol_id, s.path, s.symbol, s.kind, s.start_line, s.end_line, s.signature FROM sdd_link l JOIN sdd_code_symbol s ON s.project = l.project AND s.symbol_id = l.dst_id WHERE l.project = 'taskboard' AND l.relation = 'uses' AND l.src_id IN ('tests/test_tag_filter.py::test_blank_tag_is_rejected','tests/test_tag_filter.py::test_blank_tag_returns_400_over_http','tests/test_tag_filter.py::test_get_tasks_with_tag_over_http','tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag','tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total','tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace','tests/test_tag_filter.py::test_unknown_tag_returns_empty_result') ORDER BY s.path, s.start_line",
+        "rows": 6,
+        "elapsed_ms": 3.94
+      },
+      {
+        "id": "Q6",
+        "purpose": "代码符号全文检索（变更条目正文，ik 分词）",
+        "sql": "SELECT symbol_id, path, symbol, kind, start_line, end_line, signature, ROUND(MATCH(search_text) AGAINST('按标签过滤任务 tag, 标签, 过滤, 查询参数, filter `GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\\\"items\\\": [], \\\"total\\\": 0}`。 标签匹配规则 tag, 标签, 大小写, 空白, 匹配 `tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。 与现有过滤、排序和分页组合 tag, status, limit, total, 组合, 排序 `tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。 空标签参数 tag, 空值, 空白, 边界输入, 400 `tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。' IN NATURAL LANGUAGE MODE), 4) AS score FROM sdd_code_symbol WHERE project = 'taskboard' AND MATCH(search_text) AGAINST('按标签过滤任务 tag, 标签, 过滤, 查询参数, filter `GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\\\"items\\\": [], \\\"total\\\": 0}`。 标签匹配规则 tag, 标签, 大小写, 空白, 匹配 `tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。 与现有过滤、排序和分页组合 tag, status, limit, total, 组合, 排序 `tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。 空标签参数 tag, 空值, 空白, 边界输入, 400 `tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。' IN NATURAL LANGUAGE MODE) ORDER BY score DESC, symbol_id LIMIT 15",
+        "rows": 15,
+        "elapsed_ms": 3.89
+      },
+      {
+        "id": "Q7",
+        "purpose": "修改目标实现的规格条目（影响分析）",
+        "sql": "SELECT l.src_id AS symbol_id, i.item_id, i.doc_path, i.doc_title, i.component, i.item_type, i.title, i.keywords, i.body, i.start_line, i.end_line, i.sha256, i.revision, i.import_id FROM sdd_link l JOIN sdd_spec_item i ON i.project = l.project AND i.item_id = l.dst_id WHERE l.project = 'taskboard' AND l.relation = 'implements' AND l.src_id IN ('taskboard/service.py::search_tasks') ORDER BY i.item_id",
+        "rows": 5,
+        "elapsed_ms": 3.43
+      },
+      {
+        "id": "Q8",
+        "purpose": "选中规格条目的修订历史",
+        "sql": "SELECT item_id, revision, change_kind, sha256, import_id FROM sdd_spec_history WHERE project = 'taskboard' AND item_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY item_id, revision",
+        "rows": 9,
+        "elapsed_ms": 1.88
+      },
+      {
+        "id": "Q9",
+        "purpose": "上下文引用的源文件（路径、摘要、行数）",
+        "sql": "SELECT path, kind, sha256, line_count, import_id FROM sdd_document WHERE project = 'taskboard' AND path IN ('specs/tag-filter.md','specs/tasks-list.md','taskboard/api.py','taskboard/service.py','tests/test_list_api.py','tests/test_tag_filter.py') ORDER BY path",
+        "rows": 6,
+        "elapsed_ms": 1.76
+      }
+    ]
+  },
+  "project": "taskboard",
+  "project_dir": "/workspace/minimax/.runtime/workspace/sample_app",
+  "source_check": [],
+  "state": {
+    "status": "empty",
+    "source": "powercontext",
+    "scope_id": null,
+    "handoff": null,
+    "done": [],
+    "todo": [
+      {
+        "step": "baseline",
+        "text": "运行修改前的目标测试与回归测试并记录基线",
+        "origin": "workflow"
+      },
+      {
+        "step": "edit",
+        "text": "把上下文交给 MiniMax 修改代码",
+        "origin": "workflow"
+      },
+      {
+        "step": "verify",
+        "text": "运行修改后的目标测试、回归测试和全量测试",
+        "origin": "workflow"
+      }
+    ],
+    "verification": [],
+    "edit": null,
+    "memories": [],
+    "next_step": "baseline"
+  }
+}

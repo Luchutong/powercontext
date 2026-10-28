@@ -1,0 +1,40 @@
+diff --git a/taskboard/service.py b/taskboard/service.py
+--- a/taskboard/service.py
++++ b/taskboard/service.py
+@@ -35,16 +35,32 @@
+ def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:
+     """Filter, sort and paginate tasks for GET /tasks.
+ 
+-    Query parameters handled here: ``status`` (LIST-002) and ``limit`` (LIST-003).
+-    Results are sorted by priority, then id (LIST-001); ``total`` counts matches
+-    before ``limit`` is applied (LIST-004). Unknown parameters are ignored (LIST-005).
++    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).
++    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).
++    Unknown parameters are ignored (LIST-005).
+     """
+     status = params.get("status")
+     if status is not None and status not in VALID_STATUSES:
+         raise QueryError(f"status must be one of {', '.join(VALID_STATUSES)}")
++    
++    tag = params.get("tag", "").strip()
++    if "tag" in params and tag == "":
++        raise QueryError("tag must not be empty or whitespace")
++    
+     limit = _parse_limit(params.get("limit"))
+ 
+-    matched = [task for task in tasks if status is None or task.status == status]
++    if tag:
++        matched = [
++            task for task in tasks
++            if (status is None or task.status == status) and
++               any(tag.lower() == t.lower().strip() for t in task.tags)
++        ]
++    else:
++        matched = [
++            task for task in tasks
++            if status is None or task.status == status
++        ]
++    
+     matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))
+     total = len(matched)
+     if limit is not None:

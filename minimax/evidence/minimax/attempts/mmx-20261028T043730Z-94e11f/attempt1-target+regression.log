@@ -1,0 +1,181 @@
+# suite: target+regression (attempt1)
+# started_at: 2026-10-28T04:38:06Z
+# cwd: /tmp/cleanclone/minimax/.runtime/workspace/sample_app
+# command: python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored
+# exit_code: 1
+# git_commit: eb0d57d3e53f11820b9652e64a72e2f8748debdb (dirty=True)
+# code_digest: 90228770ab8b5759eb21fe9f4667d308b1aba987aacc4968d820a3b7622c33a7
+# tests_digest: 5e8790b10c4544dd075a477f41e3c463b893a9175318b03c9a0b8c56695d94d1
+# result: total=19 passed=11 failed=8 errors=0 skipped=0 failure_kinds={"taskboard.service.QueryError": 3, "AssertionError": 5}
+..........FFFF.FFFF                                                      [100%]
+=================================== FAILURES ===================================
+_______________ test_default_listing_sorted_by_priority_then_id ________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("LIST-001")
+    def test_default_listing_sorted_by_priority_then_id(tasks):
+>       result = search_tasks(tasks, {})
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_list_api.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+params = {}
+
+    def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:
+        """Filter, sort and paginate tasks for GET /tasks.
+    
+        Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).
+        Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).
+        Unknown parameters are ignored (LIST-005).
+        """
+        status = params.get("status")
+        if status is not None and status not in VALID_STATUSES:
+            raise QueryError(f"status must be one of {', '.join(VALID_STATUSES)}")
+    
+        tag = params.get("tag", "").strip()
+        if tag == "":
+>           raise QueryError("tag must not be empty or whitespace")
+E           taskboard.service.QueryError: tag must not be empty or whitespace
+
+taskboard/service.py:48: QueryError
+___________________ test_invalid_limit_raises_query_error[0] ___________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = '0'
+
+    @pytest.mark.spec("LIST-003")
+    @pytest.mark.parametrize("raw", ["0", "101", "ten"])
+    def test_invalid_limit_raises_query_error(tasks, raw):
+>       with pytest.raises(QueryError, match="limit"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'limit'
+E         Actual message: 'tag must not be empty or whitespace'
+
+tests/test_list_api.py:43: AssertionError
+__________________ test_invalid_limit_raises_query_error[101] __________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = '101'
+
+    @pytest.mark.spec("LIST-003")
+    @pytest.mark.parametrize("raw", ["0", "101", "ten"])
+    def test_invalid_limit_raises_query_error(tasks, raw):
+>       with pytest.raises(QueryError, match="limit"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'limit'
+E         Actual message: 'tag must not be empty or whitespace'
+
+tests/test_list_api.py:43: AssertionError
+__________________ test_invalid_limit_raises_query_error[ten] __________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+raw = 'ten'
+
+    @pytest.mark.spec("LIST-003")
+    @pytest.mark.parametrize("raw", ["0", "101", "ten"])
+    def test_invalid_limit_raises_query_error(tasks, raw):
+>       with pytest.raises(QueryError, match="limit"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'limit'
+E         Actual message: 'tag must not be empty or whitespace'
+
+tests/test_list_api.py:43: AssertionError
+___________________ test_limit_truncates_items_but_not_total ___________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("LIST-003", "LIST-004")
+    def test_limit_truncates_items_but_not_total(tasks):
+>       result = search_tasks(tasks, {"limit": "3"})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_list_api.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+params = {'limit': '3'}
+
+    def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:
+        """Filter, sort and paginate tasks for GET /tasks.
+    
+        Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).
+        Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).
+        Unknown parameters are ignored (LIST-005).
+        """
+        status = params.get("status")
+        if status is not None and status not in VALID_STATUSES:
+            raise QueryError(f"status must be one of {', '.join(VALID_STATUSES)}")
+    
+        tag = params.get("tag", "").strip()
+        if tag == "":
+>           raise QueryError("tag must not be empty or whitespace")
+E           taskboard.service.QueryError: tag must not be empty or whitespace
+
+taskboard/service.py:48: QueryError
+________________________ test_response_shape_over_http _________________________
+
+client = <conftest.WsgiClient object at 0x7f11a7008710>
+
+    @pytest.mark.spec("LIST-004")
+    def test_response_shape_over_http(client):
+        status, body = client.get("/tasks", "limit=1")
+>       assert status == 200
+E       assert 400 == 200
+
+tests/test_list_api.py:50: AssertionError
+__________________ test_status_filter_returns_matching_tasks ___________________
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+
+    @pytest.mark.spec("LIST-002")
+    def test_status_filter_returns_matching_tasks(tasks):
+>       result = search_tasks(tasks, {"status": "open"})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_list_api.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tasks = [Task(id=1, title='修复登录超时', status='open', priority='high', tags=('backend', 'bug')), Task(id=2, title='首页加载优化', statu...'frontend', 'bug')), Task(id=6, title='数据库连接池调优', status='open', priority='low', tags=('backend', 'performance')), ...]
+params = {'status': 'open'}
+
+    def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:
+        """Filter, sort and paginate tasks for GET /tasks.
+    
+        Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).
+        Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).
+        Unknown parameters are ignored (LIST-005).
+        """
+        status = params.get("status")
+        if status is not None and status not in VALID_STATUSES:
+            raise QueryError(f"status must be one of {', '.join(VALID_STATUSES)}")
+    
+        tag = params.get("tag", "").strip()
+        if tag == "":
+>           raise QueryError("tag must not be empty or whitespace")
+E           taskboard.service.QueryError: tag must not be empty or whitespace
+
+taskboard/service.py:48: QueryError
+__________________ test_unknown_query_parameters_are_ignored ___________________
+
+client = <conftest.WsgiClient object at 0x7f11a6ff3290>
+
+    @pytest.mark.spec("LIST-005")
+    def test_unknown_query_parameters_are_ignored(client):
+        status, body = client.get("/tasks", "status=done&sort=desc&page=2")
+>       assert status == 200
+E       assert 400 == 200
+
+tests/test_list_api.py:60: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[0] - Ass...
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[101] - A...
+FAILED tests/test_list_api.py::test_invalid_limit_raises_query_error[ten] - A...
+FAILED tests/test_list_api.py::test_limit_truncates_items_but_not_total - tas...
+FAILED tests/test_list_api.py::test_response_shape_over_http - assert 400 == 200
+FAILED tests/test_list_api.py::test_status_filter_returns_matching_tasks - ta...
+FAILED tests/test_list_api.py::test_unknown_query_parameters_are_ignored - as...
+8 failed, 11 passed in 0.05s

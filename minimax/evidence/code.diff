@@ -1,0 +1,53 @@
+diff --git a/taskboard/service.py b/taskboard/service.py
+--- a/taskboard/service.py
++++ b/taskboard/service.py
+@@ -35,20 +35,45 @@
+ def search_tasks(tasks: Iterable[Task], params: Mapping[str, str]) -> dict[str, Any]:
+     """Filter, sort and paginate tasks for GET /tasks.
+ 
+-    Query parameters handled here: ``status`` (LIST-002) and ``limit`` (LIST-003).
+-    Results are sorted by priority, then id (LIST-001); ``total`` counts matches
+-    before ``limit`` is applied (LIST-004). Unknown parameters are ignored (LIST-005).
++    Query parameters handled here: ``status`` (LIST-002), ``limit`` (LIST-003), and ``tag`` (TAG-001, TAG-002, TAG-003, TAG-004).
++    Results are sorted by priority, then id (LIST-001); ``total`` counts matches before ``limit`` is applied (LIST-004).
++    Unknown parameters are ignored (LIST-005).
+     """
++    # Handle the 'tag' parameter (TAG-001, TAG-002, TAG-004)
++    tag = params.get("tag")
++    if tag is not None:
++        if not tag.strip():
++            raise QueryError("tag must not be empty or whitespace")
++        normalized_tag = tag.strip().lower()
++    else:
++        normalized_tag = None
++
++    # Handle the 'status' parameter (LIST-002)
+     status = params.get("status")
+     if status is not None and status not in VALID_STATUSES:
+         raise QueryError(f"status must be one of {', '.join(VALID_STATUSES)}")
++
++    # Parse the 'limit' parameter (LIST-003)
+     limit = _parse_limit(params.get("limit"))
+ 
+-    matched = [task for task in tasks if status is None or task.status == status]
++    # Filter tasks by 'status' and 'tag' (TAG-001, TAG-002, TAG-003)
++    matched = [
++        task for task in tasks
++        if (status is None or task.status == status) and
++           (normalized_tag is None or any(tag.strip().lower() == normalized_tag for tag in task.tags))
++    ]
++
++    # Sort tasks by priority and id (LIST-001)
+     matched.sort(key=lambda task: (PRIORITY_ORDER[task.priority], task.id))
++
++    # Calculate total before applying limit (LIST-004)
+     total = len(matched)
++
++    # Apply limit (LIST-003)
+     if limit is not None:
+         matched = matched[:limit]
++
++    # Return the result (LIST-004)
+     return {"items": [task.to_dict() for task in matched], "total": total}
+ 
+ 

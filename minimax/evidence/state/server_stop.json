@@ -1,0 +1,5 @@
+{
+  "command": "server stop",
+  "stopped_pid": 20918,
+  "live": false
+}

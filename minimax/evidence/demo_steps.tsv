@@ -1,0 +1,25 @@
+step	command	expected_exit	exit_code	duration_s
+reset	./sdd reset	0	0	1
+init	./sdd init	0	0	5
+resume-empty	./sdd resume --out evidence/state/resume_empty.json	0	0	4
+ingest-v1	./sdd ingest	0	0	3
+context-v1	./sdd context --out evidence/context_v1.json --md evidence/context_v1.md	0	0	4
+test-before-target	./sdd test --suite target --label before --expect fail	0	0	4
+test-before-regression	./sdd test --suite regression --label before --expect pass	0	0	4
+save-baseline	./sdd save-state --phase baseline	0	0	3
+context-baseline	./sdd context --out evidence/context_baseline.json	0	0	2
+edit	./sdd edit --mode replay	0	0	5
+test-after-target	./sdd test --suite target --label after --expect pass	0	0	2
+test-after-regression	./sdd test --suite regression --label after --expect pass	0	0	3
+test-after-full	./sdd test --suite full --label after --expect pass	0	0	1
+save-verified	./sdd save-state --phase verified	0	0	3
+server-status-before-restart	./sdd --save evidence/state/server_before_restart.json server status	0	0	1
+server-stop	./sdd --save evidence/state/server_stop.json server stop	0	0	1
+server-start	./sdd --save evidence/state/server_start.json server start	0	0	4
+resume-after-restart	./sdd resume --out evidence/state/resume_after_restart.json	0	0	3
+context-resume	./sdd context --out evidence/context_resume.json --md evidence/context_resume.md	0	0	2
+edit-after-restart	./sdd --save evidence/state/edit_after_restart.json edit --mode replay	0	0	3
+spec-update-v2	./sdd spec-update --version v2	0	0	1
+ingest-v2	./sdd ingest	0	0	2
+context-v2	./sdd context --out evidence/context_v2.json --md evidence/context_v2.md	0	0	3
+accept	./sdd accept	0	0	1

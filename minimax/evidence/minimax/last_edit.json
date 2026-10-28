@@ -1,0 +1,20 @@
+{
+  "mode": "replay",
+  "session_id": "mmx-20261028T041139Z-e4c76c",
+  "transport": "hf-space",
+  "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
+  "files": [
+    "taskboard/service.py"
+  ],
+  "attempts": 1,
+  "attempt_checks": [
+    "attempt 1: 19/19 通过"
+  ],
+  "final_check_passed": true,
+  "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+  "prompt_sha256": "de92e0542ccf6246aa801a3c89464ad13ba8e9e24bc45e7125b9b56399d8f2eb",
+  "replay_check": {
+    "prompt_matches_recording": true,
+    "diff_matches_recording": true
+  }
+}
