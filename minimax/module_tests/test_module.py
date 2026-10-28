@@ -92,6 +92,53 @@ def test_flatten_messages_labels_later_turns():
     assert text == "S\n\nU\n\n## 你上一轮的回复\nA\n\n## 新的反馈（请据此修正）\nF"
 
 
+class _FakeResponse:
+    def __init__(self, status_code: int, payload: dict) -> None:
+        self.status_code = status_code
+        self._payload = payload
+        self.text = str(payload)
+
+    def json(self) -> dict:
+        return self._payload
+
+
+def test_call_live_parses_minimax_response(monkeypatch):
+    from sdd_context import minimax
+
+    seen = {}
+
+    def fake_post(url, json, headers, timeout):
+        seen.update(url=url, body=json, auth=headers["Authorization"])
+        return _FakeResponse(
+            200,
+            {
+                "id": "resp-1",
+                "model": "MiniMax-M3",
+                "choices": [{"finish_reason": "stop", "message": {"content": "FILE: a.py\n```python\nx = 1\n```", "reasoning_content": "hidden"}}],
+                "usage": {"total_tokens": 42},
+                "base_resp": {"status_code": 0, "status_msg": ""},
+            },
+        )
+
+    monkeypatch.setenv("MINIMAX_API_KEY", "placeholder")
+    monkeypatch.setenv("MINIMAX_BASE_URL", "https://api.example.invalid/v1")
+    monkeypatch.delenv("MINIMAX_MODEL", raising=False)
+    monkeypatch.setattr(minimax.httpx, "post", fake_post)
+    text, meta = minimax.call_live([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}])
+    assert seen["url"] == "https://api.example.invalid/v1/chat/completions"
+    assert seen["auth"] == "Bearer placeholder"
+    assert seen["body"]["model"] == "MiniMax-M3" and seen["body"]["reasoning_split"] is True
+    assert parse_files(text) == [("a.py", "x = 1\n")]
+    assert meta["reasoning_chars_omitted"] == len("hidden") and meta["usage"] == {"total_tokens": 42}
+
+    monkeypatch.setattr(minimax.httpx, "post", lambda *a, **k: _FakeResponse(200, {"base_resp": {"status_code": 1008, "status_msg": "insufficient balance"}}))
+    with pytest.raises(EditError, match="1008"):
+        minimax.call_live([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}])
+    monkeypatch.delenv("MINIMAX_API_KEY")
+    with pytest.raises(EditError, match="MINIMAX_API_KEY"):
+        minimax.call_live([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}])
+
+
 def _summary(**overrides):
     base = {"total": 2, "passed": 0, "failed": 2, "errors": 0, "skipped": 0, "failure_kinds": {"AssertionError": 2}}
     return base | overrides
@@ -120,6 +167,49 @@ def test_plan_flags_spec_changes_after_verification():
     assert result["verification"][0]["spec_changed_since"] == ["T-001"]
     assert result["verification"][0]["spec_added_since"] == ["T-002"]
     assert plan({"status": "empty"}, {"specs": {"change": [], "preserve": []}}, "c")["next_step"] == "baseline"
+
+
+def test_replay_applies_recording_and_failed_edit_restores_code(tmp_path, monkeypatch):
+    pytest.importorskip("pylibseekdb")
+    import json
+
+    from sdd_context.ingest import ingest_project
+    from sdd_context.minimax import run_edit
+    from sdd_context.seekdb_store import SeekdbStore
+    from sdd_context.selector import select_context
+
+    project = tmp_path / "project"
+    shutil.copytree(SAMPLE, project)
+    for name, value in {
+        "SDD_RUNTIME_DIR": tmp_path / "runtime",
+        "SDD_EVIDENCE_DIR": tmp_path / "evidence",
+        "SDD_SNAPSHOTS_DIR": tmp_path / "snapshots",
+        "SDD_PROJECT_DIR": project,
+    }.items():
+        monkeypatch.setenv(name, str(value))
+    monkeypatch.setenv("SDD_SEEKDB_HOST", "")
+    settings = config.load_settings()
+    task = config.load_task(MINIMAX_DIR / "sample_task" / "task.toml")
+    recorded = MINIMAX_DIR / "evidence" / "minimax" / "session_recorded.json"
+    trial = json.loads((MINIMAX_DIR / "evidence/minimax/sessions/mmx-20261028T040706Z-7cb5e1.json").read_text())
+    failing = json.loads(recorded.read_text())
+    failing["attempts"] = [dict(failing["attempts"][0], response={"text": trial["response"]["text"]})]
+    failing_path = tmp_path / "failing.json"
+    failing_path.write_text(json.dumps(failing, ensure_ascii=False))
+    original = (project / "taskboard/service.py").read_text()
+
+    with SeekdbStore(settings, actor="module-test") as store:
+        store.ensure_schema()
+        ingest_project(store, task.project, project)
+        context = select_context(store, task)
+        context["project"] = task.project
+        state = {"status": "empty", "done": [], "todo": [], "verification": [], "memories": []}
+        with pytest.raises(EditError, match="恢复为修改前"):
+            run_edit(settings, task, store, context, state, "replay", failing_path, record=False)
+        assert (project / "taskboard/service.py").read_text() == original
+        summary = run_edit(settings, task, store, context, state, "replay", recorded, record=False)
+    assert summary["final_check_passed"] and summary["diff_sha256"] == json.loads(recorded.read_text())["result"]["diff_sha256"]
+    assert (project / "taskboard/service.py").read_text() != original
 
 
 def test_ingest_and_select_with_embedded_seekdb(tmp_path, monkeypatch):

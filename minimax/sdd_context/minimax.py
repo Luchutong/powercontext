@@ -34,6 +34,8 @@ SESSION_SCHEMA = "minimax-sdd.minimax-session.v1"
 DEFAULT_BASE_URL = "https://api.minimaxi.com/v1"
 DEFAULT_MODEL = "MiniMax-M3"
 DEFAULT_SPACE = "MiniMaxAI/MiniMax-Text-01"
+RETRIES = 3
+BACKOFF_SECONDS = 10
 THINK_BLOCK = re.compile(r"<think>.*?</think>", re.S)
 FILE_BLOCK = re.compile(r"FILE:\s*`?([\w./-]+?)`?\s*\n+```[A-Za-z0-9_+-]*\n(.*?)\n```", re.S)
 
@@ -147,8 +149,11 @@ def build_messages(store: SeekdbStore, context: dict[str, Any], plan: dict[str, 
 
 
 def feedback_message(check: dict[str, Any], modify_files: list[str]) -> str:
-    lines = [f"按你上一轮给出的代码运行了上下文中的目标测试与回归测试：{check['passed']}/{check['total']} 通过，以下用例失败："]
-    lines += [f"- {failure['nodeid']}：{failure['message']}" for failure in check["failures"]]
+    if check.get("apply_error"):
+        lines = [f"上一轮回复无法应用：{check['apply_error']}"]
+    else:
+        lines = [f"按你上一轮给出的代码运行了上下文中的目标测试与回归测试：{check['passed']}/{check['total']} 通过，以下用例失败："]
+        lines += [f"- {failure['nodeid']}：{failure['message']}" for failure in check["failures"]]
     lines.append(
         "请找出失败原因并修正。仍然只修改 " + "、".join(modify_files)
         + "，按 `FILE: <相对路径>` 加 ```python 代码块的格式输出修改后的完整文件；必须同时满足变更规格和必须保持的现有规格。"
@@ -169,12 +174,22 @@ def call_live(messages: list[dict[str, str]]) -> tuple[str, dict[str, Any]]:
     }
     if os.environ.get("MINIMAX_REASONING_SPLIT", "1") != "0":
         body["reasoning_split"] = True
-    response = httpx.post(
-        f"{base_url}/chat/completions",
-        json=body,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        timeout=float(os.environ.get("MINIMAX_TIMEOUT", "600")),
-    )
+    response = None
+    for retry in range(RETRIES):
+        try:
+            response = httpx.post(
+                f"{base_url}/chat/completions",
+                json=body,
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                timeout=float(os.environ.get("MINIMAX_TIMEOUT", "600")),
+            )
+        except httpx.HTTPError as error:
+            if retry == RETRIES - 1:
+                raise EditError(f"MiniMax API 请求失败：{type(error).__name__}: {error}") from error
+        else:
+            if response.status_code not in {429, 500, 502, 503, 504}:
+                break
+        time.sleep(BACKOFF_SECONDS * (retry + 1))
     if response.status_code != 200:
         raise EditError(f"MiniMax API 返回 HTTP {response.status_code}: {response.text[:500]}")
     data = response.json()
@@ -211,8 +226,16 @@ def call_hf_space(messages: list[dict[str, str]]) -> tuple[str, dict[str, Any]]:
         raise EditError("hf-space 模式需要 gradio_client：SDD_WITH_HF=1 bash scripts/install.sh") from error
     space = os.environ.get("MINIMAX_HF_SPACE", DEFAULT_SPACE)
     params = {"max_tokens": int(os.environ.get("MINIMAX_MAX_TOKENS", "12800")), "temperature": 0.1, "top_p": 0.9}
-    client = Client(space, verbose=False)
-    text = client.predict(flatten_messages(messages), params["max_tokens"], params["temperature"], params["top_p"], api_name="/chat")
+    text = None
+    for retry in range(RETRIES):
+        try:
+            client = Client(space, verbose=False)
+            text = client.predict(flatten_messages(messages), params["max_tokens"], params["temperature"], params["top_p"], api_name="/chat")
+            break
+        except Exception as error:  # gradio_client raises AppError, httpx errors, ValueError, ...
+            if retry == RETRIES - 1:
+                raise EditError(f"MiniMax Space {space} 调用失败（已重试 {RETRIES} 次）：{type(error).__name__}: {error}") from error
+            time.sleep(BACKOFF_SECONDS * (retry + 1))
     meta = {
         "endpoint": f"https://huggingface.co/spaces/{space} (gradio api_name=/chat)",
         "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
@@ -267,10 +290,10 @@ def write_snapshots(settings: Settings, before: dict[str, str], after: dict[str,
     paths = {}
     for label, files in (("before", before), ("after", after)):
         for rel, content in files.items():
-            target = settings.minimax_dir / "snapshots" / label / rel
+            target = settings.snapshots_dir / label / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding="utf-8")
-            paths[f"{label}:{rel}"] = str(target.relative_to(settings.minimax_dir))
+            paths[f"{label}:{rel}"] = _rel(settings, target)
     return paths
 
 
@@ -342,55 +365,44 @@ def run_edit(
     conversation = list(messages)
     attempts: list[dict[str, Any]] = []
     meta: dict[str, Any] = {}
-    for number in range(1, planned + 1):
-        feedback = None
-        if attempts:
-            feedback = feedback_message(attempts[-1]["check"], modify_files)
-            conversation += [{"role": "assistant", "content": attempts[-1]["response"]["text"]}, {"role": "user", "content": feedback}]
-        started = time.perf_counter()
-        if recorded is not None:
-            text, call_meta = recorded["attempts"][number - 1]["response"]["text"], {}
-        elif mode == "live":
-            text, call_meta = call_live(conversation)
-        else:
-            text, call_meta = call_hf_space(conversation)
-        latency = round(time.perf_counter() - started, 2)
-        meta = meta or {k: v for k, v in call_meta.items() if k in {"endpoint", "model", "request_params", "note"}}
-        visible = THINK_BLOCK.sub("", text).strip() + "\n"
-        written, rejected = apply_files(settings.project_dir, parse_files(visible), allowed)
-        current = {rel: (settings.project_dir / rel).read_text(encoding="utf-8") for rel in originals}
-        changed = {rel: content for rel, content in current.items() if content != originals[rel]}
-        diff = unified_diff(originals, changed)
-        check = check_attempt(settings, context, number, attempt_dir)
-        attempts.append(
-            {
-                "attempt": number,
-                "request_sha256": messages_sha(conversation),
-                "feedback": feedback,
-                "response": {
-                    "text": visible,
-                    "sha256": sha256(visible),
-                    "reasoning_removed": THINK_BLOCK.search(text) is not None or bool(call_meta.get("reasoning_chars_omitted")),
-                    **{k: v for k, v in call_meta.items() if k in {"response_id", "finish_reason", "usage", "reasoning_chars_omitted"}},
-                },
-                "latency_s": latency,
-                "files_written": written,
-                "rejected": rejected,
-                "diff": diff,
-                "diff_sha256": sha256(diff),
-                "check": check,
-            }
-        )
-        if check["failed"] == 0 and check["errors"] == 0:
-            break
+    failure: str | None = None
+    try:
+        for number in range(1, planned + 1):
+            if attempts:
+                conversation += [
+                    {"role": "assistant", "content": attempts[-1]["response"]["text"]},
+                    {"role": "user", "content": feedback_message(attempts[-1]["check"], modify_files)},
+                ]
+            started = time.perf_counter()
+            if recorded is not None:
+                text, call_meta = recorded["attempts"][number - 1]["response"]["text"], {}
+            elif mode == "live":
+                text, call_meta = call_live(conversation)
+            else:
+                text, call_meta = call_hf_space(conversation)
+            meta = meta or {k: v for k, v in call_meta.items() if k in {"endpoint", "model", "request_params", "note"}}
+            attempts.append(_attempt(settings, context, originals, allowed, attempt_dir, number, conversation, text, call_meta,
+                                     round(time.perf_counter() - started, 2)))
+            if _passed(attempts[-1]):
+                break
+    except EditError as error:
+        failure = str(error)
 
-    final = attempts[-1]
+    passed = bool(attempts) and _passed(attempts[-1])
+    if failure is None and not passed:
+        failure = f"MiniMax 在 {len(attempts)} 轮内没有让目标与回归测试全部通过"
+    final = attempts[-1] if attempts else {"diff": "", "diff_sha256": sha256(""), "response": {}}
     after = {rel: (settings.project_dir / rel).read_text(encoding="utf-8") for rel in originals}
     after = {rel: content for rel, content in after.items() if content != originals[rel]}
     before = {rel: originals[rel] for rel in after}
-    snapshots = write_snapshots(settings, before, after)
-    (settings.evidence_dir / "code.diff").write_text(final["diff"], encoding="utf-8")
-    passed = final["check"]["failed"] == 0 and final["check"]["errors"] == 0
+    snapshots: dict[str, str] = {}
+    if failure is None:
+        snapshots = write_snapshots(settings, before, after)
+        (settings.evidence_dir / "code.diff").write_text(final["diff"], encoding="utf-8")
+    else:
+        for rel, content in originals.items():
+            (settings.project_dir / rel).write_text(content, encoding="utf-8")
+        failure += "；工作副本已恢复为修改前的代码"
     edit_summary: dict[str, Any] = {
         "mode": mode,
         "session_id": session_id,
@@ -402,6 +414,7 @@ def run_edit(
         "final_check_passed": passed,
         "diff_sha256": final["diff_sha256"],
         "prompt_sha256": prompt_sha,
+        **({"error": failure} if failure else {}),
     }
 
     if recorded is not None:
@@ -468,19 +481,69 @@ def run_edit(
                 "modify_targets": modify_files,
                 "final_check_passed": passed,
             },
+            **({"error": failure} if failure else {}),
         }
         sessions = out_dir / "sessions"
         sessions.mkdir(parents=True, exist_ok=True)
         session_path = sessions / f"{session_id}.json"
         session_path.write_text(json.dumps(session, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         edit_summary["session_file"] = _rel(settings, session_path)
-        if record:
+        if record and failure is None:
             (out_dir / "session_recorded.json").write_text(json.dumps(session, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             from sdd_context.devlog import render_devlog
 
             (out_dir / "开发记录.md").write_text(render_devlog(session), encoding="utf-8")
 
     (out_dir / "last_edit.json").write_text(json.dumps(edit_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    if not passed:
-        raise EditError(f"MiniMax 在 {len(attempts)} 轮内没有让目标与回归测试全部通过；记录见 {edit_summary.get('session_file', 'replay_check.json')}")
+    if failure is not None:
+        raise EditError(f"{failure}；记录见 {edit_summary.get('session_file', _rel(settings, out_dir / 'replay_check.json'))}")
     return edit_summary
+
+
+def _passed(attempt: dict[str, Any]) -> bool:
+    return attempt["check"]["failed"] == 0 and attempt["check"]["errors"] == 0
+
+
+def _attempt(
+    settings: Settings,
+    context: dict[str, Any],
+    originals: dict[str, str],
+    allowed: set[str],
+    attempt_dir: Path,
+    number: int,
+    conversation: list[dict[str, str]],
+    text: str,
+    call_meta: dict[str, Any],
+    latency: float,
+) -> dict[str, Any]:
+    """Apply one MiniMax reply to the workspace, run the context's tests and describe the turn."""
+    visible = THINK_BLOCK.sub("", text).strip() + "\n"
+    apply_error = None
+    try:
+        written, rejected = apply_files(settings.project_dir, parse_files(visible), allowed)
+    except EditError as error:
+        written, rejected, apply_error = [], [], str(error)
+    current = {rel: (settings.project_dir / rel).read_text(encoding="utf-8") for rel in originals}
+    diff = unified_diff(originals, {rel: content for rel, content in current.items() if content != originals[rel]})
+    if apply_error:
+        check = {"command": None, "exit_code": None, "total": 0, "passed": 0, "failed": 0, "errors": 1,
+                 "failures": [], "apply_error": apply_error}
+    else:
+        check = check_attempt(settings, context, number, attempt_dir)
+    return {
+        "attempt": number,
+        "request_sha256": messages_sha(conversation),
+        "feedback": conversation[-1]["content"] if number > 1 else None,
+        "response": {
+            "text": visible,
+            "sha256": sha256(visible),
+            "reasoning_removed": THINK_BLOCK.search(text) is not None or bool(call_meta.get("reasoning_chars_omitted")),
+            **{k: v for k, v in call_meta.items() if k in {"response_id", "finish_reason", "usage", "reasoning_chars_omitted"}},
+        },
+        "latency_s": latency,
+        "files_written": written,
+        "rejected": rejected,
+        "diff": diff,
+        "diff_sha256": sha256(diff),
+        "check": check,
+    }

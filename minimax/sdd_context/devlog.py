@@ -77,6 +77,7 @@ def render_devlog(session: dict[str, Any]) -> str:
             attempt["diff"].rstrip(),
             "```",
             "",
+            f"- 回复无法应用：{check['apply_error']}" if check.get("apply_error") else
             f"- 运行上下文中的目标 + 回归测试：`{check['command']}` → exit {check['exit_code']}，{check['passed']}/{check['total']} 通过",
         ]
         if check["failures"]:

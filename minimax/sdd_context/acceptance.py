@@ -90,8 +90,8 @@ class Checker:
                    f"evidence/code.diff 与开发记录中的 diff 一致（sha256 {session['result']['diff_sha256'][:12]}）")
         snap = []
         for entry in session["result"]["files"]:
-            before = (self.root / "snapshots" / "before" / entry["path"]).read_text(encoding="utf-8")
-            after = (self.root / "snapshots" / "after" / entry["path"]).read_text(encoding="utf-8")
+            before = (self.settings.snapshots_dir / "before" / entry["path"]).read_text(encoding="utf-8")
+            after = (self.settings.snapshots_dir / "after" / entry["path"]).read_text(encoding="utf-8")
             snap.append(f"diff --git a/{entry['path']} b/{entry['path']}\n" + "".join(difflib.unified_diff(
                 before.splitlines(keepends=True), after.splitlines(keepends=True), fromfile=f"a/{entry['path']}", tofile=f"b/{entry['path']}")))
             self.check("minimax", _sha(before) == entry["before_sha256"] and _sha(after) == entry["after_sha256"],

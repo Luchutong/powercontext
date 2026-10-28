@@ -38,6 +38,7 @@ class Settings:
     runtime_dir: Path
     project_dir: Path
     evidence_dir: Path
+    snapshots_dir: Path
     task_file: Path
     seekdb_dir: Path
     seekdb_database: str
@@ -72,6 +73,7 @@ def load_settings() -> Settings:
         runtime_dir=runtime,
         project_dir=_path("SDD_PROJECT_DIR", runtime / "workspace" / "sample_app"),
         evidence_dir=_path("SDD_EVIDENCE_DIR", MINIMAX_DIR / "evidence"),
+        snapshots_dir=_path("SDD_SNAPSHOTS_DIR", MINIMAX_DIR / "snapshots"),
         task_file=_path("SDD_TASK_FILE", MINIMAX_DIR / "sample_task" / "task.toml"),
         seekdb_dir=_path("SDD_SEEKDB_DIR", runtime / "seekdb"),
         seekdb_database=os.environ.get("SDD_SEEKDB_DATABASE", "sdd_context"),
