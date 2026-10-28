@@ -1,6 +1,6 @@
 # 开发上下文：TASK-TAG-FILTER 任务列表接口支持按标签过滤
 
-- 生成时间：2026-10-28T04:41:29Z
+- 生成时间：2026-10-28T04:44:07Z
 - 资料版本：seekdb import #1（spec_digest `84e4b299421f`）
 - 检索引擎：5.7.25-OceanBase seekdb-v1.4.0.0（embedded，库 `sdd_context`）
 - 选中组件：GET /tasks

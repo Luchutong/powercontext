@@ -1,7 +1,7 @@
 {
   "command": "server start",
   "url": "http://127.0.0.1:17439",
-  "pid": 22019,
+  "pid": 24107,
   "live": true,
   "env_file": "/workspace/minimax/.runtime/powercontext/server.env",
   "log_file": "/workspace/minimax/.runtime/powercontext/server.log",

@@ -1,8 +1,8 @@
 {
   "command": "resume",
   "server": "http://127.0.0.1:17439",
-  "server_pid": 20918,
-  "process_pid": 20930,
+  "server_pid": 23012,
+  "process_pid": 23024,
   "state": {
     "status": "empty",
     "source": "powercontext",

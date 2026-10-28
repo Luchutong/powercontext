@@ -1,5 +1,5 @@
 {
-  "scope_id": "scp_4x1xfmmkkgzay8522xrbq6c7j5",
+  "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
   "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
   "phase": "baseline",
   "memories": [
@@ -8,7 +8,7 @@
       "text": "[TASK-TAG-FILTER] 上下文选择：变更规格 TAG-001, TAG-002, TAG-003, TAG-004；必须保持 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；目标测试 7 个、回归测试 7 个（seekdb import #1）。",
       "artifact": {
         "family": "atomic-memory",
-        "artifact_id": "art_e994447dbdb548d391e1111445e4da0e",
+        "artifact_id": "art_80a7de1b6adc429cba2b9f4c3b531786",
         "revision": 1
       }
     },
@@ -17,14 +17,14 @@
       "text": "[TASK-TAG-FILTER] 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。",
       "artifact": {
         "family": "atomic-memory",
-        "artifact_id": "art_617983a53577464ba8784fc12ffbd55b",
+        "artifact_id": "art_05476940db794688a15e10d99f26f57f",
         "revision": 1
       }
     }
   ],
   "sources": {
-    "verification": "src_ab3a60408f39471aae6a5d52efe6e95e",
-    "work_contract": "contract-task-tag-filter-24895548"
+    "verification": "src_9e986391a5ff4a719a88c8161417dcac",
+    "work_contract": "contract-task-tag-filter-cf4569c0"
   },
   "edit_session": null,
   "handoff": {

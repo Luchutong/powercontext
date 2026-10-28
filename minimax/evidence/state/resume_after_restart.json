@@ -1,13 +1,13 @@
 {
   "command": "resume",
   "server": "http://127.0.0.1:17439",
-  "server_pid": 22019,
-  "process_pid": 22031,
+  "server_pid": 24107,
+  "process_pid": 24119,
   "state": {
     "status": "restored",
     "source": "powercontext",
     "server": "http://127.0.0.1:17439",
-    "scope_id": "scp_4x1xfmmkkgzay8522xrbq6c7j5",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
     "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
     "memories": [
       {
@@ -15,7 +15,7 @@
         "text": "[TASK-TAG-FILTER] 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。",
         "artifact": {
           "family": "atomic-memory",
-          "artifact_id": "art_617983a53577464ba8784fc12ffbd55b",
+          "artifact_id": "art_05476940db794688a15e10d99f26f57f",
           "revision": 1
         }
       },
@@ -24,7 +24,7 @@
         "text": "[TASK-TAG-FILTER] MiniMax 修改已验证：mmx-20261028T041139Z-e4c76c 修改 taskboard/service.py；修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过。",
         "artifact": {
           "family": "atomic-memory",
-          "artifact_id": "art_6f51b9252d93409fb98bcf42b1b7aee2",
+          "artifact_id": "art_073b6b7aa9e14ce0ae60e728a1ec0d2a",
           "revision": 1
         }
       },
@@ -33,7 +33,7 @@
         "text": "[TASK-TAG-FILTER] 上下文选择：变更规格 TAG-001, TAG-002, TAG-003, TAG-004；必须保持 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；目标测试 7 个、回归测试 7 个（seekdb import #1）。",
         "artifact": {
           "family": "atomic-memory",
-          "artifact_id": "art_e994447dbdb548d391e1111445e4da0e",
+          "artifact_id": "art_80a7de1b6adc429cba2b9f4c3b531786",
           "revision": 1
         }
       }
@@ -73,12 +73,12 @@
     "todo": [],
     "verification": [
       {
-        "source_id": "src_ab3a60408f39471aae6a5d52efe6e95e",
+        "source_id": "src_9e986391a5ff4a719a88c8161417dcac",
         "phase": "baseline",
         "label": "before",
-        "recorded_at": "2026-10-28T04:41:39Z",
+        "recorded_at": "2026-10-28T04:44:15Z",
         "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
-        "git_commit": "eb0d57d3e53f11820b9652e64a72e2f8748debdb",
+        "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
         "suites": {
           "regression": {
             "command": "python -m pytest -q -rfE tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
@@ -121,12 +121,12 @@
         }
       },
       {
-        "source_id": "src_c44cc91a16754990bac853412f0a10d3",
+        "source_id": "src_d3ce37f889a045b9ac6ae406093962ec",
         "phase": "verified",
         "label": "after",
-        "recorded_at": "2026-10-28T04:41:56Z",
+        "recorded_at": "2026-10-28T04:44:31Z",
         "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
-        "git_commit": "eb0d57d3e53f11820b9652e64a72e2f8748debdb",
+        "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
         "suites": {
           "full": {
             "command": "python -m pytest -q -rfE tests",
@@ -198,8 +198,8 @@
       ],
       "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
       "mode": "replay",
-      "recorded_at": "2026-10-28T04:41:56Z",
-      "source_id": "src_79849d9cf8df4ebb8f96cae851bce02b"
+      "recorded_at": "2026-10-28T04:44:31Z",
+      "source_id": "src_d0be464b279f42458c6ad791672b4807"
     }
   },
   "next_step": null,

@@ -1,6 +1,6 @@
 {
   "schema": "minimax-sdd.context.v1",
-  "generated_at": "2026-10-28T04:41:42Z",
+  "generated_at": "2026-10-28T04:44:18Z",
   "task": {
     "id": "TASK-TAG-FILTER",
     "title": "任务列表接口支持按标签过滤",
@@ -10,7 +10,7 @@
   "import": {
     "import_id": 1,
     "first_import": true,
-    "imported_at": "2026-10-28 04:41:25.674933",
+    "imported_at": "2026-10-28 04:44:04.471708",
     "spec_digest": "84e4b299421f80cbed5c96c9928622317de140cf51f7d150243545dec8a93c00",
     "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
     "test_digest": "48eddf4988344a49f1ade6ce4cae70d982bd78e5e1342cbbda77a147fbd76672",
@@ -839,70 +839,70 @@
         "purpose": "最近一次导入批次",
         "sql": "SELECT import_id, imported_at, spec_digest, code_digest, test_digest, spec_items, code_symbols, test_cases, added_items, modified_items, removed_items, (SELECT MIN(import_id) FROM sdd_import WHERE project = 'taskboard') AS first_import_id FROM sdd_import WHERE project = 'taskboard' ORDER BY import_id DESC LIMIT 1",
         "rows": 1,
-        "elapsed_ms": 8.61
+        "elapsed_ms": 8.38
       },
       {
         "id": "Q1",
         "purpose": "规格条目全文检索（任务描述，ik 分词）",
         "sql": "SELECT item_id, component, item_type, title, revision, ROUND(MATCH(search_text) AGAINST('任务列表接口支持按标签过滤\\n为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。' IN NATURAL LANGUAGE MODE), 4) AS score FROM sdd_spec_item WHERE project = 'taskboard' AND MATCH(search_text) AGAINST('任务列表接口支持按标签过滤\\n为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。' IN NATURAL LANGUAGE MODE) ORDER BY score DESC, item_id LIMIT 30",
         "rows": 14,
-        "elapsed_ms": 90.41
+        "elapsed_ms": 88.73
       },
       {
         "id": "Q2",
         "purpose": "命中组件下的全部有效规格条目（变更 + 必须保持）",
         "sql": "SELECT item_id, doc_path, doc_title, component, item_type, title, keywords, body, start_line, end_line, sha256, revision, import_id FROM sdd_spec_item WHERE project = 'taskboard' AND component IN ('GET /tasks') ORDER BY item_type, item_id",
         "rows": 9,
-        "elapsed_ms": 1.72
+        "elapsed_ms": 1.68
       },
       {
         "id": "Q3",
         "purpose": "验证这些规格条目的测试（pytest spec 标记）",
         "sql": "SELECT l.dst_id AS spec_id, t.test_id, t.path, t.name, t.start_line, t.end_line, t.spec_refs, t.uses FROM sdd_link l JOIN sdd_test_case t ON t.project = l.project AND t.test_id = l.src_id WHERE l.project = 'taskboard' AND l.relation = 'verifies' AND l.dst_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY t.path, t.start_line",
         "rows": 16,
-        "elapsed_ms": 10.09
+        "elapsed_ms": 10.48
       },
       {
         "id": "Q4",
         "purpose": "实现这些规格条目的代码符号（docstring/注释中的规格编号）",
         "sql": "SELECT l.dst_id AS spec_id, s.symbol_id, s.path, s.symbol, s.kind, s.start_line, s.end_line, s.signature FROM sdd_link l JOIN sdd_code_symbol s ON s.project = l.project AND s.symbol_id = l.src_id WHERE l.project = 'taskboard' AND l.relation = 'implements' AND l.dst_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY s.path, s.start_line",
         "rows": 11,
-        "elapsed_ms": 6.48
+        "elapsed_ms": 6.28
       },
       {
         "id": "Q5",
         "purpose": "目标测试直接调用/引用的代码符号",
         "sql": "SELECT l.src_id AS test_id, s.symbol_id, s.path, s.symbol, s.kind, s.start_line, s.end_line, s.signature FROM sdd_link l JOIN sdd_code_symbol s ON s.project = l.project AND s.symbol_id = l.dst_id WHERE l.project = 'taskboard' AND l.relation = 'uses' AND l.src_id IN ('tests/test_tag_filter.py::test_blank_tag_is_rejected','tests/test_tag_filter.py::test_blank_tag_returns_400_over_http','tests/test_tag_filter.py::test_get_tasks_with_tag_over_http','tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag','tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total','tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace','tests/test_tag_filter.py::test_unknown_tag_returns_empty_result') ORDER BY s.path, s.start_line",
         "rows": 6,
-        "elapsed_ms": 4.45
+        "elapsed_ms": 4.61
       },
       {
         "id": "Q6",
         "purpose": "代码符号全文检索（变更条目正文，ik 分词）",
         "sql": "SELECT symbol_id, path, symbol, kind, start_line, end_line, signature, ROUND(MATCH(search_text) AGAINST('按标签过滤任务 tag, 标签, 过滤, 查询参数, filter `GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\\\"items\\\": [], \\\"total\\\": 0}`。 标签匹配规则 tag, 标签, 大小写, 空白, 匹配 `tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。 与现有过滤、排序和分页组合 tag, status, limit, total, 组合, 排序 `tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。 空标签参数 tag, 空值, 空白, 边界输入, 400 `tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。' IN NATURAL LANGUAGE MODE), 4) AS score FROM sdd_code_symbol WHERE project = 'taskboard' AND MATCH(search_text) AGAINST('按标签过滤任务 tag, 标签, 过滤, 查询参数, filter `GET /tasks` 新增查询参数 `tag`。提供该参数时，只返回 `tags` 中包含该标签的任务；没有任务匹配时返回 `{\\\"items\\\": [], \\\"total\\\": 0}`。 标签匹配规则 tag, 标签, 大小写, 空白, 匹配 `tag` 参数值先去除首尾空白，再与任务标签进行不区分大小写的比较。例如 `?tag=%20Backend%20` 与标签 `backend` 匹配。 与现有过滤、排序和分页组合 tag, status, limit, total, 组合, 排序 `tag` 与 `status` 同时提供时取交集。排序规则（LIST-001）与 `limit` 规则（LIST-003）不变；`total` 是应用全部过滤条件之后、`limit` 截断之前的数量。 空标签参数 tag, 空值, 空白, 边界输入, 400 `tag` 参数存在但为空字符串或只包含空白时视为非法查询：`search_tasks` 抛出 `QueryError`，接口返回 HTTP 400，错误信息包含 `tag`。' IN NATURAL LANGUAGE MODE) ORDER BY score DESC, symbol_id LIMIT 15",
         "rows": 15,
-        "elapsed_ms": 4.36
+        "elapsed_ms": 5.02
       },
       {
         "id": "Q7",
         "purpose": "修改目标实现的规格条目（影响分析）",
         "sql": "SELECT l.src_id AS symbol_id, i.item_id, i.doc_path, i.doc_title, i.component, i.item_type, i.title, i.keywords, i.body, i.start_line, i.end_line, i.sha256, i.revision, i.import_id FROM sdd_link l JOIN sdd_spec_item i ON i.project = l.project AND i.item_id = l.dst_id WHERE l.project = 'taskboard' AND l.relation = 'implements' AND l.src_id IN ('taskboard/service.py::search_tasks') ORDER BY i.item_id",
         "rows": 5,
-        "elapsed_ms": 3.92
+        "elapsed_ms": 3.81
       },
       {
         "id": "Q8",
         "purpose": "选中规格条目的修订历史",
         "sql": "SELECT item_id, revision, change_kind, sha256, import_id FROM sdd_spec_history WHERE project = 'taskboard' AND item_id IN ('TAG-001','TAG-002','TAG-003','TAG-004','LIST-001','LIST-002','LIST-003','LIST-004','LIST-005') ORDER BY item_id, revision",
         "rows": 9,
-        "elapsed_ms": 2.42
+        "elapsed_ms": 2.28
       },
       {
         "id": "Q9",
         "purpose": "上下文引用的源文件（路径、摘要、行数）",
         "sql": "SELECT path, kind, sha256, line_count, import_id FROM sdd_document WHERE project = 'taskboard' AND path IN ('specs/tag-filter.md','specs/tasks-list.md','taskboard/api.py','taskboard/service.py','tests/test_list_api.py','tests/test_tag_filter.py') ORDER BY path",
         "rows": 6,
-        "elapsed_ms": 1.97
+        "elapsed_ms": 2.21
       }
     ]
   },
@@ -912,7 +912,7 @@
   "state": {
     "status": "restored",
     "source": "powercontext",
-    "scope_id": "scp_4x1xfmmkkgzay8522xrbq6c7j5",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
     "handoff": {
       "reference": {
         "family": "handoff",
@@ -954,12 +954,12 @@
     ],
     "verification": [
       {
-        "source_id": "src_ab3a60408f39471aae6a5d52efe6e95e",
+        "source_id": "src_9e986391a5ff4a719a88c8161417dcac",
         "phase": "baseline",
         "label": "before",
-        "recorded_at": "2026-10-28T04:41:39Z",
+        "recorded_at": "2026-10-28T04:44:15Z",
         "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
-        "git_commit": "eb0d57d3e53f11820b9652e64a72e2f8748debdb",
+        "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
         "suites": {
           "regression": {
             "command": "python -m pytest -q -rfE tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
@@ -1013,7 +1013,7 @@
         "text": "[TASK-TAG-FILTER] 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。",
         "artifact": {
           "family": "atomic-memory",
-          "artifact_id": "art_617983a53577464ba8784fc12ffbd55b",
+          "artifact_id": "art_05476940db794688a15e10d99f26f57f",
           "revision": 1
         }
       },
@@ -1022,7 +1022,7 @@
         "text": "[TASK-TAG-FILTER] 上下文选择：变更规格 TAG-001, TAG-002, TAG-003, TAG-004；必须保持 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；目标测试 7 个、回归测试 7 个（seekdb import #1）。",
         "artifact": {
           "family": "atomic-memory",
-          "artifact_id": "art_e994447dbdb548d391e1111445e4da0e",
+          "artifact_id": "art_80a7de1b6adc429cba2b9f4c3b531786",
           "revision": 1
         }
       }

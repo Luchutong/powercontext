@@ -1,6 +1,6 @@
 # 开发上下文：TASK-TAG-FILTER 任务列表接口支持按标签过滤
 
-- 生成时间：2026-10-28T04:42:15Z
+- 生成时间：2026-10-28T04:44:51Z
 - 资料版本：seekdb import #2（spec_digest `bb401d57baa6`）
 - 检索引擎：5.7.25-OceanBase seekdb-v1.4.0.0（embedded，库 `sdd_context`）
 - 选中组件：GET /tasks
@@ -56,12 +56,12 @@
 
 ## 任务状态（PowerContext）
 
-- 状态：restored；Scope：`scp_4x1xfmmkkgzay8522xrbq6c7j5`
+- 状态：restored；Scope：`scp_1aabk41rsm799rb9eqw4g0k0zw`
 - 交接：`handoff/handoff@2`（complete）
 - 已完成：[DONE:ingest] 导入规格、代码和测试到 seekdb（import #1）；[DONE:context] 选出规格 TAG-001, TAG-002, TAG-003, TAG-004, LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；[VERIFIED:baseline] 修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败；[DONE:edit] MiniMax 会话 mmx-20261028T041139Z-e4c76c（hf-space / MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定））修改 taskboard/service.py，diff sha256 07e5fffecaaf；[VERIFIED:verify] 修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过
 - 待办：[respec] TAG-001 在验证之后被修改（当前 rev 2），需按新规格修改代码并重新验证；[respec] TAG-005 是验证之后新增的规格条目，需补充实现与测试；[tests] TAG-005 没有覆盖测试
-- 已有验证（baseline，2026-10-28T04:41:39Z）：regression 9/9，target 0/10；仍然有效：否；验证后变更的规格：TAG-001；验证后新增的规格：TAG-005
-- 已有验证（verified，2026-10-28T04:41:56Z）：full 27/27，regression 9/9，target 10/10；仍然有效：否；验证后变更的规格：TAG-001；验证后新增的规格：TAG-005
+- 已有验证（baseline，2026-10-28T04:44:15Z）：regression 9/9，target 0/10；仍然有效：否；验证后变更的规格：TAG-001；验证后新增的规格：TAG-005
+- 已有验证（verified，2026-10-28T04:44:31Z）：full 27/27，regression 9/9，target 10/10；仍然有效：否；验证后变更的规格：TAG-001；验证后新增的规格：TAG-005
 - 缺少测试的变更条目：TAG-005
 
 ## seekdb 查询

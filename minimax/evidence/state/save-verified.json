@@ -1,5 +1,5 @@
 {
-  "scope_id": "scp_4x1xfmmkkgzay8522xrbq6c7j5",
+  "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
   "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
   "phase": "verified",
   "memories": [
@@ -8,15 +8,15 @@
       "text": "[TASK-TAG-FILTER] MiniMax 修改已验证：mmx-20261028T041139Z-e4c76c 修改 taskboard/service.py；修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过。",
       "artifact": {
         "family": "atomic-memory",
-        "artifact_id": "art_6f51b9252d93409fb98bcf42b1b7aee2",
+        "artifact_id": "art_073b6b7aa9e14ce0ae60e728a1ec0d2a",
         "revision": 1
       }
     }
   ],
   "sources": {
-    "verification": "src_c44cc91a16754990bac853412f0a10d3",
-    "edit": "src_79849d9cf8df4ebb8f96cae851bce02b",
-    "task_outcome": "outcome-task-tag-filter-e9cce86a"
+    "verification": "src_d3ce37f889a045b9ac6ae406093962ec",
+    "edit": "src_d0be464b279f42458c6ad791672b4807",
+    "task_outcome": "outcome-task-tag-filter-a6a7bba7"
   },
   "edit_session": "mmx-20261028T041139Z-e4c76c",
   "handoff": {

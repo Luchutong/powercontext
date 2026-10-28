@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T04:42:16Z",
+  "generated_at": "2026-10-28T04:44:52Z",
   "passed": true,
   "items": [
     {
@@ -165,7 +165,7 @@
         },
         {
           "ok": true,
-          "message": "PowerContext Server 已停止（pid 20918，停止后 live=False）并重新启动（pid 22019）"
+          "message": "PowerContext Server 已停止（pid 23012，停止后 live=False）并重新启动（pid 24107）"
         },
         {
           "ok": true,
