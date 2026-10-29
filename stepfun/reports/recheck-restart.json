@@ -1,0 +1,168 @@
+{
+  "at": "2026-10-29T11:39:55.903Z",
+  "collection": "restart_mvth0zma",
+  "environment": {
+    "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+    "threads": 16,
+    "crossOriginIsolated": true,
+    "gpu": null
+  },
+  "before": {
+    "mode": "hybrid",
+    "results": [
+      {
+        "id": "82d0763f3194d27f4aa1178ae26081c670a63a04a5aebbb44e37ba3116512b36",
+        "text": "火星探测车研究古代河流遗迹，帮助科学家了解这颗行星过去的气候。",
+        "metadata": {
+          "end": 31,
+          "chunk": 0,
+          "start": 0,
+          "source": "original-note",
+          "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1",
+          "documentId": "002ac13beaeb15a7cfd0c95bf802573e48238413a8816560bda1f0ec73a9e696"
+        },
+        "score": 0.0328
+      }
+    ],
+    "timings": {
+      "searchMs": 24.82113599999866,
+      "embeddingMs": 9.975000001490116,
+      "totalMs": 57.875
+    }
+  },
+  "after": {
+    "mode": "hybrid",
+    "results": [
+      {
+        "id": "82d0763f3194d27f4aa1178ae26081c670a63a04a5aebbb44e37ba3116512b36",
+        "text": "火星探测车研究古代河流遗迹，帮助科学家了解这颗行星过去的气候。",
+        "metadata": {
+          "end": 31,
+          "chunk": 0,
+          "start": 0,
+          "source": "original-note",
+          "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1",
+          "documentId": "002ac13beaeb15a7cfd0c95bf802573e48238413a8816560bda1f0ec73a9e696"
+        },
+        "score": 0.0328
+      }
+    ],
+    "timings": {
+      "searchMs": 1756.9967340000003,
+      "embeddingMs": 0.019999995827674866,
+      "totalMs": 3841.634999997914
+    }
+  },
+  "repeated": {
+    "type": "import",
+    "collection": "restart_mvth0zma",
+    "documents": 1,
+    "chunks": 1,
+    "count": 1,
+    "runtime": {
+      "device": "wasm",
+      "dtype": "q8",
+      "reason": "WebGPU 不可用，已自动使用 WASM",
+      "loadMs": 1431.75,
+      "modelResources": [
+        {
+          "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+          "durationMs": 138.67000000178814,
+          "transferBytes": 24011142,
+          "bodyBytes": 24010842
+        }
+      ],
+      "warmupMs": 161.9400000050664,
+      "threads": 4,
+      "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+    },
+    "batchSize": 8,
+    "writeBatchSize": 128,
+    "refreshEachBatch": false,
+    "cacheHits": 1,
+    "timings": {
+      "embeddingMs": 0.030000001192092896,
+      "writeMs": 10.33203200000571,
+      "refreshMs": 518.5437930000044,
+      "totalMs": 549.7599999979138
+    },
+    "at": "2026-10-29T11:39:55.221Z"
+  },
+  "imported": {
+    "type": "import",
+    "collection": "restart_mvth0zma",
+    "documents": 1,
+    "chunks": 1,
+    "count": 2,
+    "runtime": {
+      "device": "wasm",
+      "dtype": "q8",
+      "reason": "WebGPU 不可用，已自动使用 WASM",
+      "loadMs": 1431.75,
+      "modelResources": [
+        {
+          "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+          "durationMs": 138.67000000178814,
+          "transferBytes": 24011142,
+          "bodyBytes": 24010842
+        }
+      ],
+      "warmupMs": 161.9400000050664,
+      "threads": 4,
+      "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+    },
+    "batchSize": 8,
+    "writeBatchSize": 128,
+    "refreshEachBatch": false,
+    "cacheHits": 0,
+    "timings": {
+      "embeddingMs": 13.909999996423721,
+      "writeMs": 16.46104199999536,
+      "refreshMs": 504.64089599999716,
+      "totalMs": 556.2850000038743
+    },
+    "at": "2026-10-29T11:39:55.829Z"
+  },
+  "fresh": {
+    "mode": "hybrid",
+    "results": [
+      {
+        "id": "8e9880aab0213dfa85fd2466855b6417ae64bc2cab2b02ca1e9fc7ebbc897032",
+        "text": "木星的大红斑是一场持续多年的巨大风暴，探测器通过观测云层了解其大气变化。",
+        "metadata": {
+          "end": 36,
+          "chunk": 0,
+          "start": 0,
+          "source": "new-note",
+          "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1",
+          "documentId": "f48b91d2e76260ce8d59f0c30080b1867d623bc30c1d961a0168e44ad4822a86"
+        },
+        "score": 0.0328
+      },
+      {
+        "id": "82d0763f3194d27f4aa1178ae26081c670a63a04a5aebbb44e37ba3116512b36",
+        "text": "火星探测车研究古代河流遗迹，帮助科学家了解这颗行星过去的气候。",
+        "metadata": {
+          "end": 31,
+          "chunk": 0,
+          "start": 0,
+          "source": "original-note",
+          "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1",
+          "documentId": "002ac13beaeb15a7cfd0c95bf802573e48238413a8816560bda1f0ec73a9e696"
+        },
+        "score": 0.0161
+      }
+    ],
+    "timings": {
+      "searchMs": 6.434471000000485,
+      "embeddingMs": 10.16499999910593,
+      "totalMs": 45.185000002384186
+    }
+  },
+  "checks": [
+    "persistent-original",
+    "live-sdk-reconnect",
+    "idempotent-retry",
+    "incremental-after-restart"
+  ]
+}

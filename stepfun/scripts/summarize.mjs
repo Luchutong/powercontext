@@ -1,11 +1,15 @@
 import { readFile, writeFile } from 'node:fs/promises';
-const report = JSON.parse(await readFile('reports/benchmark.json', 'utf8'));
+import { relative, basename } from 'node:path';
+const input = process.env.BENCH_INPUT || 'reports/benchmark.json';
+const report = JSON.parse(await readFile(input, 'utf8'));
+const rawLink = relative('reports', input);
 const median = values => { const sorted = values.sort((a, b) => a - b); const middle = Math.floor(sorted.length / 2); return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2; };
 const f = (n, digits = 2) => n === null || n === undefined ? '—' : n.toFixed(digits);
 const profiles = report.profiles.filter(p => p.summary);
 const baseline = profiles.find(p => p.config.name === 'fp32-wasm-b1').summary;
 const quant = profiles.find(p => p.config.name === 'int8-wasm-b1').summary;
 const optimized = profiles.find(p => p.config.name === 'int8-wasm-b8').summary;
+const batchRatio = optimized.chunksPerSecond / quant.chunksPerSecond;
 const refresh = profiles.find(p => p.refreshExperiment)?.refreshExperiment;
 const eachMs = median(refresh.filter(r => r.each).map(r => r.imported.timings.refreshMs));
 const onceMs = median(refresh.filter(r => !r.each).map(r => r.imported.timings.refreshMs));
@@ -17,7 +21,7 @@ const sizeRows = ['fp32', 'fp16', 'q8'].map(dtype => `| ${dtype} | ${report.size
 const loadRows = profiles.map(p => `| ${p.config.name} | ${f(p.summary.firstLoadMs)} | ${f(p.summary.firstWarmupMs)} | ${f(p.summary.warmLoadMedianMs)} |`).join('\n');
 const detail = `# 固定条件实验记录
 
-原始数据：[benchmark.json](benchmark.json)；数据库参数及实际表结构：[seekdb.json](seekdb.json)；文件哈希：[model-manifest.json](model-manifest.json)；端到端验证：[e2e.json](e2e.json)。本表由 \`node scripts/summarize.mjs\` 从原始记录生成。
+原始数据：[${basename(input)}](${rawLink})；文件哈希：[model-manifest.json](model-manifest.json)。部署、原始表结构和复查的连接恢复记录见 [RECHECK.md](RECHECK.md)、[seekdb.json](seekdb.json) 与 [recheck-seekdb.json](recheck-seekdb.json)。本表由 \`BENCH_INPUT=${input} node scripts/summarize.mjs\` 从原始记录生成。首版完整五配置实验仍保留在 [benchmark.json](benchmark.json)。
 
 ## 条件与方法
 
@@ -41,7 +45,7 @@ ${sizeRows}
 | --- | ---: | ---: | ---: | ---: | ---: |
 ${rows}
 
-INT8/批 1 对 FP32/批 1 的吞吐倍数为 ${f(quant.chunksPerSecond / baseline.chunksPerSecond)}×；相同 INT8 精度下，批 8 对批 1 为 ${f(optimized.chunksPerSecond / quant.chunksPerSecond)}×；组合配置对基线为 ${f(optimized.chunksPerSecond / baseline.chunksPerSecond)}×。混合检索 nDCG@5 变化 ${f(optimized.modes.hybrid.ndcg5 - baseline.modes.hybrid.ndcg5, 4)}，纯向量 nDCG@5 从 ${f(baseline.modes.vector.ndcg5, 4)} 到 ${f(optimized.modes.vector.ndcg5, 4)}。小样本结果不外推为通用精度提升；不同批次 padding 和浮点舍入可影响边界候选顺序。
+INT8/批 1 对 FP32/批 1 的吞吐倍数为 ${f(quant.chunksPerSecond / baseline.chunksPerSecond)}×；相同 INT8 精度下，批 8 对批 1 为 ${f(batchRatio)}×；组合配置对基线为 ${f(optimized.chunksPerSecond / baseline.chunksPerSecond)}×。${batchRatio <= 1 ? '本次未观察到批 8 的吞吐收益，不能沿用旧环境中的批处理提升幅度。' : ''}混合检索 nDCG@5 变化 ${f(optimized.modes.hybrid.ndcg5 - baseline.modes.hybrid.ndcg5, 4)}，纯向量 nDCG@5 从 ${f(baseline.modes.vector.ndcg5, 4)} 到 ${f(optimized.modes.vector.ndcg5, 4)}。小样本结果不外推为通用精度提升；不同批次 padding 和浮点舍入可影响边界候选顺序。
 
 刷新策略实验使用相同的 8 篇文档、INT8/WASM、推理批大小 8、写入批大小 1，每种策略 ${report.conditions.trials} 次。逐次刷新累计中位 ${f(eachMs)} ms，末尾一次刷新 ${f(onceMs)} ms，减少 ${f((1 - onceMs / eachMs) * 100, 1)}%。原始记录保留 embedding/write/refresh/total 全部阶段。
 
@@ -57,7 +61,7 @@ ${loadRows}
 
 当前软件适配器不支持 shader-f16，自动配置正确降级至 WASM/INT8；因此自动配置行并非硬件 FP16 GPU 的性能。FP32 WebGPU 对照单独启用，供验证浏览器 WebGPU 执行和语义正确性。缺少可用硬件 GPU，未测量 FP16 硬件吞吐或 FP16 检索质量。此前发现动态 INT8 在此 ORT/SwiftShader 组合产生不准确向量，最终默认策略已禁用该组合，没有将其结果混入有效质量数据。
 
-Docker 镜像拉取受当前网络 EOF 影响。实际数据库验证通过提交的原生启动脚本完成，使用官方 pylibseekdb 1.4.0.post1 所带 server；Compose 已通过配置校验。技术说明不声称容器已经启动验证。
+首版实验使用原生 seekdb，当时 Docker 拉取返回 EOF。后续复查已在空模型目录和新 Docker 数据卷上验证默认一键启动，并修复数据库重启后的连接恢复。最新验证范围、部署和实际日志见 [RECHECK.md](RECHECK.md)。
 `;
 await writeFile('reports/RESULTS.md', detail);
 const technical = `# 一页技术说明：拾知
@@ -82,7 +86,7 @@ const technical = `# 一页技术说明：拾知
 | INT8 / 批 1 | ${f(quant.chunksPerSecond)} | ${f(quant.modes.hybrid.searchMedianMs)} | ${f(quant.modes.hybrid.endToEndMedianMs)} | ${f(quant.modes.hybrid.recall5 * 100, 1)}% | ${f(quant.modes.hybrid.ndcg5, 4)} |
 | INT8 / 批 8 | ${f(optimized.chunksPerSecond)} | ${f(optimized.modes.hybrid.searchMedianMs)} | ${f(optimized.modes.hybrid.endToEndMedianMs)} | ${f(optimized.modes.hybrid.recall5 * 100, 1)}% | ${f(optimized.modes.hybrid.ndcg5, 4)} |
 
-中位吞吐组合提升 ${f(optimized.chunksPerSecond / baseline.chunksPerSecond)}×，同精度批处理提升 ${f(optimized.chunksPerSecond / quant.chunksPerSecond)}×。8 次写入逐次刷新累计 ${f(eachMs)} ms，统一刷新 ${f(onceMs)} ms。INT8 首次模型加载 ${f(optimized.firstLoadMs)} ms，后续文件缓存加载中位 ${f(optimized.warmLoadMedianMs)} ms；首次预热 ${f(optimized.firstWarmupMs)} ms。加载包含本机下载/读取和会话初始化；总查询含向量化、网络、SQL、DOM 和两帧绘制机会。小样本未观察到明显质量下降，不能外推通用精度或硬件加速幅度。
+组合配置对基线的中位吞吐比为 ${f(optimized.chunksPerSecond / baseline.chunksPerSecond)}×，同精度批 8/批 1 比为 ${f(batchRatio)}×${batchRatio <= 1 ? '（本次无稳定批处理收益）' : ''}。8 次写入逐次刷新累计 ${f(eachMs)} ms，统一刷新 ${f(onceMs)} ms。INT8 首次模型加载 ${f(optimized.firstLoadMs)} ms，后续文件缓存加载中位 ${f(optimized.warmLoadMedianMs)} ms；首次预热 ${f(optimized.firstWarmupMs)} ms。加载包含本机下载/读取和会话初始化；总查询含向量化、网络、SQL、DOM 和两帧绘制机会。小样本未观察到明显质量下降，不能外推通用精度或硬件加速幅度。
 
 **复现。** [README](README.md) 提供依赖、模型获取、Docker/原生 seekdb 与启动步骤。\`npm test\`、\`npm run test:e2e\`、\`npm run bench\` 分别验证逻辑、完整流程和固定条件实验；[原始数据与详细结果](reports/RESULTS.md) 保留全部逐次计时、查询排名、文件哈希、数据库结构和验证边界。
 `;

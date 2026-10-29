@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, access } from 'node:fs/promises';
 import { openBrowser, baseURL } from './browser.mjs';
 import { MODEL } from '../shared/model.mjs';
+
+try { await access(new URL('../public/models/bge-small-zh-v1.5/onnx/model.onnx', import.meta.url)); }
+catch { throw new Error('E2E FP32 comparison requires the baseline model. Run npm run models before npm run test:e2e.'); }
 
 await mkdir('test-results', { recursive: true });
 const reports = [];

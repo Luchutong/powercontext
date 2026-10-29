@@ -1,0 +1,9 @@
+Fresh instance: waiting for empty-password SQL readiness...
+Starting seekdb with command: /usr/bin/seekdb --nodaemon --base-dir=/var/lib/seekdb  --data-dir=/var/lib/seekdb/store --redo-dir=/var/lib/seekdb/store/redo --port=2881 --parameter cpu_count=2 --parameter memory_budget=2G --parameter datafile_size=1G --parameter datafile_maxsize=4G --parameter log_disk_size=2G
+Configuration loaded from: /etc/seekdb/seekdb.cnf
+SeekDB SQL ready (empty password) on attempt #3.
+ROOT_PASSWORD is empty; leaving root password unset.
+Database stepfun_cold_start created.
+Initialization complete.
+Seekdb started
+Waiting for SeekDB process (pid 9) to exit...

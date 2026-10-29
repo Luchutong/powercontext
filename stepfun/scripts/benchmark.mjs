@@ -11,6 +11,7 @@ const data = JSON.parse(rawData);
 const trials = Number(process.env.BENCH_REPEATS || 3);
 assert.ok(Number.isInteger(trials) && trials >= 1 && trials <= 10);
 const modelManifest = JSON.parse(await readFile('public/models/bge-small-zh-v1.5/manifest.json', 'utf8'));
+if (!modelManifest.files[MODEL_FILES.fp32]) throw new Error('Run npm run models to download the FP32 baseline before benchmarking.');
 const sizes = Object.fromEntries(Object.entries(MODEL_FILES).map(([key, value]) => [key, modelManifest.files[value].bytes]));
 const sharedFiles = ['config.json', 'tokenizer.json', 'tokenizer_config.json', 'special_tokens_map.json'];
 const sharedBytes = sharedFiles.reduce((sum, file) => sum + modelManifest.files[file].bytes, 0);
@@ -30,13 +31,18 @@ const report = {
     notes: '全部向量由提交应用的浏览器 Worker 实时生成。所有检索经 seekdb。固定人工标注小样本，不代表通用检索质量。查询计时包含两帧绘制机会；浏览器无远程请求。' },
   profiles: [],
 };
-const profiles = [
+const availableProfiles = [
   { name: 'fp32-wasm-b1', device: 'wasm', dtype: 'fp32', batchSize: 1 },
   { name: 'int8-wasm-b1', device: 'wasm', dtype: 'q8', batchSize: 1 },
   { name: 'int8-wasm-b8', device: 'wasm', dtype: 'q8', batchSize: 8 },
   { name: 'quantized-webgpu-b8', device: 'auto', dtype: 'auto', batchSize: 8, gpu: true },
   { name: 'fp32-webgpu-validation', device: 'webgpu', dtype: 'fp32', batchSize: 8, gpu: true },
 ];
+const requestedProfiles = process.env.BENCH_PROFILES?.split(',').map(name => name.trim()).filter(Boolean);
+if (requestedProfiles?.some(name => !availableProfiles.some(profile => profile.name === name))) {
+  throw new Error(`BENCH_PROFILES must select from: ${availableProfiles.map(profile => profile.name).join(', ')}`);
+}
+const profiles = requestedProfiles ? availableProfiles.filter(profile => requestedProfiles.includes(profile.name)) : availableProfiles;
 const output = process.env.BENCH_OUTPUT || 'reports/benchmark.json';
 await mkdir('reports', { recursive: true });
 for (const config of profiles) {

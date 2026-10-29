@@ -1,0 +1,87 @@
+{
+  "version": [
+    {
+      "version": "5.7.25-OceanBase seekdb-v1.4.0.0"
+    }
+  ],
+  "parameters": [
+    {
+      "svr_type": "observer",
+      "name": "log_disk_size",
+      "data_type": "CAPACITY",
+      "value": "2G",
+      "info": "the size of disk space used by the log files. Range: [0, +∞)",
+      "section": "LOGSERVICE",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "0M",
+      "isdefault": 0
+    },
+    {
+      "svr_type": "observer",
+      "name": "cpu_count",
+      "data_type": "INT",
+      "value": "2",
+      "info": "the number of CPU\\'s in the system. If this parameter is set to zero, the number will be set according to sysconf; otherwise, this parameter is used. Range: [0,+∞) in integer",
+      "section": "OBSERVER",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "0",
+      "isdefault": 0
+    },
+    {
+      "svr_type": "observer",
+      "name": "memory_limit",
+      "data_type": "CAPACITY",
+      "value": "0M",
+      "info": "deprecated compatibility parameter. The configured value is accepted and persisted, but is ignored by memory sizing and memory control. Range: 0, [1G,).",
+      "section": "OBSERVER",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "0M",
+      "isdefault": 1
+    },
+    {
+      "svr_type": "observer",
+      "name": "memory_budget",
+      "data_type": "CAPACITY",
+      "value": "2G",
+      "info": "the logical memory budget used to size caches and buffers. 0 targets 80% of cgroup or physical memory while reserving at least 1G for the system when possible. The minimum automatic value is 1G. Range: 0, [1G,).",
+      "section": "OBSERVER",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "0M",
+      "isdefault": 0
+    },
+    {
+      "svr_type": "observer",
+      "name": "datafile_maxsize",
+      "data_type": "CAPACITY",
+      "value": "4G",
+      "info": "the auto extend max size. Range: [0, +∞)",
+      "section": "SSTABLE",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "1T",
+      "isdefault": 0
+    },
+    {
+      "svr_type": "observer",
+      "name": "datafile_size",
+      "data_type": "CAPACITY",
+      "value": "1G",
+      "info": "size of the data file. Range: [0, +∞)",
+      "section": "SSTABLE",
+      "scope": "CLUSTER",
+      "source": "DEFAULT",
+      "edit_level": "DYNAMIC_EFFECTIVE",
+      "default_value": "32M",
+      "isdefault": 0
+    }
+  ]
+}

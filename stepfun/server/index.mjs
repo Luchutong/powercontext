@@ -1,11 +1,11 @@
 import express from 'express';
-import { fileURLToPath } from 'node:url';
 import { createStore } from './store.mjs';
+import { root, loadEnvironment, connectionConfig } from './config.mjs';
+import { waitForDatabase } from './readiness.mjs';
 import { MODEL } from '../shared/model.mjs';
 import { collectionName, importRecords, InputError, signature, vector } from './validation.mjs';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
-try { process.loadEnvFile(`${root}/.env`); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+loadEnvironment();
 const app = express();
 const port = Number(process.env.PORT || 4177);
 const host = process.env.HOST || '127.0.0.1';
@@ -21,7 +21,9 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: '8mb' }));
 app.use('/ort', express.static(`${root}/node_modules/onnxruntime-web/dist`));
-const store = await createStore();
+const databaseConfig = connectionConfig();
+await waitForDatabase(databaseConfig);
+const store = await createStore(databaseConfig);
 await store.create('personal');
 app.get('/api/health', (_req, res) => res.json({ ok: true, version: store.version, model: MODEL }));
 app.get('/api/collections', async (_req, res) => res.json(await store.list()));

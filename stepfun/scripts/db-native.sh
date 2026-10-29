@@ -2,7 +2,7 @@
 # Linux alternative when Docker is unavailable. Uses the official packaged server.
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
-db_port="${SEEKDB_PORT:-2883}"
+db_port="$(node --input-type=module -e 'import {loadEnvironment,connectionConfig} from "./server/config.mjs"; loadEnvironment(); process.stdout.write(String(connectionConfig().port));')"
 db_base="$(pwd)/.data/native"
 if [[ ! "$db_port" =~ ^[0-9]+$ ]]; then
   printf 'Invalid SEEKDB_PORT\n' >&2
@@ -12,7 +12,8 @@ mkdir -p "$db_base"
 if [[ -r "$db_base/run/seekdb.pid" ]]; then
   db_pid="$(cat "$db_base/run/seekdb.pid")"
   if [[ "$db_pid" =~ ^[0-9]+$ ]] && kill -0 "$db_pid" 2>/dev/null; then
-    printf 'seekdb already running: PID %s, port %s\n' "$db_pid" "$db_port"
+    node scripts/wait-db.mjs
+    printf 'seekdb already running: PID %s\n' "$db_pid"
     exit 0
   fi
 fi
@@ -26,12 +27,4 @@ fi
   --parameter datafile_size=1G --parameter datafile_maxsize=4G \
   --parameter log_disk_size=2G >> "$db_base/startup.log" 2>&1
 printf 'seekdb startup requested on port %s. Log: %s/log/seekdb.log\n' "$db_port" "$db_base"
-node --input-type=module <<'JS'
-import { SeekdbClient } from 'seekdb';
-for (let attempt = 0; attempt < 90; attempt++) {
-  const client = new SeekdbClient({ host: '127.0.0.1', port: Number(process.env.SEEKDB_PORT || 2883), user: 'root', database: 'test' });
-  try { await client.execute('SELECT 1'); console.log('seekdb ready'); process.exit(0); }
-  catch { await client.close(); await new Promise(resolve => setTimeout(resolve, 2000)); }
-}
-throw new Error('seekdb startup timed out; inspect .data/native/log/seekdb.log');
-JS
+node scripts/wait-db.mjs

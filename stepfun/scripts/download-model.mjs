@@ -1,41 +1,32 @@
-import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { createHash } from 'node:crypto';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { MODEL, MODEL_FILES } from '../shared/model.mjs';
+import { validAsset, downloadAsset, closeDownloads } from './model-assets.mjs';
 
 const root = fileURLToPath(new URL('../public/models/bge-small-zh-v1.5/', import.meta.url));
 const base = `https://huggingface.co/${MODEL.id}/resolve/${MODEL.revision}/`;
+const integrity = JSON.parse(await readFile(new URL('../shared/model-integrity.json', import.meta.url), 'utf8'));
+if (integrity.model !== MODEL.id || integrity.revision !== MODEL.revision) throw new Error('Model integrity lock does not match the configured revision');
+const runtimeOnly = process.argv.includes('--runtime-only');
+if (process.argv.slice(2).some(arg => arg !== '--runtime-only')) throw new Error('Usage: npm run models [-- --runtime-only]');
 const files = ['config.json', 'tokenizer.json', 'tokenizer_config.json', 'special_tokens_map.json',
-  'vocab.txt', 'quantize_config.json', ...Object.values(MODEL_FILES)];
+  'vocab.txt', 'quantize_config.json', ...(runtimeOnly ? [MODEL_FILES.q8, MODEL_FILES.fp16] : Object.values(MODEL_FILES))];
 await mkdir(`${root}/onnx`, { recursive: true });
-let previous;
-try { previous = JSON.parse(await readFile(`${root}/manifest.json`, 'utf8')); } catch {}
 const manifest = { model: MODEL.id, revision: MODEL.revision, files: {} };
-for (const file of files) {
-  const path = `${root}/${file}`;
-  let size = 0;
-  try { size = (await stat(path)).size; } catch {}
-  const hashFile = async () => {
-    const hash = createHash('sha256');
-    for await (const bytes of createReadStream(path)) hash.update(bytes);
-    return hash.digest('hex');
-  };
-  if (!size || previous?.model !== MODEL.id || previous?.revision !== MODEL.revision ||
-      !previous?.files[file] || previous.files[file].sha256 !== await hashFile()) {
-    console.log(`Downloading ${file} (${MODEL.revision})`);
-    const response = await fetch(base + file);
-    if (!response.ok) throw new Error(`${file}: HTTP ${response.status}`);
-    await pipeline(Readable.fromWeb(response.body), createWriteStream(`${path}.partial`));
-    const expected = Number(response.headers.get('content-length'));
-    size = (await stat(`${path}.partial`)).size;
-    if (expected && size !== expected) throw new Error(`Incomplete download: ${file}`);
-    await rename(`${path}.partial`, path);
+try {
+  for (const file of files) {
+    const path = `${root}/${file}`, expected = integrity.files[file];
+    if (!await validAsset(path, expected)) {
+      console.log(`Downloading ${file} (${MODEL.revision})`);
+      await downloadAsset(base + file, path, expected);
+    }
+    manifest.files[file] = { ...expected, source: base + file };
   }
-  manifest.files[file] = { bytes: size, sha256: await hashFile(), source: base + file };
+} finally { await closeDownloads(); }
+// Keep already cached comparison files in the manifest when starting in runtime-only mode.
+for (const file of Object.values(MODEL_FILES)) if (!manifest.files[file] && await validAsset(`${root}/${file}`, integrity.files[file])) {
+  manifest.files[file] = { ...integrity.files[file], source: base + file };
 }
 await writeFile(`${root}/manifest.json`, JSON.stringify(manifest, null, 2) + '\n');
-const sizes = Object.fromEntries(Object.entries(MODEL_FILES).map(([k, v]) => [k, manifest.files[v].bytes]));
-console.log(JSON.stringify({ sizes, compression: { q8: sizes.fp32 / sizes.q8, fp16: sizes.fp32 / sizes.fp16 } }, null, 2));
+const sizes = Object.fromEntries(Object.entries(MODEL_FILES).filter(([, file]) => manifest.files[file]).map(([k, v]) => [k, manifest.files[v].bytes]));
+console.log(JSON.stringify({ sizes, ...(sizes.fp32 ? { compression: { q8: sizes.fp32 / sizes.q8, fp16: sizes.fp32 / sizes.fp16 } } : {}) }, null, 2));

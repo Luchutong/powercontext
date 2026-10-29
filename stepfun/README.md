@@ -8,7 +8,7 @@
 
 ## 启动
 
-需要 Node.js 22+（建议 24）、npm、近期 Chrome / Edge；Docker 方式建议至少 4 GB 可用内存和 8 GB 可用磁盘。模型推理使用用户设备的浏览器，Node 服务只负责文件服务、参数校验和 seekdb 操作。
+需要 Node.js 22.12+（建议 24）、npm、近期 Chrome / Edge；Docker 方式建议至少 4 GB 可用内存和 8 GB 可用磁盘。模型推理使用用户设备的浏览器，Node 服务只负责文件服务、参数校验和 seekdb 操作。
 
 ```bash
 cd stepfun
@@ -24,7 +24,9 @@ npm start
 
 `ONNXRUNTIME_NODE_INSTALL_CUDA=skip` 仅跳过 Transformers.js 依赖包附带的服务端 CUDA 库下载，实际推理始终使用浏览器内的 ONNX Runtime Web。`.npmrc` 的 `legacy-peer-deps` 避免 SDK 自动拉取其默认服务端 embedding 插件；集合创建和读取均显式设置 `embeddingFunction: null`。
 
-模型获取脚本从公开 Hugging Face 仓库下载固定 revision 的配置、分词器和 FP32/FP16/INT8 ONNX 文件，采用临时文件和原子重命名，并记录文件字节数、SHA-256 与来源。约需下载 167 MB，输出到 `public/models/bge-small-zh-v1.5/`。后续访问只请求本机模型文件，允许断网运行。网络需要代理时，Node 24 可使用 `NODE_USE_ENV_PROXY=1 npm run models`，配合已有的 `HTTPS_PROXY`。模型权重、数据库数据和 `node_modules` 不纳入 Git。
+模型获取脚本从公开 Hugging Face 仓库下载固定 revision 的配置、分词器和 FP32/FP16/INT8 ONNX 文件，采用临时文件、失败重试和原子重命名，并与提交的 `shared/model-integrity.json` 核对字节数和 SHA-256，拒绝损坏或被替换的权重。完整对照约需下载 167 MB，输出到 `public/models/bge-small-zh-v1.5/`。一键启动仅下载运行需要的 FP16/INT8 文件和配置，约 72 MB；进行 FP32 对照实验前运行 `npm run models` 补齐基线模型。后续访问只请求本机模型文件，允许断网运行。下载器自动遵循 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 及对应小写变量，Node 22/24 都无需额外的代理启动标志。模型权重、数据库数据和 `node_modules` 不纳入 Git。
+
+Docker 使用提交的 `deployment/seekdb.cnf`，显式设置 `memory_budget=2G`，容器内存上限 3 GB。seekdb 1.4 的 `memory_limit` 已弃用，不能依赖旧 `MEMORY_LIMIT` 环境变量限制实际预算。健康检查同时验证 `.initialized` 和 SQL 可用性，应用启动也会等待配置端点就绪。
 
 ### 已有数据库 / 无 Docker
 
@@ -39,9 +41,17 @@ npm run build
 npm start
 ```
 
-脚本在 `.data/` 内安装并保存数据库，默认端口 2883、CPU 2、内存预算 2 GB。可通过 `SEEKDB_BIN` 指定已安装的官方 server 二进制，通过环境变量 `SEEKDB_PORT` 指定端口。停止原生实例可向 `.data/native/run/seekdb.pid` 所记录的进程发送 `SIGTERM`；保留 `.data/` 即保留数据库。Docker 数据位于具名卷；`npm run db:down` 停止服务并保留数据。
+也可运行 `bash scripts/start.sh --native-db` 一键准备原生数据库、模型与应用。应用、原生数据库启动和就绪检查统一读取本目录 `.env`，已导出的环境变量优先。
 
-本次实际验证使用官方 1.4.0 server 二进制和上述原生启动脚本；Docker Compose 已通过配置校验，但当前网络从 Docker Hub 拉取镜像返回 EOF，未声称容器启动验证通过。
+脚本在 `.data/` 内安装并保存数据库，默认端口 2883、CPU 2、内存预算 2 GB。可通过 `SEEKDB_BIN` 指定已安装的官方 server 二进制，通过环境变量 `SEEKDB_PORT` 指定端口。停止原生实例可向 `.data/native/run/seekdb.pid` 所记录的进程发送 `SIGUSR1`；保留 `.data/` 即保留数据库。Docker 数据位于具名卷；`npm run db:down` 停止服务并保留数据。
+
+最初版本仅验证了原生部署。提测失败后的复查在全新 worktree 中复现了默认模型下载不遵循系统代理导致的超时，修复后已验证默认 Docker 一键启动；实际日志和边界见 [复查记录](reports/RECHECK.md)。
+
+## 提测信息
+
+本题属于 PowerContext 生态题，基线为 `2026-competition-ecosystem`，资产目录为 `stepfun/`。即使仓库名称叫 `seekdb-TJU`，平台为本题登记的仓库 URL 也必须指向实际包含本提交的仓库。不能把另一个仓库的 commit 或 C++ seekdb 赛题的基线填到本题。
+
+[官方 GitHub 提交说明](https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/qs1povt8zbza6hts)要求使用私有仓库并为判题端提供读取授权。请在比赛平台配置仓库访问凭据，不要将 token 提交到源码或聊天中。分支和 commit 必须都已推送且相互匹配；[官方 FAQ](https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/gp48z4pp0q3zg9b2)特别列出了仓库不可访问、Git 历史无法检出和分支/SHA 填反等失败情形。本地端到端测试通过并不等于平台已通过提测。
 
 ## 使用
 
@@ -67,6 +77,7 @@ npm start
 
 ```bash
 npm test
+npm run models
 npm run build
 # 先启动数据库和应用；安装本地测试浏览器。
 npx playwright install chromium
@@ -81,5 +92,7 @@ npm run bench
 可设置 `BENCH_REPEATS=3`、`BENCH_OUTPUT=reports/new-benchmark.json`、`APP_URL=http://127.0.0.1:4177`、`CHROMIUM_PATH=/path/to/chrome`。没有硬件 GPU 的 Linux/CI 可用 `SOFTWARE_GPU=1 npm run test:e2e` / `SOFTWARE_GPU=1 npm run bench` 验证软件 WebGPU；软件适配器的速度不能外推到硬件 GPU。
 
 测试包含：分块 Unicode/覆盖范围，模型与向量校验，会话串行化，真实浏览器文件导入、增量/重复写入、刷新后召回、空集合、集合隔离、并发混合检索、刷新页面恢复、移动端布局，以及阻止所有非本机 HTTP 请求。端到端测试另外验证不支持 WebGPU 和 FP16 初始化失败时的 WASM 降级。
+
+数据库被重启后，应用会在下一次完整操作前检查连接、清理失效的集合句柄并重新连接；不会自动重放可能已提交的写入。可以对专门的临时数据库容器验证恢复（该命令会重启指定容器）：`SEEKDB_TEST_CONTAINER=你的临时容器名 npm run test:restart`。支持用 `BENCH_PROFILES=fp32-wasm-b1,int8-wasm-b1,int8-wasm-b8` 仅运行三种 WASM 配置，用 `BENCH_OUTPUT` 另存复查数据。
 
 实验原始记录、技术说明及截图见 [reports/](reports/) 和 [TECHNICAL.md](TECHNICAL.md)。这些结果来自提交应用的真实运行，小型人工评测集只用于回归比较，不代表通用精度或竞赛得分。

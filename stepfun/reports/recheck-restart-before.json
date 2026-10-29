@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-29T11:39:40.377Z",
+  "status": 500,
+  "body": {
+    "error": "seekdb 操作失败：Can't add new command when connection is in closed state"
+  },
+  "description": "Original SDK connection lifecycle, before the new reconnection guard; database healthy after restart."
+}

@@ -1,0 +1,9 @@
+base-dir=/var/lib/seekdb
+data-dir=/var/lib/seekdb/store
+redo-dir=/var/lib/seekdb/store/redo
+port=2881
+cpu_count=2
+memory_budget=2G
+datafile_size=1G
+datafile_maxsize=4G
+log_disk_size=2G

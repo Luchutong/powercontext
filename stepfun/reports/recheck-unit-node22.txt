@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: chunking preserves Unicode, normalized offsets, complete coverage and overlap
+ok 1 - chunking preserves Unicode, normalized offsets, complete coverage and overlap
+  ---
+  duration_ms: 2.669744
+  ...
+# Subtest: ranking metrics penalize late hits and do not count duplicate chunks as documents
+ok 2 - ranking metrics penalize late hits and do not count duplicate chunks as documents
+  ---
+  duration_ms: 0.589337
+  ...
+# Subtest: GPU preference, missing adapters, probe rejection, precision and explicit WASM
+ok 3 - GPU preference, missing adapters, probe rejection, precision and explicit WASM
+  ---
+  duration_ms: 0.791171
+  ...
+# Subtest: API rejects mixed models, invalid identifiers, malformed vectors and chunks
+ok 4 - API rejects mixed models, invalid identifiers, malformed vectors and chunks
+  ---
+  duration_ms: 1.285535
+  ...
+# Subtest: SDK session sequences remain ordered and queue recovers from a failed request
+ok 5 - SDK session sequences remain ordered and queue recovers from a failed request
+  ---
+  duration_ms: 0.660542
+  ...
+# Subtest: interrupted model downloads retry; corrupt bodies cannot replace a verified file
+ok 6 - interrupted model downloads retry; corrupt bodies cannot replace a verified file
+  ---
+  duration_ms: 54.104753
+  ...
+# Subtest: model downloader honors HTTP_PROXY without Node-specific command line flags
+ok 7 - model downloader honors HTTP_PROXY without Node-specific command line flags
+  ---
+  duration_ms: 22.327149
+  ...
+# Subtest: database readiness retries real connection failures and reports the configured endpoint
+ok 8 - database readiness retries real connection failures and reports the configured endpoint
+  ---
+  duration_ms: 3.414251
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 356.60042

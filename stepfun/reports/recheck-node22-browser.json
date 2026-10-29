@@ -1,0 +1,66 @@
+{
+  "environment": {
+    "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+    "threads": 16,
+    "crossOriginIsolated": true,
+    "gpu": null
+  },
+  "imported": {
+    "type": "import",
+    "collection": "restart_check",
+    "documents": 1,
+    "chunks": 1,
+    "count": 1,
+    "runtime": {
+      "device": "wasm",
+      "dtype": "q8",
+      "reason": "WebGPU 不可用，已自动使用 WASM",
+      "loadMs": 1367.4950000047684,
+      "modelResources": [
+        {
+          "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+          "durationMs": 158.26000000536442,
+          "transferBytes": 24011142,
+          "bodyBytes": 24010842
+        }
+      ],
+      "warmupMs": 137.84000000357628,
+      "threads": 4,
+      "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+    },
+    "batchSize": 8,
+    "writeBatchSize": 128,
+    "refreshEachBatch": false,
+    "cacheHits": 0,
+    "timings": {
+      "embeddingMs": 22.405000001192093,
+      "writeMs": 20.984495999997307,
+      "refreshMs": 517.6800260000018,
+      "totalMs": 2105.8549999967217
+    },
+    "at": "2026-10-29T11:36:18.112Z"
+  },
+  "result": {
+    "mode": "hybrid",
+    "results": [
+      {
+        "id": "c9f0eefb1f85bd5f59e6a4ef0293f7872fedfba7cad84caae2fec4cdfec50f25",
+        "text": "火星任务通过探测车研究古代河流的遗迹，帮助科学家了解这颗行星过去的气候。",
+        "metadata": {
+          "end": 36,
+          "chunk": 0,
+          "start": 0,
+          "source": "restart-note",
+          "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1",
+          "documentId": "68eac07d37323f5e71b8415803bff835d395c1a69e7b28a5bbbee420337836e5"
+        },
+        "score": 0.0328
+      }
+    ],
+    "timings": {
+      "searchMs": 26.010054000005766,
+      "embeddingMs": 16.685000002384186,
+      "totalMs": 74.39999999850988
+    }
+  }
+}
