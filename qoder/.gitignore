@@ -1,0 +1,5 @@
+zhiku_data/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

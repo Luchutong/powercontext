@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>知库 ZhiKu</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #fff; --text: #1d2129; --muted: #6b7280; --line: #e5e7eb;
+    --accent: #1664ff; --accent-soft: #e8f0ff; --mark: #fff2b3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121417; --panel: #1b1e23; --text: #e6e8eb; --muted: #9aa1ab; --line: #2b3038;
+            --accent: #5b8cff; --accent-soft: #1f2a44; --mark: #5c4a00; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: var(--bg); color: var(--text); }
+  header { padding: 20px 24px 8px; max-width: 1100px; margin: 0 auto; }
+  header h1 { margin: 0; font-size: 22px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 12px 24px 40px;
+         display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+  .search { display: flex; gap: 8px; }
+  .search input { flex: 1; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
+                  border-radius: 8px; background: var(--panel); color: var(--text); }
+  button { padding: 10px 16px; border: 0; border-radius: 8px; background: var(--accent); color: #fff;
+           font-size: 14px; cursor: pointer; }
+  button.ghost { background: var(--accent-soft); color: var(--accent); }
+  .tags { margin: 12px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel);
+         color: var(--muted); cursor: pointer; font-size: 13px; }
+  .tag.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .hit { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .hit .meta { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+  .hit .src { color: var(--accent); font-weight: 600; }
+  .hit .text { white-space: pre-wrap; margin-top: 6px; }
+  mark { background: var(--mark); color: inherit; padding: 0 1px; border-radius: 2px; }
+  aside .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+  aside h3 { margin: 0 0 8px; font-size: 14px; }
+  aside ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+  aside li { display: flex; justify-content: space-between; padding: 3px 0; color: var(--muted); }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  #msg { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 1em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>知库 ZhiKu</h1>
+  <p>把组会纪要、论文笔记、周报、规章制度放进来，用一句话找到原文。全文检索 + 语义检索由 seekdb 混合完成。</p>
+</header>
+<main>
+  <section>
+    <form class="search" id="form">
+      <input id="q" placeholder="例如：发票什么时候要交给财务？" autofocus>
+      <button>搜索</button>
+    </form>
+    <div class="tags" id="tags"></div>
+    <div id="results"><div class="empty">输入问题开始检索</div></div>
+  </section>
+  <aside>
+    <div class="card">
+      <h3>资料库</h3>
+      <div id="summary" style="font-size:13px;color:var(--muted)"></div>
+      <ul id="files" style="margin-top:8px"></ul>
+    </div>
+    <div class="card">
+      <h3>添加资料</h3>
+      <div class="row">
+        <input type="file" id="file" accept=".md,.markdown,.txt,.pdf" hidden>
+        <button class="ghost" id="upload">上传文件</button>
+        <button class="ghost" id="reindex">重新索引文件夹</button>
+      </div>
+      <div id="msg"></div>
+    </div>
+  </aside>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+let currentTag = "";
+
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// 把问题拆成关键词，在结果里高亮（只做展示，真正的检索在 seekdb 里完成）
+function highlight(text, q) {
+  const words = q.split(/[\s，。？！、,.?!的了是和与吗呢什么怎么多少哪些谁要]+/).filter((w) => w.length >= 2);
+  let html = esc(text);
+  for (const w of words) {
+    html = html.replace(new RegExp(esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), (m) => `<mark>${m}</mark>`);
+  }
+  return html;
+}
+
+async function loadStats() {
+  const s = await (await fetch("/api/stats")).json();
+  $("#summary").textContent = `${s.files.length} 个文件 · ${s.chunks} 个片段`;
+  $("#files").innerHTML = s.files.map((f) => `<li><span>${esc(f.source)}</span><span>${f.chunks}</span></li>`).join("");
+  $("#tags").innerHTML = ["", ...s.tags]
+    .map((t) => `<span class="tag ${t === currentTag ? "on" : ""}" data-tag="${esc(t)}">${t ? esc(t) : "全部"}</span>`)
+    .join("");
+}
+
+async function search() {
+  const q = $("#q").value.trim();
+  if (!q) return;
+  $("#results").innerHTML = '<div class="empty">检索中…</div>';
+  const params = new URLSearchParams({ q, k: 8 });
+  if (currentTag) params.set("tag", currentTag);
+  const { hits } = await (await fetch("/api/search?" + params)).json();
+  $("#results").innerHTML = hits.length
+    ? hits.map((h) => `
+      <div class="hit">
+        <div class="meta"><span class="src">${esc(h.source)} · 第 ${h.chunk + 1} 段</span><span>相关度 ${h.score.toFixed(4)}</span></div>
+        <div class="text">${highlight(h.text, q)}</div>
+      </div>`).join("")
+    : '<div class="empty">没有找到相关内容</div>';
+}
+
+$("#form").addEventListener("submit", (e) => { e.preventDefault(); search(); });
+$("#tags").addEventListener("click", (e) => {
+  const t = e.target.closest(".tag");
+  if (!t) return;
+  currentTag = t.dataset.tag;
+  loadStats();
+  search();
+});
+$("#upload").addEventListener("click", () => $("#file").click());
+$("#file").addEventListener("change", async () => {
+  const f = $("#file").files[0];
+  if (!f) return;
+  const body = new FormData();
+  body.append("file", f);
+  $("#msg").textContent = "上传并索引中…";
+  const r = await fetch("/api/upload", { method: "POST", body });
+  const d = await r.json();
+  $("#msg").textContent = r.ok ? `已加入 ${d.source}（${d.chunks} 段）` : d.detail;
+  $("#file").value = "";
+  loadStats();
+});
+$("#reindex").addEventListener("click", async () => {
+  $("#msg").textContent = "重新索引中…";
+  const d = await (await fetch("/api/reindex", { method: "POST" })).json();
+  $("#msg").textContent = `完成：${d.files} 个文件，${d.chunks} 段`;
+  loadStats();
+});
+loadStats();
+</script>
+</body>
+</html>

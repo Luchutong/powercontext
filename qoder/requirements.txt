@@ -1,0 +1,7 @@
+# 已在 Python 3.13 上验证的版本（要求 Python 3.11+）
+pyseekdb==1.4.0.post1
+fastapi==0.162.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+pypdf==6.17.0
+pytest==9.2.0
