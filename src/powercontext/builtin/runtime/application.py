@@ -860,12 +860,23 @@ class ScopedContextApplication:
         if base_pack is not None and not isinstance(base_pack, ContextPack):
             raise ContextPackError("base_pack must be a ContextPack")  # noqa: TRY003
         prepared = await self.prepare(request)
-        target = ContextPack.from_content(
-            prepared.content if prepared.content is not None else "",
-            chunk_bytes=128,
-        )
+        content = prepared.content if prepared.content is not None else ""
         if base_pack is None:
-            return target
+            return ContextPack.from_content(content, chunk_bytes=128)
+
+        # The receiver may have built its pack with different chunk boundaries. Retain
+        # matching base items before splitting only the remaining text. Rechunking the
+        # complete target would resend even unchanged content and partial final chunks.
+        encoded = content.encode("utf-8")
+        prefix_items = offset = 0
+        if encoded:
+            for item in base_pack.items:
+                if not encoded.startswith(item, offset):
+                    break
+                prefix_items += 1
+                offset += len(item)
+        suffix = ContextPack.from_content(encoded[offset:].decode("utf-8"), chunk_bytes=128)
+        target = ContextPack.build((*base_pack.items[:prefix_items], *suffix.items))
         return ContextPackDelta.between(base_pack, target)
 
     async def _prepare(self, request: PrepareContextRequest, scope: ScopeDescriptor, /) -> PreparedContext:
