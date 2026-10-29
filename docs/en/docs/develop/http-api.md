@@ -224,7 +224,7 @@ Errors use one JSON envelope:
 }
 ```
 
-For `/v1/memory/remember` and `/v1/memory/entries/revise`, entry text is limited to 8192 UTF-8 bytes
+For ordinary entries in `/v1/memory/remember` and `/v1/memory/entries/revise`, text is limited to 8192 UTF-8 bytes
 after Unicode NFC normalization and trimming leading and trailing whitespace. This is a byte limit, not a
 character limit. An oversized entry returns HTTP `422` with the existing top-level `invalid_request` code:
 
@@ -240,6 +240,9 @@ character limit. An oversized entry returns HTTP `422` with the existing top-lev
   }
 }
 ```
+
+Full captured PDF page evidence uses the 4 MiB Source observation bound when all retained Source references are
+`pdf-page`. This also applies to revisions of those entries; the normal body limit still applies to other entries.
 
 Clients can use `error.details.code` to identify the canonical validation failure. Details can still be `null`
 for other failures; internal exception text is not returned for unstructured Memory errors.

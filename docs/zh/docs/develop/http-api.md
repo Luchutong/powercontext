@@ -204,7 +204,7 @@ Principal，并注入 Authorization Provider。HTTP 与 MCP 使用同一个策�
 }
 ```
 
-`/v1/memory/remember` 和 `/v1/memory/entries/revise` 的正文在 Unicode NFC 规范化并去掉首尾空白后，
+普通条目通过 `/v1/memory/remember` 和 `/v1/memory/entries/revise` 写入的正文在 Unicode NFC 规范化并去掉首尾空白后，
 最多为 8192 个 UTF-8 字节。这是字节数限制，不是字符数限制。正文超限时返回 HTTP `422`，
 顶层错误码仍为 `invalid_request`：
 
@@ -220,6 +220,9 @@ Principal，并注入 Authorization Provider。HTTP 与 MCP 使用同一个策�
   }
 }
 ```
+
+完整 PDF 页证据的全部保留 Source 引用为 `pdf-page` 时，正文采用 Source observation 的 4 MiB 上限，
+对这些条目的修订也使用该规则；其他条目仍采用普通正文上限。
 
 客户端可通过 `error.details.code` 识别具体的规范化校验错误。其他错误的详情仍可能为 `null`；
 没有结构化错误码的 Memory 错误不会向客户端返回内部异常文本。

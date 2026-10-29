@@ -132,6 +132,27 @@ def test_limits_are_measured_after_normalization() -> None:
         validate_identifier("x" * 129)
 
 
+def test_full_pdf_page_hash_retains_large_body_without_relaxing_other_entries() -> None:
+    from powercontext.limits import MAX_SOURCE_OBSERVATION_BYTES
+
+    text = "Dense financial statement 12345. " * 400
+    page = {"source_type": "pdf-page", "source_id": "page-1"}
+    content = entry_content_bytes(kind="source-evidence", text=text, source_refs=(page,), artifact_refs=())
+    assert text.strip().encode() in content
+    assert entry_content_hash(kind="source-evidence", text=text, source_refs=(page,), artifact_refs=())
+    for refs in (
+        (),
+        ({"source_type": "content", "source_id": "note"},),
+        (page, {"source_type": "content", "source_id": "note"}),
+    ):
+        with pytest.raises(ValueError, match="8192 UTF-8 bytes"):
+            entry_content_bytes(kind="source-evidence", text=text, source_refs=refs, artifact_refs=())
+    with pytest.raises(ValueError, match=str(MAX_SOURCE_OBSERVATION_BYTES)):
+        entry_content_bytes(
+            kind="source-evidence", text="x" * (MAX_SOURCE_OBSERVATION_BYTES + 1), source_refs=(page,), artifact_refs=()
+        )
+
+
 def test_retrieval_query_is_not_held_to_the_entry_body_byte_bound() -> None:
     """The storage byte bound belongs to durable entry bodies, not transient queries."""
 

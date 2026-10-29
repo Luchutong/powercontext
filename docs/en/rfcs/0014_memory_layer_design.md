@@ -556,6 +556,11 @@ an explicit input is copied into its add or revise change. A candidate generator
 than 8192 bytes when encoded as UTF-8. This limit also ensures that the OceanBase `TEXT` full-text column can hold the
 tokens derived by analyzer v1.
 
+Full captured PDF page evidence uses the Source observation bound (4 MiB) when every Source reference has
+`source_type="pdf-page"`. This preserves dense pages without splitting their page identity or truncating evidence.
+Canonical hashing, persisted-version validation and index rebuilding apply the same rule. Other entries retain the
+8192-byte body limit.
+
 ## remember()
 
 ```python

@@ -21,7 +21,7 @@ import io
 import math
 import re
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from itertools import pairwise
 from typing import Protocol, cast
 from urllib.parse import quote
@@ -48,7 +48,7 @@ _RRF_CONSTANT = 60
 _EVIDENCE_HEADINGS = (
     (
         r"\b(?:income statements?|statements? of (?:income|earnings|operations)|p l|profit (?:and )?loss|"
-        r"ebitda|revenue|sales|margin|net income)\b",
+        r"ebitda|revenue|sales|margin|net income|tax|capital intensive|capital intensity)\b",
         (
             "statement of income",
             "statements of income",
@@ -62,11 +62,12 @@ _EVIDENCE_HEADINGS = (
         ),
     ),
     (
-        r"\b(?:cash flows?|ebitda|capex|capital expenditures?)\b",
+        r"\b(?:cash flows?|ebitda|capex|capital expenditures?|capital intensive|capital intensity)\b",
         ("statement of cash flows", "statements of cash flows", "cash flow statement", "cash flows"),
     ),
     (
-        r"\b(?:balance sheets?|financial position|assets?|liabilities|equity|debt|current ratio|quick ratio)\b",
+        r"\b(?:balance sheets?|financial position|assets?|liabilities|equity|debt|current ratio|quick ratio|"
+        r"ppne|ppe|p p e|capital intensive|capital intensity)\b",
         ("balance sheet", "balance sheets", "statement of financial position", "statements of financial position"),
     ),
     (
@@ -75,6 +76,7 @@ _EVIDENCE_HEADINGS = (
             "geographic areas",
             "geographical information",
             "geographic information",
+            "geographic operations",
             "our operations",
             "business segments",
             "operating segments",
@@ -85,6 +87,10 @@ _EVIDENCE_HEADINGS = (
     (
         r"\b(?:legal|litigation|lawsuits?|battles?)\b",
         ("legal proceedings", "litigation", "commitments and contingencies", "contingencies"),
+    ),
+    (
+        r"\b(?:segments?|categories)\b",
+        ("business segment data", "segment information", "segment data", "reportable segments"),
     ),
 )
 _LOW_VALUE_TERMS = frozenset({
@@ -134,6 +140,40 @@ _QUERY_NOISE_TERMS = frozenset({
     "within",
     "year",
     "outlined",
+    "able",
+    "among",
+    "based",
+    "between",
+    "change",
+    "changed",
+    "changes",
+    "compare",
+    "compared",
+    "declined",
+    "drove",
+    "excluding",
+    "healthy",
+    "improved",
+    "improving",
+    "important",
+    "least",
+    "like",
+    "major",
+    "materially",
+    "most",
+    "much",
+    "ongoing",
+    "primarily",
+    "primary",
+    "profile",
+    "reasonably",
+    "relevant",
+    "represent",
+    "something",
+    "subject",
+    "than",
+    "usd",
+    "whether",
 })
 
 
@@ -334,8 +374,9 @@ async def search_pdf_pages(
 
     variants = _search_variants(question)
     ranked: dict[tuple[str, int, str, str], tuple[MemoryHit, float]] = {}
-    for variant_index, variant in enumerate(variants):
-        result = await memory.search(SearchMemoryRequest(query=variant, mode="fts", limit=_SEARCH_POOL_LIMIT))
+
+    async def collect(query: str, weight: float = 1.0) -> None:
+        result = await memory.search(SearchMemoryRequest(query=query, mode="fts", limit=_SEARCH_POOL_LIMIT))
         for rank, hit in enumerate(result.hits, start=1):
             key = (
                 hit.memory_ref.artifact_id,
@@ -343,21 +384,34 @@ async def search_pdf_pages(
                 hit.entry_id,
                 hit.entry_version_id,
             )
-            rrf_weight = 1.25 if variant_index == 0 else 1.0
-            score = rrf_weight / (_RRF_CONSTANT + rank)
+            score = weight / (_RRF_CONSTANT + rank)
             previous = ranked.get(key)
             ranked[key] = (hit, score + (0.0 if previous is None else previous[1]))
 
+    for variant_index, variant in enumerate(variants):
+        await collect(variant, 1.25 if variant_index == 0 else 1.0)
     if not ranked:
         return ()
+
+    documents = _question_documents(question, tuple(hit.text for hit, _score in ranked.values()))
+    if documents:
+        # A document's projected identifier is searchable through the same scoped API.
+        # Retrieve its complete page pool, including tables that omit the company's
+        # name or use different financial terminology from the question.
+        for document in sorted(documents):
+            await collect(document)
+        ranked = {key: value for key, value in ranked.items() if value[0].text.partition("\n")[0] in documents}
 
     # The first line is projection metadata, not the page body. Keep document targeting
     # separate so a company name on every page cannot outweigh the requested evidence.
     page_texts = {key: item[0].text.partition("\n")[2] for key, item in ranked.items()}
-    text_terms = {key: Counter(analyze_text(text).split()) for key, text in page_texts.items()}
-    expanded_terms = _expanded_ranking_terms(question)
+    text_terms = {key: Counter(_ranking_terms(text)) for key, text in page_texts.items()}
+    company_terms = _company_ranking_terms(question, documents)
+    expanded_terms = tuple(term for term in _expanded_ranking_terms(question) if term not in company_terms)
     query_terms = tuple(
-        term for term in dict.fromkeys(analyze_fts_query(question).split()) if not _is_low_value_term(term)
+        _normalize_ranking_term(term)
+        for term in dict.fromkeys(analyze_fts_query(question).split())
+        if not _is_low_value_term(term) and _normalize_ranking_term(term) not in company_terms
     )
     document_count = len(text_terms)
     document_frequency = {
@@ -379,19 +433,20 @@ async def search_pdf_pages(
         for key, (hit, rrf) in ranked.items()
     }
     ordered = sorted(ranked, key=lambda key: (-score_by_key[key], key[0], key[2], key[3]))
+    return await _exact_page_citations(memory, (ranked[key][0] for key in ordered), limit)
 
+
+async def _exact_page_citations(
+    memory: _ScopedPDFMemory, hits: Iterable[MemoryHit], limit: int
+) -> tuple[MemoryCitation, ...]:
     citations: list[MemoryCitation] = []
     seen_source_ids: set[str] = set()
-    seen_citations: set[tuple[str, int, str, str]] = set()
-    for key in ordered:
-        hit = ranked[key][0]
+    for hit in hits:
         citation = MemoryCitation(
             memory_ref=hit.memory_ref,
             entry_id=hit.entry_id,
             entry_version_id=hit.entry_version_id,
         )
-        if key in seen_citations:
-            continue
         record = await memory.get(GetMemoryEntryRequest(citation=citation))
         source_refs = tuple(source for source in record.entry.sources if source.source_type == PDF_PAGE_SOURCE_NAME)
         # A single citation must identify one physical page. If an extraction pipeline
@@ -399,7 +454,6 @@ async def search_pdf_pages(
         if len(source_refs) != 1 or source_refs[0].source_id in seen_source_ids:
             continue
         seen_source_ids.add(source_refs[0].source_id)
-        seen_citations.add(key)
         citations.append(citation)
         if len(citations) >= limit:
             break
@@ -426,6 +480,7 @@ def _search_variants(question: str) -> tuple[str, ...]:
             start_positions.append(final_start)
         variants.extend(" ".join(terms[start : start + 4]) for start in start_positions[:_MAX_PAIR_VARIANTS])
     variants.extend(_finance_synonym_queries(question))
+    variants.extend(_question_entities(question))
     for group in _evidence_heading_groups(question):
         variants.append(" ".join(dict.fromkeys(analyze_fts_query(" ".join(group)).split())))
     return tuple(dict.fromkeys(value for value in variants if value.strip()))
@@ -434,24 +489,35 @@ def _search_variants(question: str) -> tuple[str, ...]:
 def _finance_synonym_queries(question: str) -> tuple[str, ...]:
     terms = set(analyze_fts_query(question).split())
     variants: list[str] = []
-    if "capex" in terms:
-        variants.extend(("capital expenditures", "capital expenditure", "capital spending"))
-    if terms.intersection({"ebitda", "unadjusted"}):
-        variants.extend((
-            "operating income depreciation amortization",
-            "operating profit",
-            "unadjusted operating income",
-        ))
-    if terms.intersection({"geography", "geographies", "geographic", "geographical"}):
-        variants.append("geographic areas countries regions")
-    if terms.intersection({"litigation", "legal", "lawsuit", "lawsuits", "battle", "battles"}):
-        variants.extend(("legal proceedings", "litigation contingencies", "lawsuits claims"))
-    if "restructuring" in terms:
-        variants.extend(("restructuring charges", "restructuring costs"))
-    if terms.intersection({"margin", "margins"}):
-        variants.extend(("operating income net revenue", "sales operating income"))
-    if terms.intersection({"depreciation", "amortization"}) or terms.intersection({"d", "a"}):
+    for triggers, queries in (
+        ({"capex"}, ("capital expenditures", "capital expenditure", "capital spending")),
+        (
+            {"ebitda", "unadjusted"},
+            ("operating income depreciation amortization", "operating profit", "unadjusted operating income"),
+        ),
+        ({"geography", "geographies", "geographic", "geographical"}, ("geographic areas countries regions",)),
+        (
+            {"litigation", "legal", "lawsuit", "lawsuits", "battle", "battles"},
+            ("legal proceedings", "litigation contingencies", "lawsuits claims"),
+        ),
+        ({"restructuring"}, ("restructuring charges", "restructuring costs")),
+        ({"tax"}, ("income taxes effective tax rate",)),
+        ({"cyclicality", "cyclical"}, ("cyclical economic demand",)),
+        ({"retain", "retained", "retention"}, ("retention retain retained",)),
+        ({"margin", "margins"}, ("operating income net revenue", "sales operating income", "operating profit")),
+        ({"depreciation", "amortization"}, ("depreciation amortization",)),
+        ({"ppne", "ppe"}, ("property plant equipment", "property equipment", "fixed assets")),
+    ):
+        if terms & triggers:
+            variants.extend(queries)
+    if re.search(r"\bd\s*&\s*a\b", question, re.IGNORECASE):
         variants.append("depreciation amortization")
+    if "concentration" in terms and terms.intersection({"customer", "customers"}):
+        variants.append("single customer one customer major customers")
+    if "capital" in terms and terms.intersection({"intensive", "intensity"}):
+        variants.extend(("capital expenditures depreciation", "property plant equipment", "capital spending"))
+    if re.search(r"\bm\s*&\s*a\b", question, re.IGNORECASE) and terms.intersection({"exclude", "excluding"}):
+        variants.extend(("organic sales growth", "organic local currency"))
     return tuple(variants)
 
 
@@ -462,15 +528,39 @@ def _expanded_ranking_terms(question: str) -> tuple[str, ...]:
     for group in _evidence_heading_groups(question):
         terms.extend(analyze_fts_query(" ".join(group)).split())
     return tuple(
-        dict.fromkeys(term for term in terms if not _is_low_value_term(term) and (len(term) > 1 or term.isdigit()))
+        dict.fromkeys(
+            _normalize_ranking_term(term)
+            for term in terms
+            if not _is_low_value_term(term) and (len(term) > 1 or term.isdigit())
+        )
     )
+
+
+def _normalize_ranking_term(term: str) -> str:
+    if term in {"retain", "retained", "retention"}:
+        return "retain"
+    if term in {"cyclical", "cyclicality"}:
+        return "cyclical"
+    if term in {"geography", "geographic", "geographical", "geographies"}:
+        return "geography"
+    if len(term) > 4 and term.endswith("ies"):
+        return term[:-3] + "y"
+    if len(term) > 4 and term.endswith("xes"):
+        return term[:-2]
+    if len(term) > 3 and term.endswith("s") and not term.endswith(("ss", "us")):
+        return term[:-1]
+    return term
+
+
+def _ranking_terms(text: str) -> tuple[str, ...]:
+    return tuple(_normalize_ranking_term(term) for term in analyze_text(text).split())
 
 
 def _is_low_value_term(term: str) -> bool:
     return (
         term in _LOW_VALUE_TERMS
         or term in _QUERY_NOISE_TERMS
-        or re.fullmatch(r"(?:fy?)?(?:19|20)\d{2}", term) is not None
+        or re.fullmatch(r"(?:fy?)?(?:19|20)\d{2}|fy\d{2}", term) is not None
     )
 
 
@@ -517,14 +607,67 @@ def _heading_score(text: str, groups: tuple[tuple[str, ...], ...]) -> float:
 
 
 def _document_score(document_id: str, question: str) -> float:
-    parts = re.split(r"[\W_]+", document_id.casefold())
-    name = "".join(part for part in parts if not _is_low_value_term(part) and not re.fullmatch(r"\d+\w*", part))
+    company = re.split(r"[\W_]+(?:19|20)\d{2}", document_id.casefold(), maxsplit=1)[0]
+    name = re.sub(r"[\W_]+", "", company)
     normalized_question = re.sub(r"[\W_]+", "", question.casefold())
-    if len(name) < 3 or name not in normalized_question:
+    if not name or name not in normalized_question:
+        return 0.0
+    if len(name) < 3 and name not in re.findall(r"[a-z0-9]+", question.casefold()):
         return 0.0
     years = set(re.findall(r"(?:19|20)\d{2}", document_id))
     question_years = set(re.findall(r"(?:19|20)\d{2}", question))
     return 0.4 + (0.2 if years & question_years else 0.0)
+
+
+def _question_entities(question: str) -> tuple[str, ...]:
+    meaningful = set(analyze_fts_query(question).split())
+    return tuple(
+        dict.fromkeys(
+            token.casefold()
+            for token in re.findall(r"[A-Za-z0-9]+", question)
+            if any(character.isupper() for character in token)
+            and len(token) > 1
+            and token.casefold() in meaningful
+            and not _is_low_value_term(token.casefold())
+            and token.casefold() not in {"ebitda", "ebit", "capex", "eps", "gaap", "roe", "roa", "ppne", "ppe"}
+        )
+    )[:6]
+
+
+def _question_documents(question: str, texts: tuple[str, ...]) -> frozenset[str]:
+    documents = {text.partition("\n")[0] for text in texts}
+    named = frozenset(document for document in documents if _document_score(document, question))
+    if named:
+        return named
+    entities = _question_entities(question)
+    matches: dict[str, set[str]] = {entity: set() for entity in entities}
+    for text in texts:
+        document, _separator, body = text.partition("\n")
+        terms = set(analyze_text(body).split())
+        for entity in entities:
+            if entity in terms:
+                matches[entity].add(document)
+    # Resolve an abbreviation only when the retrieved corpus identifies one document.
+    # Ambiguous common words do not narrow the caller's scope.
+    unique = set().union(*(values for values in matches.values() if len(values) == 1))
+    return frozenset(unique) if len(unique) == 1 else frozenset()
+
+
+def _company_ranking_terms(question: str, documents: frozenset[str]) -> frozenset[str]:
+    if not documents:
+        return frozenset()
+    names = [
+        re.sub(r"[\W_]+", "", re.split(r"[\W_]+(?:19|20)\d{2}", document.casefold(), maxsplit=1)[0])
+        for document in documents
+    ]
+    terms = frozenset(
+        _normalize_ranking_term(term)
+        for term in analyze_fts_query(question).split()
+        if len(term) >= 2 and any(term in name for name in names)
+    )
+    # When document identity was inferred from an unambiguous abbreviation, exclude
+    # that abbreviation too. Company mentions route retrieval; they are not page evidence.
+    return terms or frozenset(_normalize_ranking_term(term) for term in _question_entities(question))
 
 
 def _validate_document_id(value: str) -> None:
