@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+public/models/
+.data/
+test-results/

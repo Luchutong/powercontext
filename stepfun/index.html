@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>拾知 · 本地 AI 知识库</title></head>
+<body>
+  <div class="shell">
+    <aside>
+      <a class="brand" href="/">拾知<span>EDGE KNOWLEDGE</span></a>
+      <div class="aside-label">我的知识库</div>
+      <label for="collection" class="sr-only">当前知识库</label><select id="collection"></select>
+      <form id="create-form"><label for="collection-name" class="sr-only">新知识库名称</label><input id="collection-name" placeholder="新建名称，如 research" pattern="[a-z][a-z0-9_]{0,39}" required><button title="新建知识库" aria-label="新建知识库">＋</button></form>
+      <p class="aside-help">不同知识库独立存储。<br>文本块数量：<strong id="count">0</strong></p>
+      <div class="runtime"><span class="dot"></span><strong id="backend">模型尚未加载</strong><p id="backend-reason">文档与查询在你的浏览器内向量化</p><small>BGE-small-zh-v1.5 · 512 维</small></div>
+      <div class="aside-foot">seekdb × 端侧 AI<br><span>让知识留在手边</span></div>
+    </aside>
+    <main>
+      <header><span class="eyebrow">PERSONAL KNOWLEDGE / 01</span><span id="db-status">连接 seekdb…</span></header>
+      <section class="intro"><h1>把零散的文字，<br>变成随时可用的知识。</h1><p>导入文档，在设备上完成向量化，用语义与关键词找到答案。</p></section>
+      <div class="workspace">
+        <section class="card import-card"><div class="section-top"><h2><span>01</span> 添加资料</h2><button id="demo" class="text-button">试用示例语料 ↗</button></div>
+          <label class="dropzone" for="files"><strong>选择文本文件</strong><span>支持多选 .txt / .md · 每个文件最多 2 MB</span><input id="files" type="file" accept=".txt,.md,text/plain,text/markdown" multiple></label>
+          <div class="or">或粘贴一段文字</div>
+          <label class="sr-only" for="source">资料名称</label><input id="source" placeholder="资料名称（可选）" maxlength="512">
+          <label class="sr-only" for="text">资料正文</label><textarea id="text" rows="5" placeholder="粘贴笔记、文档或值得记住的内容…"></textarea>
+          <div class="import-bottom"><label>推理批大小 <select id="batch"><option>1</option><option>4</option><option selected>8</option><option>16</option></select></label><button id="import" class="primary">向量化并导入 ↗</button></div>
+          <progress id="progress" max="100" value="0" aria-label="向量化进度"></progress><p id="status" role="status" aria-live="polite">准备好后即可导入。首次使用会加载本地模型文件。</p>
+        </section>
+        <section class="card search-card"><div class="section-top"><h2><span>02</span> 找到所需</h2><button id="refresh" class="text-button">刷新索引 ↻</button></div>
+          <form id="search-form"><label class="sr-only" for="query">搜索知识库</label><input id="query" placeholder="用自然语言提问，或输入关键词" maxlength="500" required><button class="primary">检索</button></form>
+          <div class="search-options"><label><input type="radio" name="mode" value="hybrid" checked> 混合检索</label><label><input type="radio" name="mode" value="vector">语义检索</label><span>由 seekdb 完成排序</span></div>
+          <div id="results" aria-live="polite"><div class="empty"><span>⌕</span><h3>下一条线索，藏在你的资料里</h3><p>导入资料后，在这里开始检索。</p></div></div>
+        </section>
+      </div>
+      <section class="timings"><div><span>模型加载 / 预热</span><strong id="time-model">—</strong></div><div><span>本地向量化</span><strong id="time-embed">—</strong></div><div><span>写入 / 刷新</span><strong id="time-write">—</strong></div><div><span>seekdb 检索</span><strong id="time-search">—</strong></div><div><span>查询到结果展示</span><strong id="time-total">—</strong></div><button id="export" class="text-button">导出计时 JSON ↓</button></section>
+      <footer>浏览器本地推理 · WebGPU 优先，自动降级 WASM · 文本、向量与元数据存储于本地 seekdb</footer>
+    </main>
+  </div>
+  <script type="module" src="/src/main.mjs"></script>
+</body></html>

@@ -1,0 +1,17 @@
+
+> stepfun-edge-knowledge@1.0.0 test
+> node --test tests/*.test.mjs
+
+✔ chunking preserves Unicode, normalized offsets, complete coverage and overlap (2.81724ms)
+✔ ranking metrics penalize late hits and do not count duplicate chunks as documents (0.331497ms)
+✔ GPU preference, missing adapters, probe rejection, precision and explicit WASM (0.427536ms)
+✔ API rejects mixed models, invalid identifiers, malformed vectors and chunks (0.822563ms)
+✔ SDK session sequences remain ordered and queue recovers from a failed request (0.543534ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 71.175964

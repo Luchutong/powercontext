@@ -1,0 +1,196 @@
+{
+  "at": "2026-10-29T10:48:29.747Z",
+  "reports": [
+    {
+      "path": "gpu-unavailable",
+      "environment": {
+        "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+        "threads": 16,
+        "crossOriginIsolated": true,
+        "gpu": null
+      },
+      "runtime": {
+        "device": "wasm",
+        "dtype": "q8",
+        "reason": "WebGPU 不可用，已自动使用 WASM",
+        "loadMs": 1206.914999999106,
+        "modelResources": [
+          {
+            "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+            "durationMs": 110.17000000178814,
+            "transferBytes": 24011142,
+            "bodyBytes": 24010842
+          }
+        ],
+        "warmupMs": 152.51999999955297,
+        "threads": 4,
+        "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+      },
+      "checks": [
+        "file-import",
+        "incremental",
+        "idempotence",
+        "fresh-index",
+        "hybrid",
+        "collection-isolation",
+        "concurrent-search",
+        "reload-persistence",
+        "mobile-layout",
+        "no-remote-requests"
+      ]
+    },
+    {
+      "path": "gpu-preferred",
+      "environment": {
+        "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+        "threads": 16,
+        "crossOriginIsolated": true,
+        "gpu": {
+          "features": [
+            "depth32float-stencil8",
+            "rg11b10ufloat-renderable",
+            "bgra8unorm-storage",
+            "texture-compression-bc",
+            "core-features-and-limits",
+            "chromium-experimental-timestamp-query-inside-passes",
+            "float32-filterable",
+            "indirect-first-instance",
+            "texture-compression-astc-sliced-3d",
+            "float32-blendable",
+            "texture-compression-astc",
+            "texture-compression-etc2",
+            "depth-clip-control",
+            "texture-compression-bc-sliced-3d",
+            "clip-distances",
+            "timestamp-query",
+            "texture-component-swizzle",
+            "subgroups"
+          ],
+          "vendor": "google",
+          "architecture": "swiftshader",
+          "device": "",
+          "description": ""
+        }
+      },
+      "runtime": {
+        "device": "wasm",
+        "dtype": "q8",
+        "reason": "WebGPU 缺少 shader-f16，已自动使用 WASM / INT8",
+        "loadMs": 204.10999999940395,
+        "modelResources": [],
+        "warmupMs": 10.490000002086163,
+        "threads": 4,
+        "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+      },
+      "initializationFallback": {
+        "device": "wasm",
+        "dtype": "q8",
+        "reason": "WebGPU 初始化或预热失败，已自动降级至 WASM：The device (webgpu) does not support fp16.",
+        "loadMs": 1291.2250000014901,
+        "modelResources": [
+          {
+            "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+            "durationMs": 118.10999999940395,
+            "transferBytes": 24011142,
+            "bodyBytes": 24010842
+          }
+        ],
+        "warmupMs": 130.26500000059605,
+        "threads": 4,
+        "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+      },
+      "checks": [
+        "file-import",
+        "incremental",
+        "idempotence",
+        "fresh-index",
+        "hybrid",
+        "collection-isolation",
+        "concurrent-search",
+        "reload-persistence",
+        "mobile-layout",
+        "no-remote-requests"
+      ]
+    },
+    {
+      "path": "gpu-fp32-validation",
+      "environment": {
+        "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+        "threads": 16,
+        "crossOriginIsolated": true,
+        "gpu": {
+          "features": [
+            "depth32float-stencil8",
+            "rg11b10ufloat-renderable",
+            "bgra8unorm-storage",
+            "texture-compression-bc",
+            "core-features-and-limits",
+            "chromium-experimental-timestamp-query-inside-passes",
+            "float32-filterable",
+            "indirect-first-instance",
+            "texture-compression-astc-sliced-3d",
+            "float32-blendable",
+            "texture-compression-astc",
+            "texture-compression-etc2",
+            "depth-clip-control",
+            "texture-compression-bc-sliced-3d",
+            "clip-distances",
+            "timestamp-query",
+            "texture-component-swizzle",
+            "subgroups"
+          ],
+          "vendor": "google",
+          "architecture": "swiftshader",
+          "device": "",
+          "description": ""
+        }
+      },
+      "runtime": {
+        "device": "webgpu",
+        "dtype": "fp32",
+        "reason": "",
+        "loadMs": 1717.6700000017881,
+        "modelResources": [
+          {
+            "name": "/models/bge-small-zh-v1.5/onnx/model.onnx",
+            "durationMs": 525.9000000022352,
+            "transferBytes": 94852177,
+            "bodyBytes": 94851877
+          }
+        ],
+        "warmupMs": 1869.269999999553,
+        "threads": 4,
+        "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+      },
+      "initializationFallback": {
+        "device": "wasm",
+        "dtype": "q8",
+        "reason": "WebGPU 初始化或预热失败，已自动降级至 WASM：The device (webgpu) does not support fp16.",
+        "loadMs": 1192.824999999255,
+        "modelResources": [
+          {
+            "name": "/models/bge-small-zh-v1.5/onnx/model_quantized.onnx",
+            "durationMs": 83.26999999955297,
+            "transferBytes": 24011142,
+            "bodyBytes": 24010842
+          }
+        ],
+        "warmupMs": 121.66499999910593,
+        "threads": 4,
+        "signature": "bge-small-zh-v1.5@75c43b0:cls:l2:256:v1"
+      },
+      "checks": [
+        "file-import",
+        "incremental",
+        "idempotence",
+        "fresh-index",
+        "hybrid",
+        "collection-isolation",
+        "concurrent-search",
+        "reload-persistence",
+        "mobile-layout",
+        "no-remote-requests"
+      ]
+    }
+  ]
+}
