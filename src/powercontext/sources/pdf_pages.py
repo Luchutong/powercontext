@@ -20,6 +20,7 @@ import hashlib
 import io
 import math
 import re
+from collections import Counter
 from collections.abc import Mapping
 from itertools import pairwise
 from typing import Protocol, cast
@@ -42,6 +43,50 @@ _LOWER_HEX_64 = re.compile(r"[0-9a-f]{64}\Z")
 _SEARCH_POOL_LIMIT = 1024
 _MAX_PAIR_VARIANTS = 14
 _RRF_CONSTANT = 60
+# These are report-section aliases, independent of any company, document or question.
+# A question may require several sections, including a statement that lacks a line item.
+_EVIDENCE_HEADINGS = (
+    (
+        r"\b(?:income statements?|statements? of (?:income|earnings|operations)|p l|profit (?:and )?loss|"
+        r"ebitda|revenue|sales|margin|net income)\b",
+        (
+            "statement of income",
+            "statements of income",
+            "statement of earnings",
+            "statements of earnings",
+            "statement of operations",
+            "statements of operations",
+            "income statement",
+            "income statements",
+            "profit and loss",
+        ),
+    ),
+    (
+        r"\b(?:cash flows?|ebitda|capex|capital expenditures?)\b",
+        ("statement of cash flows", "statements of cash flows", "cash flow statement", "cash flows"),
+    ),
+    (
+        r"\b(?:balance sheets?|financial position|assets?|liabilities|equity|debt|current ratio|quick ratio)\b",
+        ("balance sheet", "balance sheets", "statement of financial position", "statements of financial position"),
+    ),
+    (
+        r"\b(?:geograph\w*|countries|regions)\b",
+        (
+            "geographic areas",
+            "geographical information",
+            "geographic information",
+            "our operations",
+            "business segments",
+            "operating segments",
+            "reportable segments",
+            "segment information",
+        ),
+    ),
+    (
+        r"\b(?:legal|litigation|lawsuits?|battles?)\b",
+        ("legal proceedings", "litigation", "commitments and contingencies", "contingencies"),
+    ),
+)
 _LOW_VALUE_TERMS = frozenset({
     "annual",
     "company",
@@ -298,7 +343,7 @@ async def search_pdf_pages(
                 hit.entry_id,
                 hit.entry_version_id,
             )
-            rrf_weight = 1.25 if variant_index == 0 else (0.75 if variant_index >= len(variants) - 5 else 1.0)
+            rrf_weight = 1.25 if variant_index == 0 else 1.0
             score = rrf_weight / (_RRF_CONSTANT + rank)
             previous = ranked.get(key)
             ranked[key] = (hit, score + (0.0 if previous is None else previous[1]))
@@ -306,7 +351,10 @@ async def search_pdf_pages(
     if not ranked:
         return ()
 
-    text_terms = {key: set(analyze_text(item[0].text).split()) for key, item in ranked.items()}
+    # The first line is projection metadata, not the page body. Keep document targeting
+    # separate so a company name on every page cannot outweigh the requested evidence.
+    page_texts = {key: item[0].text.partition("\n")[2] for key, item in ranked.items()}
+    text_terms = {key: Counter(analyze_text(text).split()) for key, text in page_texts.items()}
     expanded_terms = _expanded_ranking_terms(question)
     query_terms = tuple(
         term for term in dict.fromkeys(analyze_fts_query(question).split()) if not _is_low_value_term(term)
@@ -316,10 +364,18 @@ async def search_pdf_pages(
         term: sum(term in candidate_terms for candidate_terms in text_terms.values()) for term in expanded_terms
     }
     term_weights = {
-        term: math.log((document_count + 1) / (document_frequency[term] + 1)) + 1.0 for term in expanded_terms
+        term: math.log(1.0 + (document_count - document_frequency[term] + 0.5) / (document_frequency[term] + 0.5))
+        for term in expanded_terms
     }
+    average_length = sum(sum(terms.values()) for terms in text_terms.values()) / document_count
+    headings = _evidence_heading_groups(question)
     score_by_key = {
-        key: rrf + _lexical_score(text_terms[key], query_terms, expanded_terms, term_weights)
+        key: (
+            rrf
+            + _lexical_score(text_terms[key], query_terms, expanded_terms, term_weights, average_length)
+            + _heading_score(page_texts[key], headings)
+            + _document_score(hit.text.partition("\n")[0], question)
+        )
         for key, (hit, rrf) in ranked.items()
     }
     ordered = sorted(ranked, key=lambda key: (-score_by_key[key], key[0], key[2], key[3]))
@@ -370,6 +426,8 @@ def _search_variants(question: str) -> tuple[str, ...]:
             start_positions.append(final_start)
         variants.extend(" ".join(terms[start : start + 4]) for start in start_positions[:_MAX_PAIR_VARIANTS])
     variants.extend(_finance_synonym_queries(question))
+    for group in _evidence_heading_groups(question):
+        variants.append(" ".join(dict.fromkeys(analyze_fts_query(" ".join(group)).split())))
     return tuple(dict.fromkeys(value for value in variants if value.strip()))
 
 
@@ -377,9 +435,13 @@ def _finance_synonym_queries(question: str) -> tuple[str, ...]:
     terms = set(analyze_fts_query(question).split())
     variants: list[str] = []
     if "capex" in terms:
-        variants.extend(("capital expenditures", "capital expenditure"))
+        variants.extend(("capital expenditures", "capital expenditure", "capital spending"))
     if terms.intersection({"ebitda", "unadjusted"}):
-        variants.extend(("operating income depreciation amortization", "unadjusted operating income"))
+        variants.extend((
+            "operating income depreciation amortization",
+            "operating profit",
+            "unadjusted operating income",
+        ))
     if terms.intersection({"geography", "geographies", "geographic", "geographical"}):
         variants.append("geographic areas countries regions")
     if terms.intersection({"litigation", "legal", "lawsuit", "lawsuits", "battle", "battles"}):
@@ -397,6 +459,8 @@ def _expanded_ranking_terms(question: str) -> tuple[str, ...]:
     terms = list(analyze_fts_query(question).split())
     for query in _finance_synonym_queries(question):
         terms.extend(analyze_fts_query(query).split())
+    for group in _evidence_heading_groups(question):
+        terms.extend(analyze_fts_query(" ".join(group)).split())
     return tuple(
         dict.fromkeys(term for term in terms if not _is_low_value_term(term) and (len(term) > 1 or term.isdigit()))
     )
@@ -406,29 +470,61 @@ def _is_low_value_term(term: str) -> bool:
     return (
         term in _LOW_VALUE_TERMS
         or term in _QUERY_NOISE_TERMS
-        or term in {"2021", "2022", "2023", "2024", "2025"}
-        or re.fullmatch(r"fy?20\d{2}", term) is not None
+        or re.fullmatch(r"(?:fy?)?(?:19|20)\d{2}", term) is not None
     )
 
 
 def _lexical_score(
-    page_terms: set[str],
+    page_terms: Counter[str],
     original_terms: tuple[str, ...],
     expanded_terms: tuple[str, ...],
     weights: Mapping[str, float],
+    average_length: float,
 ) -> float:
     if not expanded_terms:
         return 0.0
     original_set = set(original_terms)
     total_weight = sum(weights.values())
+    length_normalization = 1.2 * (0.25 + 0.75 * sum(page_terms.values()) / max(average_length, 1.0))
     matched_weight = sum(
-        weights[term] * (1.0 if term in original_set else 0.6) for term in expanded_terms if term in page_terms
+        weights[term]
+        * (1.0 if term in original_set else 0.6)
+        * (2.2 * page_terms[term] / (page_terms[term] + length_normalization))
+        for term in expanded_terms
+        if term in page_terms
     )
-    score = matched_weight / max(total_weight, 1.0)
-    if len(original_terms) > 1:
-        adjacent_matches = sum(left in page_terms and right in page_terms for left, right in pairwise(original_terms))
-        score += 0.02 * adjacent_matches
-    return score
+    return matched_weight / max(total_weight, 1.0)
+
+
+def _evidence_heading_groups(question: str) -> tuple[tuple[str, ...], ...]:
+    normalized = analyze_text(question)
+    return tuple(headings for pattern, headings in _EVIDENCE_HEADINGS if re.search(pattern, normalized))
+
+
+def _heading_score(text: str, groups: tuple[tuple[str, ...], ...]) -> float:
+    # Match short heading lines rather than passing mentions buried in a long paragraph.
+    # Also join adjacent lines to support titles wrapped by PDF text extraction.
+    lines = text.splitlines()
+    titles = [
+        analyze_text(line)
+        for line in (*lines, *(f"{left} {right}" for left, right in pairwise(lines)))
+        if len(line) <= 160
+    ]
+    return 0.7 * sum(
+        any(heading in title and len(heading) >= len(title) * 0.5 for heading in group for title in titles)
+        for group in groups
+    )
+
+
+def _document_score(document_id: str, question: str) -> float:
+    parts = re.split(r"[\W_]+", document_id.casefold())
+    name = "".join(part for part in parts if not _is_low_value_term(part) and not re.fullmatch(r"\d+\w*", part))
+    normalized_question = re.sub(r"[\W_]+", "", question.casefold())
+    if len(name) < 3 or name not in normalized_question:
+        return 0.0
+    years = set(re.findall(r"(?:19|20)\d{2}", document_id))
+    question_years = set(re.findall(r"(?:19|20)\d{2}", question))
+    return 0.4 + (0.2 if years & question_years else 0.0)
 
 
 def _validate_document_id(value: str) -> None:
