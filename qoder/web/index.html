@@ -44,12 +44,31 @@
   .empty { color: var(--muted); padding: 30px 0; text-align: center; }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
   #msg { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 1em; }
+  .todo-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+                padding: 16px; margin-top: 20px; }
+  .todo-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .todo-head h2 { margin: 0; font-size: 17px; }
+  .todo-head span { color: var(--muted); font-size: 13px; }
+  .todo-filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+  .todo-filters label { color: var(--muted); font-size: 12px; }
+  .todo-filters select { display: block; width: 100%; margin-top: 4px; padding: 7px 8px;
+                         border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text); }
+  .todo { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .todo:first-child { border-top: 0; }
+  .todo input { margin-top: 5px; flex: 0 0 auto; }
+  .todo-body { min-width: 0; }
+  .todo-text { font-weight: 600; overflow-wrap: anywhere; }
+  .todo.done .todo-text { color: var(--muted); text-decoration: line-through; }
+  .todo-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 3px; color: var(--muted); font-size: 12px; }
+  .todo-source { color: var(--accent); overflow-wrap: anywhere; }
+  #todo-msg { min-height: 1em; color: var(--muted); font-size: 12px; }
+  @media (max-width: 560px) { .todo-filters { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <header>
   <h1>知库 ZhiKu</h1>
-  <p>把组会纪要、论文笔记、周报、规章制度放进来，用一句话找到原文。全文检索 + 语义检索由 seekdb 混合完成。</p>
+  <p>把组会纪要、论文笔记、周报、规章制度放进来，用一句话找到原文，并持续跟踪纪要里的待办。</p>
 </header>
 <main>
   <section>
@@ -59,6 +78,16 @@
     </form>
     <div class="tags" id="tags"></div>
     <div id="results"><div class="empty">输入问题开始检索</div></div>
+    <section class="todo-panel" aria-labelledby="todos-title">
+      <div class="todo-head"><h2 id="todos-title">纪要待办</h2><span id="todo-count"></span></div>
+      <div class="todo-filters">
+        <label>负责人<select id="todo-owner"><option value="">全部负责人</option></select></label>
+        <label>状态<select id="todo-status"><option value="all">全部状态</option><option value="open">未完成</option><option value="done">已完成</option></select></label>
+        <label>截止日期<select id="todo-due"><option value="">全部日期</option></select></label>
+      </div>
+      <div id="todos"><div class="empty">待办加载中…</div></div>
+      <div id="todo-msg" role="status"></div>
+    </section>
   </section>
   <aside>
     <div class="card">
@@ -81,7 +110,7 @@
 const $ = (s) => document.querySelector(s);
 let currentTag = "";
 
-const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // 把问题拆成关键词，在结果里高亮（只做展示，真正的检索在 seekdb 里完成）
 function highlight(text, q) {
@@ -100,6 +129,44 @@ async function loadStats() {
   $("#tags").innerHTML = ["", ...s.tags]
     .map((t) => `<span class="tag ${t === currentTag ? "on" : ""}" data-tag="${esc(t)}">${t ? esc(t) : "全部"}</span>`)
     .join("");
+}
+
+function fillOptions(selector, values, label, selected) {
+  const options = [`<option value="">${label}</option>`, ...values.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`)];
+  $(selector).innerHTML = options.join("");
+  $(selector).value = selected;
+  if ($(selector).value !== selected) $(selector).value = "";
+}
+
+async function loadTodos() {
+  const owner = $("#todo-owner").value;
+  const status = $("#todo-status").value;
+  const due = $("#todo-due").value;
+  const params = new URLSearchParams({ status });
+  if (owner) params.set("owner", owner);
+  if (due) params.set("due", due);
+  try {
+    const r = await fetch("/api/todos?" + params);
+    if (!r.ok) throw new Error("待办读取失败");
+    const d = await r.json();
+    fillOptions("#todo-owner", d.owners, "全部负责人", owner);
+    fillOptions("#todo-due", d.due_dates, "全部日期", due);
+    $("#todo-count").textContent = `${d.todos.length} 项`;
+    $("#todos").innerHTML = d.todos.length
+      ? d.todos.map((t) => `
+        <div class="todo ${t.done ? "done" : ""}">
+          <input type="checkbox" data-id="${esc(t.id)}" aria-label="切换 ${esc(t.text)} 的完成状态" ${t.done ? "checked" : ""}>
+          <div class="todo-body">
+            <div class="todo-text">${esc(t.text)}</div>
+            <div class="todo-meta"><span>${esc(t.owner)}</span><span>截止 ${esc(t.due)}</span></div>
+            <div class="todo-meta"><span class="todo-source">${esc(t.source)} · 第 ${t.chunk + 1} 段</span></div>
+          </div>
+        </div>`).join("")
+      : '<div class="empty">没有符合筛选条件的待办</div>';
+    $("#todo-msg").textContent = "";
+  } catch (error) {
+    $("#todo-msg").textContent = error.message;
+  }
 }
 
 async function search() {
@@ -126,6 +193,25 @@ $("#tags").addEventListener("click", (e) => {
   loadStats();
   search();
 });
+["#todo-owner", "#todo-status", "#todo-due"].forEach((id) => $(id).addEventListener("change", loadTodos));
+$("#todos").addEventListener("change", async (e) => {
+  if (!e.target.matches('input[type="checkbox"][data-id]')) return;
+  const checkbox = e.target;
+  checkbox.disabled = true;
+  try {
+    const r = await fetch(`/api/todos/${encodeURIComponent(checkbox.dataset.id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ done: checkbox.checked }),
+    });
+    if (!r.ok) throw new Error("状态保存失败");
+    await loadTodos();
+  } catch {
+    checkbox.checked = !checkbox.checked;
+    checkbox.disabled = false;
+    $("#todo-msg").textContent = "状态保存失败，请重试";
+  }
+});
 $("#upload").addEventListener("click", () => $("#file").click());
 $("#file").addEventListener("change", async () => {
   const f = $("#file").files[0];
@@ -138,14 +224,17 @@ $("#file").addEventListener("change", async () => {
   $("#msg").textContent = r.ok ? `已加入 ${d.source}（${d.chunks} 段）` : d.detail;
   $("#file").value = "";
   loadStats();
+  loadTodos();
 });
 $("#reindex").addEventListener("click", async () => {
   $("#msg").textContent = "重新索引中…";
   const d = await (await fetch("/api/reindex", { method: "POST" })).json();
   $("#msg").textContent = `完成：${d.files} 个文件，${d.chunks} 段`;
   loadStats();
+  loadTodos();
 });
 loadStats();
+loadTodos();
 </script>
 </body>
 </html>

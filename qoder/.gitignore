@@ -2,4 +2,5 @@ zhiku_data/
 __pycache__/
 *.pyc
 .venv/
+.venv-linux/
 .pytest_cache/
