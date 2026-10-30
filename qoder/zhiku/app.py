@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from .ingest import SUPPORTED, file_chunks, ingest_dir
 from .store import Store
@@ -16,6 +18,10 @@ DOCS_DIR = Path(os.environ.get("ZHIKU_DOCS", "./sample_docs")).resolve()
 
 app = FastAPI(title="知库 ZhiKu")
 store = Store()
+
+
+class TodoUpdate(BaseModel):
+    done: bool
 
 
 @app.get("/")
@@ -31,6 +37,23 @@ def search(q: str, k: int = 8, tag: str | None = None):
 @app.get("/api/stats")
 def stats():
     return {"docs_dir": str(DOCS_DIR), **store.stats()}
+
+
+@app.get("/api/todos")
+def todos(
+    owner: str | None = None,
+    status: Literal["all", "open", "done"] = "all",
+    due: str | None = None,
+):
+    return store.todos.query(owner=owner or None, status=status, due=due or None)
+
+
+@app.patch("/api/todos/{todo_id}")
+def update_todo(todo_id: str, update: TodoUpdate):
+    todo = store.todos.set_done(todo_id, update.done)
+    if todo is None:
+        raise HTTPException(404, "待办不存在")
+    return todo
 
 
 @app.post("/api/reindex")

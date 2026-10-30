@@ -15,9 +15,12 @@ from __future__ import annotations
 
 import os
 import re
+import threading
 from dataclasses import dataclass
 
 import pyseekdb
+
+from .todos import TodoStore
 
 COLLECTION = "zhiku_chunks"
 DEFAULT_DB_PATH = os.environ.get("ZHIKU_DB", "./zhiku_data")
@@ -72,27 +75,57 @@ class Store:
     def __init__(self, path: str | None = None):
         self.path = path or DEFAULT_DB_PATH
         self.client = pyseekdb.Client(path=self.path)
+        self._lock = threading.RLock()
         self.col = self.client.get_or_create_collection(
             COLLECTION, embedding_function=make_embedding_function()
         )
+        self.todos = TodoStore(self.client, self._lock)
+        for source in self.stats()["files"]:
+            self.todos.sync_source(source["source"], self.source_chunks(source["source"]))
 
     # ---------- 写入 ----------
     def replace_source(self, source: str, chunks: list[dict]) -> int:
         """用新切片整体替换某个文件之前的切片，返回写入条数。"""
-        self.col.delete(where={"source": {"$eq": source}})
-        for i in range(0, len(chunks), BATCH):
-            batch = chunks[i : i + BATCH]
-            self.col.upsert(
-                ids=[c["id"] for c in batch],
-                documents=[c["text"] for c in batch],
-                metadatas=[c["meta"] for c in batch],
-            )
+        with self._lock:
+            self.col.delete(where={"source": {"$eq": source}})
+            for i in range(0, len(chunks), BATCH):
+                batch = chunks[i : i + BATCH]
+                self.col.upsert(
+                    ids=[c["id"] for c in batch],
+                    documents=[c["text"] for c in batch],
+                    metadatas=[c["meta"] for c in batch],
+                )
+            self.todos.sync_source(source, self.source_chunks(source))
         return len(chunks)
 
     def delete_source(self, source: str) -> None:
-        self.col.delete(where={"source": {"$eq": source}})
+        with self._lock:
+            self.col.delete(where={"source": {"$eq": source}})
+            self.todos.delete_source(source)
 
     # ---------- 读取 ----------
+    def source_chunks(self, source: str) -> list[dict]:
+        chunks: list[dict] = []
+        offset = 0
+        while True:
+            res = self.col.get(
+                where={"source": {"$eq": source}},
+                limit=100,
+                offset=offset,
+                include=["documents", "metadatas"],
+            )
+            ids = res.get("ids") or []
+            documents = res.get("documents") or []
+            metadatas = res.get("metadatas") or []
+            chunks.extend(
+                {"id": id_, "text": text, "meta": meta}
+                for id_, text, meta in zip(ids, documents, metadatas)
+            )
+            if len(ids) < 100:
+                break
+            offset += len(ids)
+        return sorted(chunks, key=lambda c: c["meta"].get("chunk", 0))
+
     def search(self, q: str, k: int = 8, tag: str | None = None) -> list[Hit]:
         q = q.strip()
         if not q:
