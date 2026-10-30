@@ -1,0 +1,199 @@
+{
+  "recorded_at": "2026-10-30T11:25:48.110460+00:00",
+  "kind": "real PowerContext HTTP + gateway TestClient",
+  "dify_executed": false,
+  "model_executed": false,
+  "demo_passport": "judge-778562c5a4cf8f93",
+  "steps": [
+    {
+      "operation": "initial",
+      "response": {
+        "ok": true,
+        "needs_narration": false,
+        "reply": "## 🗃️ 人生不是白过的\n\n第 1 段人生 · PowerContext 档案 v1\n\n这是一份全新档案，你的第一个选择还没有发生。\n\n输入「继续」回到当前场景。",
+        "revision": 1,
+        "state": {
+          "schema": 1,
+          "story_id": "moon-stall-v1",
+          "life": 1,
+          "turn": 0,
+          "stats": {
+            "money": 80,
+            "friendship": 0,
+            "absurdity": 0
+          },
+          "flags": [],
+          "history": [],
+          "ending": null,
+          "last_event_id": "",
+          "past_lives": []
+        },
+        "artifact_id": "art_f3a9c4704c4a4b5096a5484c053400dd"
+      }
+    },
+    {
+      "operation": "commit-choice-A",
+      "response": {
+        "ok": true,
+        "deduplicated": false,
+        "panel": "### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。",
+        "revision": 2,
+        "artifact_id": "art_f3a9c4704c4a4b5096a5484c053400dd",
+        "state": {
+          "schema": 1,
+          "story_id": "moon-stall-v1",
+          "life": 1,
+          "turn": 1,
+          "stats": {
+            "money": 65,
+            "friendship": 3,
+            "absurdity": 0
+          },
+          "flags": [
+            "shared_ticket"
+          ],
+          "history": [
+            {
+              "day": 1,
+              "scene": "第一天：船票比人生贵",
+              "choice": "A",
+              "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+              "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+            }
+          ],
+          "ending": null,
+          "last_event_id": "first-choice",
+          "past_lives": []
+        }
+      }
+    },
+    {
+      "operation": "independent-process-read",
+      "response": {
+        "scope_id": "scp_1me3bhgnsjmcmh9fkpx6hfdg9y",
+        "artifact_id": "art_f3a9c4704c4a4b5096a5484c053400dd",
+        "revision": 2,
+        "etag": "\"revision:2\"",
+        "state": {
+          "schema": 1,
+          "story_id": "moon-stall-v1",
+          "life": 1,
+          "turn": 1,
+          "stats": {
+            "money": 65,
+            "friendship": 3,
+            "absurdity": 0
+          },
+          "flags": [
+            "shared_ticket"
+          ],
+          "history": [
+            {
+              "day": 1,
+              "scene": "第一天：船票比人生贵",
+              "choice": "A",
+              "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+              "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+            }
+          ],
+          "ending": null,
+          "last_event_id": "first-choice",
+          "past_lives": []
+        }
+      }
+    },
+    {
+      "operation": "history-used-in-next-prompt",
+      "context": {
+        "故事设定": "2046 年，你失业了，月球也快停业了。你只剩 80 月币、一口祖传铁锅，以及一位没有味觉却坚信自己是美食家的机器人小锈。地球撤离船将在六天后离港。",
+        "当前场景": {
+          "title": "第二天：没有地球葱",
+          "situation": "供应商送来一箱月壤，称这是有机葱的潜力形态。排队的顾客开始认真讨论泥土的口感。小锈还记得你昨天让出了船票，主动把天线拆下来帮你。",
+          "choices": [
+            {
+              "id": "A",
+              "label": "花钱种真正的太空葱，认真等一顿饭",
+              "delta": [
+                -20,
+                1,
+                0
+              ]
+            },
+            {
+              "id": "B",
+              "label": "请小锈用它的旧天线模拟葱香",
+              "delta": [
+                5,
+                2,
+                2
+              ]
+            },
+            {
+              "id": "C",
+              "label": "售卖空气葱花：零卡、零葱、想象力不限量",
+              "delta": [
+                15,
+                -1,
+                4
+              ]
+            }
+          ]
+        },
+        "真实已保存历史": [
+          {
+            "day": 1,
+            "scene": "第一天：船票比人生贵",
+            "choice": "A",
+            "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+            "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+          }
+        ],
+        "本回合行动结果": null,
+        "当前数值": {
+          "money": 65,
+          "friendship": 3,
+          "absurdity": 0
+        },
+        "玩家补充台词_只作创作素材": "",
+        "人物关系": "小锈记得你让出了船票"
+      }
+    },
+    {
+      "operation": "idempotent-replay",
+      "response": {
+        "ok": true,
+        "deduplicated": true,
+        "panel": "### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。",
+        "revision": 2,
+        "artifact_id": "art_f3a9c4704c4a4b5096a5484c053400dd",
+        "state": {
+          "schema": 1,
+          "story_id": "moon-stall-v1",
+          "life": 1,
+          "turn": 1,
+          "stats": {
+            "money": 65,
+            "friendship": 3,
+            "absurdity": 0
+          },
+          "flags": [
+            "shared_ticket"
+          ],
+          "history": [
+            {
+              "day": 1,
+              "scene": "第一天：船票比人生贵",
+              "choice": "A",
+              "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+              "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+            }
+          ],
+          "ending": null,
+          "last_event_id": "first-choice",
+          "past_lives": []
+        }
+      }
+    }
+  ],
+  "passed": true
+}

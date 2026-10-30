@@ -1,0 +1,9 @@
+{
+  "source_package_sha256": "b74c762103a80c12ef7efe9cbf410afef043282db7c45b0bd923e825cf5e6111",
+  "manifest_verified": true,
+  "dsl_version": "0.7.0",
+  "provider": "langgenius/deepseek/deepseek",
+  "model": "deepseek-flash",
+  "plugin_unique_identifier": "langgenius/deepseek:0.0.26@bdf47cb41e9062bba00d26625d2a795c1874011d8ce64bff738c44b5a31787ea",
+  "secret_values_exported": false
+}

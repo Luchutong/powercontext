@@ -1,0 +1,849 @@
+{
+  "recorded_at": "2026-10-30T12:17:15.235868+00:00",
+  "kind": "Dify Cloud app API",
+  "demo_passport": "cloud-judge-b0d0d600f304ab59",
+  "runs": [
+    {
+      "query": "开始",
+      "conversation_id": "dd7a0002-8133-4f9f-8d7e-c7aa9b1a6fbe",
+      "answer": "月球港的广播每隔四分钟念一遍：地球撤离船还有六天离港。\n\n检票员用两根手指捏住你祖传铁锅的锅沿，像捏着什么不洁之物：“机器人不能带锅上船。条例第几条我忘了，反正不行。”\n\n小锈站在黄色警戒线后，胸口的指示灯一明一灭，很认真地辩解：“这是炊具，不是武器。”它说得对，但没人听。后面排队的人开始跺脚，靴底敲在月壤水泥地上，闷闷的，像谁在很远的地方敲锅盖。\n\n你口袋里那张优惠船票薄得像一片煎饼，边角早被体温焐软了。\n\n---\n\n### 🌘 第一天：船票比人生贵\n\n第 1 段人生 · 已作出 0/6 次选择\n\n月币 **80** · 人缘 **0** · 荒诞度 **0**\n\n**A** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n**B** · 买下一辆二手月球餐车，先当自己的老板\n\n**C** · 卖掉船票，推出不保证好吃的开业众筹\n\n🗃️ PowerContext 档案 v1 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：AI 叙事_",
+      "raw_reasoning_detected": false,
+      "execution": [
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {
+            "total_tokens": 869,
+            "total_price": "0",
+            "currency": "USD"
+          }
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "message_end",
+          "usage": {
+            "prompt_tokens": 454,
+            "prompt_unit_price": "0",
+            "prompt_price_unit": "0",
+            "prompt_price": "0",
+            "completion_tokens": 415,
+            "completion_unit_price": "0",
+            "completion_price_unit": "0",
+            "completion_price": "0",
+            "total_tokens": 869,
+            "total_price": "0",
+            "currency": "USD",
+            "latency": 3.835,
+            "time_to_first_token": 6.252,
+            "time_to_generate": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "dd7a0002-8133-4f9f-8d7e-c7aa9b1a6fbe",
+      "answer": "小锈把合伙证贴在锅沿上，边角还翘着。第二天一早，供应商把一箱月壤卸在摊前，说这是“有机葱的潜力形态”。排队的几个人蹲下去认真讨论口感：一个说像饼干渣，一个说像没加盐的雪，第三个捏了捏，问能不能蘸酱。\n\n小锈安静了几秒，然后拧下自己的天线递过来。它记得昨天那张船票，也记得我说“合伙”时，它把票折成方块的样子。它说，天线能当搅拌棒，也能当旗杆。\n\n铁锅在低重力里轻轻打晃。箱盖一开，灰扑扑的土味散出来，谁也没打喷嚏。\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：AI 叙事_",
+      "raw_reasoning_detected": false,
+      "execution": [
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {
+            "total_tokens": 1134,
+            "total_price": "0",
+            "currency": "USD"
+          }
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "message_end",
+          "usage": {
+            "prompt_tokens": 520,
+            "prompt_unit_price": "0",
+            "prompt_price_unit": "0",
+            "prompt_price": "0",
+            "completion_tokens": 614,
+            "completion_unit_price": "0",
+            "completion_price_unit": "0",
+            "completion_price": "0",
+            "total_tokens": 1134,
+            "total_price": "0",
+            "currency": "USD",
+            "latency": 5.156,
+            "time_to_first_token": 7.532,
+            "time_to_generate": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "query": "继续",
+      "conversation_id": "a284c827-8deb-40d7-8279-06bd8f7f5eeb",
+      "answer": "供应商把箱子往摊前一放，塑料膜都没拆：“有机葱的潜力形态。”月壤细得像面粉，一捏就从指缝里漏下去。排队的人围过来，认真掰开看，有人咂嘴说有点像炉灰，有人坚持说比昨天地球那批进口葱香多了。小锈不说话，蹲在摊后拧天线，咔哒一声，那根旧铝杆被它整个拔下来，递到我手里：“老板，换葱花。”它眼睛亮得不像个味觉坏掉的机器。我还没接话，队伍里已经有人问：“这泥，能多来一勺吗？”\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：AI 叙事_",
+      "raw_reasoning_detected": false,
+      "execution": [
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_enabled",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "writer",
+          "node_type": "llm",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {
+            "total_tokens": 790,
+            "total_price": "0",
+            "currency": "USD"
+          }
+        },
+        {
+          "event": "node_started",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "ai_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "message_end",
+          "usage": {
+            "prompt_tokens": 521,
+            "prompt_unit_price": "0",
+            "prompt_price_unit": "0",
+            "prompt_price": "0",
+            "completion_tokens": 269,
+            "completion_unit_price": "0",
+            "completion_price_unit": "0",
+            "completion_price": "0",
+            "total_tokens": 790,
+            "total_price": "0",
+            "currency": "USD",
+            "latency": 3.032,
+            "time_to_first_token": 5.059,
+            "time_to_generate": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "query": "档案",
+      "conversation_id": "a284c827-8deb-40d7-8279-06bd8f7f5eeb",
+      "answer": "## 🗃️ 人生不是白过的\n\n第 1 段人生 · PowerContext 档案 v2\n\n**第 1 天** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n输入「继续」回到当前场景。",
+      "raw_reasoning_detected": false,
+      "execution": [
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_started",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "node_finished",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null,
+          "execution_metadata": {}
+        },
+        {
+          "event": "message_end",
+          "usage": {
+            "prompt_tokens": 0,
+            "prompt_unit_price": "0.0",
+            "prompt_price_unit": "0.0",
+            "prompt_price": "0.0",
+            "completion_tokens": 0,
+            "completion_unit_price": "0.0",
+            "completion_price_unit": "0.0",
+            "completion_price": "0.0",
+            "total_tokens": 0,
+            "total_price": "0.0",
+            "currency": "USD",
+            "latency": 0.0,
+            "time_to_first_token": 1.039,
+            "time_to_generate": 0.0
+          }
+        }
+      ]
+    }
+  ],
+  "passed": true,
+  "real_model_executed": true
+}

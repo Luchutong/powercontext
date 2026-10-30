@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "health": "ready",
+  "cloud_save_readback": {
+    "artifact_id": "art_ef417540d9d644e8bf595e586b28c28c",
+    "revision": 2,
+    "state": {
+      "schema": 1,
+      "story_id": "moon-stall-v1",
+      "life": 1,
+      "turn": 1,
+      "stats": {
+        "money": 65,
+        "friendship": 3,
+        "absurdity": 0
+      },
+      "flags": [
+        "shared_ticket"
+      ],
+      "history": [
+        {
+          "day": 1,
+          "scene": "第一天：船票比人生贵",
+          "choice": "A",
+          "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+          "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+        }
+      ],
+      "ending": null,
+      "last_event_id": "3e5a2b81-f7eb-4625-937c-fa8b9ad92d05",
+      "past_lives": []
+    }
+  }
+}

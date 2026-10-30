@@ -1,0 +1,629 @@
+kind: app
+version: 0.7.0
+dependencies: []
+app:
+  name: 平行人生档案馆 · 月球煎饼摊 · 剧本验证版
+  description: 不调用模型的基础流程验证版。用于检查 Dify + PowerContext；完整 AI 体验请导入主 DSL。
+  mode: advanced-chat
+  icon: 🌘
+  icon_background: '#ECE7FF'
+  use_icon_as_answer_icon: false
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - id: life-url
+    name: life_service_url
+    value: http://life_tools:18381
+    value_type: string
+    description: Dify API 可访问的配套服务地址
+  - id: life-token
+    name: life_service_token
+    value: ''
+    value_type: secret
+    description: APP_TOKEN；从本地配置绑定，不提交真实值
+  features:
+    opening_statement: '2046 年，你在月球失业了，只剩 80 月币、一口锅和机器人小锈。
+
+
+      填写一个专属人生口令，发送「开始」。每次回复 A / B / C，让六天后的人生发生一点不同。
+
+
+      新开会话时，填写相同口令并发送「继续」，小锈会记得你。'
+    suggested_questions:
+    - 开始
+    - 继续
+    - 档案
+    suggested_questions_after_answer:
+      enabled: false
+    file_upload:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    text_to_speech:
+      enabled: false
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+  graph:
+    nodes:
+    - id: start
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 0
+        y: 200
+      positionAbsolute:
+        x: 0
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 报上人生口令
+        type: start
+        desc: ''
+        selected: false
+        variables:
+        - variable: passport
+          label: 人生口令（8～64 位英文、数字、下划线或短横线）
+          type: text-input
+          required: true
+          max_length: 64
+          options: []
+    - id: normalize
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 300
+        y: 200
+      positionAbsolute:
+        x: 300
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 整理行动与 JSON
+        type: code
+        desc: ''
+        selected: false
+        code_language: python3
+        code: "import json\nimport re\ndef main(passport: str, query: str, event_id: str) -> dict:\n    text = query.strip()\n\
+          \    aliases = {\"开始\": \"CONTINUE\", \"继续\": \"CONTINUE\", \"档案\": \"ARCHIVE\", \"新人生\": \"NEW\"}\n \
+          \   command = aliases.get(text, text.upper())\n    if re.match(r\"^[ABCabc](?:[\\s、：:，,]|$)\", text):\n\
+          \        command = text[0].upper()\n    if command not in [\"CONTINUE\", \"ARCHIVE\", \"NEW\", \"A\",\
+          \ \"B\", \"C\"]:\n        command = \"HELP\"\n    body = {\"passport\": passport.strip(), \"command\"\
+          : command, \"event_id\": event_id,\n            \"user_note\": text[1:].strip()[:200] if command in [\"\
+          A\", \"B\", \"C\"] else \"\"}\n    return {\"body\": json.dumps(body, ensure_ascii=False)}"
+        variables:
+        - variable: passport
+          value_selector:
+          - start
+          - passport
+          value_type: string
+        - variable: query
+          value_selector:
+          - sys
+          - query
+          value_type: string
+        - variable: event_id
+          value_selector:
+          - sys
+          - workflow_run_id
+          value_type: string
+        outputs:
+          body:
+            type: string
+            children: null
+    - id: prepare
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 600
+        y: 200
+      positionAbsolute:
+        x: 600
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 从 PowerContext 读档
+        type: http-request
+        desc: ''
+        selected: false
+        method: post
+        url: '{{#env.life_service_url#}}/game/prepare'
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.life_service_token#}}'
+        headers: Content-Type:application/json
+        params: ''
+        body:
+          type: raw-text
+          data:
+          - id: prepare-body
+            type: text
+            value: '{{#normalize.body#}}'
+        timeout:
+          connect: 10
+          read: 60
+          write: 20
+        ssl_verify: true
+        retry_config:
+          retry_enabled: false
+          max_retries: 0
+          retry_interval: 1000
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 0
+        - key: body
+          type: string
+          value: '{}'
+    - id: parse
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 900
+        y: 200
+      positionAbsolute:
+        x: 900
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 检查读档结果
+        type: code
+        desc: ''
+        selected: false
+        code_language: python3
+        code: "import json\ndef main(body: str, status_code: int) -> dict:\n    result = {\"needs_narration\": False,\
+          \ \"ticket\": \"\", \"prompt_context\": \"\", \"fallback\": \"\", \"reply\": \"\"}\n    try:\n       \
+          \ data = json.loads(body)\n    except Exception:\n        data = {}\n    if status_code != 200 or not\
+          \ data.get(\"ok\"):\n        detail = data.get(\"detail\", \"服务响应无效。\")\n        result[\"reply\"] = \"\
+          本次未确认保存。\" + str(detail) + \" 请稍后输入「继续」读取当前档案。\"\n        return result\n    for key in result:\n    \
+          \    result[key] = data.get(key, result[key])\n    return result"
+        variables:
+        - variable: body
+          value_selector:
+          - prepare
+          - body
+          value_type: string
+        - variable: status_code
+          value_selector:
+          - prepare
+          - status_code
+          value_type: number
+        outputs:
+          needs_narration:
+            type: boolean
+            children: null
+          ticket:
+            type: string
+            children: null
+          prompt_context:
+            type: string
+            children: null
+          fallback:
+            type: string
+            children: null
+          reply:
+            type: string
+            children: null
+    - id: needs_story
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 1200
+        y: 200
+      positionAbsolute:
+        x: 1200
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 本回合需要剧情？
+        type: if-else
+        desc: ''
+        selected: false
+        cases:
+        - id: 'true'
+          case_id: 'true'
+          logical_operator: and
+          conditions:
+          - id: needs_story-condition
+            variable_selector:
+            - parse
+            - needs_narration
+            varType: boolean
+            comparison_operator: is
+            value: true
+    - id: direct_answer
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 1500
+        y: 600
+      positionAbsolute:
+        x: 1500
+        y: 600
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 档案与操作提示
+        type: answer
+        desc: ''
+        selected: false
+        answer: '{{#parse.reply#}}'
+        variables: []
+    - id: script_prose
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 1800
+        y: 350
+      positionAbsolute:
+        x: 1800
+        y: 350
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 原创剧本体验
+        type: code
+        desc: ''
+        selected: false
+        code_language: python3
+        code: "def main(fallback: str) -> dict:\n    return {\"prose\": fallback, \"mode\": \"原创剧本（未调用模型）\"}"
+        variables:
+        - variable: fallback
+          value_selector:
+          - parse
+          - fallback
+          value_type: string
+        outputs:
+          prose:
+            type: string
+            children: null
+          mode:
+            type: string
+            children: null
+    - id: merge
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 2400
+        y: 200
+      positionAbsolute:
+        x: 2400
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 合并叙事分支
+        type: variable-aggregator
+        desc: ''
+        selected: false
+        advanced_settings:
+          group_enabled: true
+          groups:
+          - groupId: prose
+            group_name: prose
+            output_type: string
+            variables:
+            - - script_prose
+              - prose
+          - groupId: mode
+            group_name: mode
+            output_type: string
+            variables:
+            - - script_prose
+              - mode
+        output_type: string
+        variables: []
+    - id: commit_body
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 2700
+        y: 200
+      positionAbsolute:
+        x: 2700
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 封装已签名回合
+        type: code
+        desc: ''
+        selected: false
+        code_language: python3
+        code: "import json\ndef main(ticket: str) -> dict:\n    return {\"body\": json.dumps({\"ticket\": ticket},\
+          \ ensure_ascii=False)}"
+        variables:
+        - variable: ticket
+          value_selector:
+          - parse
+          - ticket
+          value_type: string
+        outputs:
+          body:
+            type: string
+            children: null
+    - id: commit
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 3000
+        y: 200
+      positionAbsolute:
+        x: 3000
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 保存并读回 PowerContext
+        type: http-request
+        desc: ''
+        selected: false
+        method: post
+        url: '{{#env.life_service_url#}}/game/commit'
+        authorization:
+          type: api-key
+          config:
+            type: bearer
+            api_key: '{{#env.life_service_token#}}'
+        headers: Content-Type:application/json
+        params: ''
+        body:
+          type: raw-text
+          data:
+          - id: commit-body
+            type: text
+            value: '{{#commit_body.body#}}'
+        timeout:
+          connect: 10
+          read: 60
+          write: 20
+        ssl_verify: true
+        retry_config:
+          retry_enabled: false
+          max_retries: 0
+          retry_interval: 1000
+        error_strategy: default-value
+        default_value:
+        - key: status_code
+          type: number
+          value: 0
+        - key: body
+          type: string
+          value: '{}'
+    - id: format
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 3300
+        y: 200
+      positionAbsolute:
+        x: 3300
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 确认存档后呈现
+        type: code
+        desc: ''
+        selected: false
+        code_language: python3
+        code: "import json\ndef main(body: str, status_code: int, prose: str, mode: str) -> dict:\n    try:\n  \
+          \      data = json.loads(body)\n    except Exception:\n        data = {}\n    if status_code != 200 or\
+          \ not data.get(\"ok\"):\n        return {\"answer\": \"这一回合尚未确认保存，剧情没有作为新进度展示。\" +\n                str(data.get(\"\
+          detail\", \"存档服务暂时不可用。\")) + \" 输入「继续」读回最新档案。\"}\n    return {\"answer\": prose + \"\\n\\n---\\n\\n\"\
+          \ + data[\"panel\"] + \"\\n\\n_叙事方式：\" + mode + \"_\"}"
+        variables:
+        - variable: body
+          value_selector:
+          - commit
+          - body
+          value_type: string
+        - variable: status_code
+          value_selector:
+          - commit
+          - status_code
+          value_type: number
+        - variable: prose
+          value_selector:
+          - merge
+          - prose
+          - output
+          value_type: string
+        - variable: mode
+          value_selector:
+          - merge
+          - mode
+          - output
+          value_type: string
+        outputs:
+          answer:
+            type: string
+            children: null
+    - id: answer
+      type: custom
+      width: 244
+      height: 100
+      position:
+        x: 3600
+        y: 200
+      positionAbsolute:
+        x: 3600
+        y: 200
+      sourcePosition: right
+      targetPosition: left
+      selected: false
+      data:
+        title: 你的人生正在营业
+        type: answer
+        desc: ''
+        selected: false
+        answer: '{{#format.answer#}}'
+        variables: []
+    edges:
+    - id: start-normalize
+      source: start
+      target: normalize
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: start
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: normalize-prepare
+      source: normalize
+      target: prepare
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: http-request
+        isInIteration: false
+        isInLoop: false
+    - id: prepare-parse
+      source: prepare
+      target: parse
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: parse-needs_story
+      source: parse
+      target: needs_story
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: if-else
+        isInIteration: false
+        isInLoop: false
+    - id: needs_story-direct_answer-false
+      source: needs_story
+      target: direct_answer
+      sourceHandle: 'false'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: if-else
+        targetType: answer
+        isInIteration: false
+        isInLoop: false
+    - id: script_prose-merge
+      source: script_prose
+      target: merge
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: variable-aggregator
+        isInIteration: false
+        isInLoop: false
+    - id: merge-commit_body
+      source: merge
+      target: commit_body
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: variable-aggregator
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: commit_body-commit
+      source: commit_body
+      target: commit
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: http-request
+        isInIteration: false
+        isInLoop: false
+    - id: commit-format
+      source: commit
+      target: format
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: http-request
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    - id: format-answer
+      source: format
+      target: answer
+      sourceHandle: source
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: code
+        targetType: answer
+        isInIteration: false
+        isInLoop: false
+    - id: needs_story-true-script_prose
+      source: needs_story
+      target: script_prose
+      sourceHandle: 'true'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+      data:
+        sourceType: if-else
+        targetType: code
+        isInIteration: false
+        isInLoop: false
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.55

@@ -1,0 +1,1868 @@
+{
+  "recorded_at": "2026-10-30T11:33:26.214929+00:00",
+  "dify_version": "1.17.1",
+  "dsl_file": "parallel-life.script-check.yml",
+  "base_url": "http://localhost:18400",
+  "app_id": "ff05a28b-7ee9-4aeb-b61a-de617c936e52",
+  "import": {
+    "id": "29fe951a-92d7-4e0b-a655-a534c16b1d8b",
+    "status": "completed",
+    "app_id": "ff05a28b-7ee9-4aeb-b61a-de617c936e52",
+    "app_mode": "advanced-chat",
+    "permission_keys": [],
+    "current_dsl_version": "0.7.0",
+    "imported_dsl_version": "0.7.0",
+    "error": "",
+    "warnings": []
+  },
+  "narration_mode": "script",
+  "real_model_executed": false,
+  "runs": [
+    {
+      "query": "开始",
+      "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb",
+      "answer": "小锈被检票员拦住：机器人不能带锅上船。你手里最后一张优惠船票，也许能换来一位合伙人。\n\n---\n\n### 🌘 第一天：船票比人生贵\n\n第 1 段人生 · 已作出 0/6 次选择\n\n月币 **80** · 人缘 **0** · 荒诞度 **0**\n\n**A** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n**B** · 买下一辆二手月球餐车，先当自己的老板\n\n**C** · 卖掉船票，推出不保证好吃的开业众筹\n\n🗃️ PowerContext 档案 v1 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb",
+          "answer": "小锈被检票员拦住：机器人不能带锅上船。你手里最后一张优惠船票，也许能换来一位合伙人。\n\n---\n\n### 🌘 第一天：船票比人生贵\n\n第 1 段人生 · 已作出 0/6 次选择\n\n月币 **80** · 人缘 **0** · 荒诞度 **0**\n\n**A** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n**B** · 买下一辆二手月球餐车，先当自己的老板\n\n**C** · 卖掉船票，推出不保证好吃的开业众筹\n\n🗃️ PowerContext 档案 v1 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb",
+      "answer": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n供应商送来一箱月壤，称这是有机葱的潜力形态。排队的顾客开始认真讨论泥土的口感。小锈还记得你昨天让出了船票，主动把天线拆下来帮你。\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb",
+          "answer": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n供应商送来一箱月壤，称这是有机葱的潜力形态。排队的顾客开始认真讨论泥土的口感。小锈还记得你昨天让出了船票，主动把天线拆下来帮你。\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "bbff881e-ee17-4008-b76d-a7b99cca6abb"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "继续",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "供应商送来一箱月壤，称这是有机葱的潜力形态。排队的顾客开始认真讨论泥土的口感。小锈还记得你昨天让出了船票，主动把天线拆下来帮你。\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "供应商送来一箱月壤，称这是有机葱的潜力形态。排队的顾客开始认真讨论泥土的口感。小锈还记得你昨天让出了船票，主动把天线拆下来帮你。\n\n---\n\n### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "档案",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "## 🗃️ 人生不是白过的\n\n第 1 段人生 · PowerContext 档案 v2\n\n**第 1 天** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n输入「继续」回到当前场景。",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "## 🗃️ 人生不是白过的\n\n第 1 段人生 · PowerContext 档案 v2\n\n**第 1 天** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n输入「继续」回到当前场景。"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 6
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "月球第一根葱发芽了，顾客轮流给它挡风。\n\n食品审计员是台没有嘴的打印机。它坚持亲自试吃，否则就打印停业通知。\n\n---\n\n### 🌘 第三天：食品局没有嘴\n\n第 1 段人生 · 已作出 2/6 次选择\n\n月币 **45** · 人缘 **4** · 荒诞度 **0**\n\n📌 记得你上次：花钱种真正的太空葱，认真等一顿饭\n\n**A** · 提交完整配方和账单，请它核验\n\n**B** · 申请把煎饼登记为可食用的圆形文学\n\n**C** · 为打印机设计一张可以闻的煎饼明信片\n\n🗃️ PowerContext 档案 v3 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "月球第一根葱发芽了，顾客轮流给它挡风。\n\n食品审计员是台没有嘴的打印机。它坚持亲自试吃，否则就打印停业通知。\n\n---\n\n### 🌘 第三天：食品局没有嘴\n\n第 1 段人生 · 已作出 2/6 次选择\n\n月币 **45** · 人缘 **4** · 荒诞度 **0**\n\n📌 记得你上次：花钱种真正的太空葱，认真等一顿饭\n\n**A** · 提交完整配方和账单，请它核验\n\n**B** · 申请把煎饼登记为可食用的圆形文学\n\n**C** · 为打印机设计一张可以闻的煎饼明信片\n\n🗃️ PowerContext 档案 v3 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "打印机吃下了数据，吐出一张带葱花水印的合格证。\n\n地球平台要你一夜做完一万张煎饼。附近矿工只有十个月币，却是从开业起就排队的老顾客。\n\n---\n\n### 🌘 第四天：地球订单来了\n\n第 1 段人生 · 已作出 3/6 次选择\n\n月币 **40** · 人缘 **5** · 荒诞度 **0**\n\n📌 记得你上次：提交完整配方和账单，请它核验\n\n**A** · 先做矿工的小订单，留一张给最晚下班的人\n\n**B** · 接下地球大单，挑战一口锅的极限\n\n**C** · 直播翻饼，众筹月球最大一次翻车\n\n🗃️ PowerContext 档案 v4 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "打印机吃下了数据，吐出一张带葱花水印的合格证。\n\n地球平台要你一夜做完一万张煎饼。附近矿工只有十个月币，却是从开业起就排队的老顾客。\n\n---\n\n### 🌘 第四天：地球订单来了\n\n第 1 段人生 · 已作出 3/6 次选择\n\n月币 **40** · 人缘 **5** · 荒诞度 **0**\n\n📌 记得你上次：提交完整配方和账单，请它核验\n\n**A** · 先做矿工的小订单，留一张给最晚下班的人\n\n**B** · 接下地球大单，挑战一口锅的极限\n\n**C** · 直播翻饼，众筹月球最大一次翻车\n\n🗃️ PowerContext 档案 v4 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "矿工用头灯照亮摊位，月球第一次有了深夜食堂。\n\n月尘暴切断了电源。小锈的电池只能维持一家店，或者一座公共氧气站。撤离广播开始倒计时。\n\n---\n\n### 🌘 第五天：氧气半价\n\n第 1 段人生 · 已作出 4/6 次选择\n\n月币 **60** · 人缘 **7** · 荒诞度 **0**\n\n📌 记得你上次：先做矿工的小订单，留一张给最晚下班的人\n\n**A** · 关掉摊位，把电池送到公共氧气站\n\n**B** · 保住餐车，准备搭最后一班船回地球\n\n**C** · 用祖传铁锅改造风力发电机\n\n🗃️ PowerContext 档案 v5 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "矿工用头灯照亮摊位，月球第一次有了深夜食堂。\n\n月尘暴切断了电源。小锈的电池只能维持一家店，或者一座公共氧气站。撤离广播开始倒计时。\n\n---\n\n### 🌘 第五天：氧气半价\n\n第 1 段人生 · 已作出 4/6 次选择\n\n月币 **60** · 人缘 **7** · 荒诞度 **0**\n\n📌 记得你上次：先做矿工的小订单，留一张给最晚下班的人\n\n**A** · 关掉摊位，把电池送到公共氧气站\n\n**B** · 保住餐车，准备搭最后一班船回地球\n\n**C** · 用祖传铁锅改造风力发电机\n\n🗃️ PowerContext 档案 v5 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "氧气站亮起，矿工把你那块熄灯的招牌搬进了避风港。\n\n船就要开了。小锈把合伙账本放到你面前：最后一页留给你写。钱、朋友与离谱传说，哪一种才算赚到了？\n\n---\n\n### 🌘 第六天：最后一张船票\n\n第 1 段人生 · 已作出 5/6 次选择\n\n月币 **40** · 人缘 **10** · 荒诞度 **0**\n\n📌 记得你上次：关掉摊位，把电池送到公共氧气站\n\n**A** · 留下来，和小锈继续摆摊\n\n**B** · 带着铁锅回地球，给人生换个摊位\n\n**C** · 把煎饼摊发射成广播站，向银河招聘合伙人\n\n🗃️ PowerContext 档案 v6 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "氧气站亮起，矿工把你那块熄灯的招牌搬进了避风港。\n\n船就要开了。小锈把合伙账本放到你面前：最后一页留给你写。钱、朋友与离谱传说，哪一种才算赚到了？\n\n---\n\n### 🌘 第六天：最后一张船票\n\n第 1 段人生 · 已作出 5/6 次选择\n\n月币 **40** · 人缘 **10** · 荒诞度 **0**\n\n📌 记得你上次：关掉摊位，把电池送到公共氧气站\n\n**A** · 留下来，和小锈继续摆摊\n\n**B** · 带着铁锅回地球，给人生换个摊位\n\n**C** · 把煎饼摊发射成广播站，向银河招聘合伙人\n\n🗃️ PowerContext 档案 v6 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "A",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "你在账本上写下：明天照常营业。\n\n你留下了。小锈、矿工与那台打印机一起，把月球最后一家煎饼摊变成了第一家合作社。你没有赚到整个月球，却让整个月球有了一个愿意回来的地方。\n\n---\n\n### 🌘 银河合伙人\n\n第 1 段人生 · 已作出 6/6 次选择\n\n月币 **40** · 人缘 **12** · 荒诞度 **0**\n\n📌 记得你上次：留下来，和小锈继续摆摊\n\n🗃️ PowerContext 档案 v7 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "你在账本上写下：明天照常营业。\n\n你留下了。小锈、矿工与那台打印机一起，把月球最后一家煎饼摊变成了第一家合作社。你没有赚到整个月球，却让整个月球有了一个愿意回来的地方。\n\n---\n\n### 🌘 银河合伙人\n\n第 1 段人生 · 已作出 6/6 次选择\n\n月币 **40** · 人缘 **12** · 荒诞度 **0**\n\n📌 记得你上次：留下来，和小锈继续摆摊\n\n🗃️ PowerContext 档案 v7 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "新人生",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "小锈被检票员拦住：机器人不能带锅上船。你手里最后一张优惠船票，也许能换来一位合伙人。\n\n---\n\n### 🌘 第一天：船票比人生贵\n\n第 2 段人生 · 已作出 0/6 次选择\n\n月币 **80** · 人缘 **0** · 荒诞度 **0**\n\n**A** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n**B** · 买下一辆二手月球餐车，先当自己的老板\n\n**C** · 卖掉船票，推出不保证好吃的开业众筹\n\n🗃️ PowerContext 档案 v8 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "script_prose",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "merge",
+          "node_type": "variable-aggregator",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit_body",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "commit",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "format",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "小锈被检票员拦住：机器人不能带锅上船。你手里最后一张优惠船票，也许能换来一位合伙人。\n\n---\n\n### 🌘 第一天：船票比人生贵\n\n第 2 段人生 · 已作出 0/6 次选择\n\n月币 **80** · 人缘 **0** · 荒诞度 **0**\n\n**A** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n**B** · 买下一辆二手月球餐车，先当自己的老板\n\n**C** · 卖掉船票，推出不保证好吃的开业众筹\n\n🗃️ PowerContext 档案 v8 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。\n\n_叙事方式：原创剧本（未调用模型）_"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "format",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 11
+        }
+      ]
+    },
+    {
+      "query": "档案",
+      "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+      "answer": "## 🗃️ 人生不是白过的\n\n第 2 段人生 · PowerContext 档案 v8\n\n这是一份全新档案，你的第一个选择还没有发生。\n\n旧人生 #1：银河合伙人，共 6 次选择。\n\n输入「继续」回到当前场景。",
+      "events": [
+        {
+          "event": "workflow_started",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "node_started",
+          "node_id": "start",
+          "node_type": "start",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "start",
+          "node_type": "start",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "normalize",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "prepare",
+          "node_type": "http-request",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "parse",
+          "node_type": "code",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "message",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76",
+          "answer": "## 🗃️ 人生不是白过的\n\n第 2 段人生 · PowerContext 档案 v8\n\n这是一份全新档案，你的第一个选择还没有发生。\n\n旧人生 #1：银河合伙人，共 6 次选择。\n\n输入「继续」回到当前场景。"
+        },
+        {
+          "event": "node_finished",
+          "node_id": "needs_story",
+          "node_type": "if-else",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "node_started",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": null,
+          "error": null
+        },
+        {
+          "event": "node_finished",
+          "node_id": "direct_answer",
+          "node_type": "answer",
+          "status": "succeeded",
+          "error": null
+        },
+        {
+          "event": "message_end",
+          "conversation_id": "0a0a1166-a469-4105-9cfa-0acc64fd9c76"
+        },
+        {
+          "event": "workflow_finished",
+          "status": "succeeded",
+          "error": null,
+          "total_steps": 6
+        }
+      ]
+    }
+  ],
+  "publish": {
+    "result": "success",
+    "created_at": 1793360026
+  },
+  "passed": true,
+  "demo_passport": "dify-judge-4103f16efd71bf83"
+}

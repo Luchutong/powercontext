@@ -1,0 +1,79 @@
+{
+  "passed": true,
+  "before_process": {
+    "container_id": "8a482016f09d08ee620aefd8918318c5b8fc01236cd895afbd921b559fe84e67",
+    "started_at": "2026-10-30T11:30:10.276583909Z",
+    "pid": 741983
+  },
+  "after_process": {
+    "container_id": "8a482016f09d08ee620aefd8918318c5b8fc01236cd895afbd921b559fe84e67",
+    "started_at": "2026-10-30T11:37:28.495845821Z",
+    "pid": 761822
+  },
+  "saved": {
+    "ok": true,
+    "deduplicated": false,
+    "panel": "### 🌘 第二天：没有地球葱\n\n第 1 段人生 · 已作出 1/6 次选择\n\n月币 **65** · 人缘 **3** · 荒诞度 **0**\n\n📌 记得你上次：把优惠船票让给小锈，邀请它合伙摆摊\n\n**A** · 花钱种真正的太空葱，认真等一顿饭\n\n**B** · 请小锈用它的旧天线模拟葱香\n\n**C** · 售卖空气葱花：零卡、零葱、想象力不限量\n\n🗃️ PowerContext 档案 v2 · 已保存\n\n输入 A / B / C 做选择；「继续」续玩；「档案」回看；「新人生」保留旧版本重新开始。",
+    "revision": 2,
+    "artifact_id": "art_c52ac567b96a4e68aed2d1cb854556b1",
+    "state": {
+      "schema": 1,
+      "story_id": "moon-stall-v1",
+      "life": 1,
+      "turn": 1,
+      "stats": {
+        "money": 65,
+        "friendship": 3,
+        "absurdity": 0
+      },
+      "flags": [
+        "shared_ticket"
+      ],
+      "history": [
+        {
+          "day": 1,
+          "scene": "第一天：船票比人生贵",
+          "choice": "A",
+          "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+          "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+        }
+      ],
+      "ending": null,
+      "last_event_id": "before-restart",
+      "past_lives": []
+    }
+  },
+  "restored": {
+    "ok": true,
+    "needs_narration": false,
+    "reply": "## 🗃️ 人生不是白过的\n\n第 1 段人生 · PowerContext 档案 v2\n\n**第 1 天** · 把优惠船票让给小锈，邀请它合伙摆摊\n\n小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。\n\n输入「继续」回到当前场景。",
+    "revision": 2,
+    "state": {
+      "schema": 1,
+      "story_id": "moon-stall-v1",
+      "life": 1,
+      "turn": 1,
+      "stats": {
+        "money": 65,
+        "friendship": 3,
+        "absurdity": 0
+      },
+      "flags": [
+        "shared_ticket"
+      ],
+      "history": [
+        {
+          "day": 1,
+          "scene": "第一天：船票比人生贵",
+          "choice": "A",
+          "label": "把优惠船票让给小锈，邀请它合伙摆摊",
+          "result": "小锈把船票折成合伙证，郑重宣布你是它认识的第一个没有保修期的人类。"
+        }
+      ],
+      "ending": null,
+      "last_event_id": "before-restart",
+      "past_lives": []
+    },
+    "artifact_id": "art_c52ac567b96a4e68aed2d1cb854556b1"
+  }
+}

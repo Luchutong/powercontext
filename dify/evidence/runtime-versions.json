@@ -1,0 +1,12 @@
+{
+  "source": "Installed versions read from the final running life_tools container",
+  "python": "3.12.15",
+  "powercontext": "1.4.1",
+  "fastapi": "0.162.0",
+  "httpx": "0.28.1",
+  "uvicorn": "0.54.0",
+  "dify": "1.17.1",
+  "dify_source_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "dify_version_source": "Pinned local deployment; Dify Cloud server version is platform-managed",
+  "dsl": "0.7.0"
+}

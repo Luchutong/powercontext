@@ -1,0 +1,4 @@
+powercontext[cli,server]==1.4.1
+httpx==0.28.1
+PyYAML==6.0.3
+python-dotenv==1.2.4

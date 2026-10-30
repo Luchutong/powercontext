@@ -1,0 +1,6 @@
+{
+  "service_url": "https://proc-deutsche-consistently-clerk.trycloudflare.com",
+  "health_status": 200,
+  "authenticated_status": 200,
+  "unauthenticated_status": 401
+}
