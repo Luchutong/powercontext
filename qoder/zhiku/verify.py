@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 
 from .ingest import ingest_dir
+from .todos import UNSPECIFIED
 
 # (问题, 期望出现在前 3 名的文件, 类别筛选)
 CASES = [
@@ -25,6 +26,50 @@ CASES = [
 
 def _fmt(hits) -> str:
     return "<br>".join(f"{i + 1}. {h.source}（{h.score}）" for i, h in enumerate(hits)) or "（无结果）"
+
+
+def _verify_todos(store, docs_dir: str) -> tuple[bool, list[str], list[dict]]:
+    initial = store.todos.query()["todos"]
+    by_owner = {t["owner"]: t for t in initial}
+    chen = by_owner.get("陈浩")
+    extract_ok = (
+        len(initial) == 3
+        and chen is not None
+        and chen["due"] == "10/22"
+        and chen["source"] == "科研/组会纪要-1015.md"
+        and by_owner.get("李明", {}).get("due") == UNSPECIFIED
+        and by_owner.get("张悦", {}).get("due") == UNSPECIFIED
+    )
+    if not chen:
+        return False, ["初次提取：FAIL（未找到陈浩任务）"], initial
+
+    original_done = chen["done"]
+    target_done = not original_done
+    store.todos.set_done(chen["id"], target_done)
+    ingest_dir(store, docs_dir)
+    after_sync = store.todos.query(owner="陈浩")["todos"]
+    sync_ok = len(store.todos.query()["todos"]) == 3 and len(after_sync) == 1 and after_sync[0]["done"] == target_done
+
+    from .store import Store
+
+    restarted = Store(path=store.path)
+    persisted = restarted.todos.query(owner="陈浩")["todos"]
+    restart_ok = len(persisted) == 1 and persisted[0]["done"] == target_done
+    filtered = restarted.todos.query(
+        owner="陈浩", status="done" if target_done else "open", due="10/22"
+    )["todos"]
+    filter_ok = len(filtered) == 1
+
+    restarted.todos.set_done(chen["id"], original_done)
+    ingest_dir(restarted, docs_dir)
+    final = restarted.todos.query()["todos"]
+    lines = [
+        f"初次提取、缺失字段及出处：{'PASS' if extract_ok else 'FAIL'}",
+        f"修改状态并重新导入（不重复、保留状态）：{'PASS' if sync_ok else 'FAIL'}",
+        f"新建 Store 后读取持久化状态：{'PASS' if restart_ok else 'FAIL'}",
+        f"负责人 + 状态 + 截止日期组合筛选：{'PASS' if filter_ok else 'FAIL'}",
+    ]
+    return extract_ok and sync_ok and restart_ok and filter_ok, lines, final
 
 
 def run(store, docs_dir: str, log_path: str) -> bool:
@@ -46,7 +91,16 @@ def run(store, docs_dir: str, log_path: str) -> bool:
             f"| {_fmt(store.search_fulltext(q))} | {_fmt(store.search_vector(q))} | {_fmt(hybrid)} |"
         )
 
+    todo_ok, todo_lines, todos = _verify_todos(store, docs_dir)
+    all_ok &= todo_ok
+    for line in todo_lines:
+        print(f"[待办] {line}")
+
     stats = store.stats()
+    todo_rows = [
+        f"| {t['text']} | {t['owner']} | {t['due']} | {'已完成' if t['done'] else '未完成'} | {t['source']}（第 {t['chunk'] + 1} 段） |"
+        for t in todos
+    ]
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
     Path(log_path).write_text(
         "\n".join(
@@ -67,6 +121,14 @@ def run(store, docs_dir: str, log_path: str) -> bool:
                 "| 结果 | 问题 | 期望 | 全文检索 | 向量检索 | 混合检索（最终） |",
                 "| --- | --- | --- | --- | --- | --- |",
                 *rows,
+                "",
+                "## 纪要待办端到端验证",
+                "",
+                *todo_lines,
+                "",
+                "| 任务 | 负责人 | 截止日期 | 状态 | 出处 |",
+                "| --- | --- | --- | --- | --- |",
+                *todo_rows,
                 "",
             ]
         ),
