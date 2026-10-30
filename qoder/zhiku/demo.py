@@ -25,6 +25,7 @@ def export(store, out: str) -> None:
         "queries": [
             {"q": q, "hits": [h.to_dict() for h in store.search(q, k=4)]} for q in DEMO_QUERIES
         ],
+        "todos": store.todos.query()["todos"],
     }
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(

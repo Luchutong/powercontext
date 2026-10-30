@@ -288,5 +288,49 @@ window.ZHIKU_DEMO = {
     }
    ]
   }
+ ],
+ "todos": [
+  {
+   "id": "ab6a4874bd8912c2bf5ea1ad",
+   "due": "未指定",
+   "raw": "- [ ] 张悦：整理相关工作章节的参考文献",
+   "tag": "科研",
+   "done": false,
+   "text": "整理相关工作章节的参考文献",
+   "chunk": 0,
+   "owner": "张悦",
+   "title": "组会纪要-1015",
+   "source": "科研/组会纪要-1015.md",
+   "source_done": false,
+   "user_override": false
+  },
+  {
+   "id": "acb63ef9a7fcd6f60bdc55fe",
+   "due": "未指定",
+   "raw": "- [ ] 李明：补充实验一的显著性检验",
+   "tag": "科研",
+   "done": false,
+   "text": "补充实验一的显著性检验",
+   "chunk": 0,
+   "owner": "李明",
+   "title": "组会纪要-1015",
+   "source": "科研/组会纪要-1015.md",
+   "source_done": false,
+   "user_override": false
+  },
+  {
+   "id": "fea8d36aa2355f2d043d37f0",
+   "due": "10/22",
+   "raw": "- [ ] 陈浩：消融实验（10/22）",
+   "tag": "科研",
+   "done": true,
+   "text": "消融实验",
+   "chunk": 0,
+   "owner": "陈浩",
+   "title": "组会纪要-1015",
+   "source": "科研/组会纪要-1015.md",
+   "source_done": false,
+   "user_override": true
+  }
  ]
 };

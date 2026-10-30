@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>知库 ZhiKu · 一句话找到你的资料</title>
-<meta name="description" content="知库是一个基于 seekdb 混合检索的个人科研与工作资料助手：组会纪要、论文笔记、周报、规章制度，一句话找到原文。">
+<meta name="description" content="知库是基于 seekdb 的资料检索与纪要任务管理工具：一句话找到原文，并持续跟踪待办负责人、截止日期和完成状态。">
 <style>
   :root {
     --bg: #ffffff; --bg-2: #f5f7fb; --text: #1d2129; --muted: #5f6673; --line: #e3e7ee;
@@ -70,6 +70,9 @@
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
   th { color: var(--muted); font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+  .todo-table { min-width: 680px; }
+  .todo-done { color: var(--accent-2); font-weight: 600; }
   .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
   .shots figure { margin: 0; }
   .shots img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; display: block; }
@@ -82,7 +85,7 @@
   <div class="wrap">
     <b>📚 知库 ZhiKu</b>
     <div class="links">
-      <a href="#why">为什么</a><a href="#how">原理</a><a href="#demo">在线体验</a><a href="#shots">截图</a><a href="#start">快速开始</a>
+      <a href="#why">为什么</a><a href="#how">原理</a><a href="#demo">在线体验</a><a href="#todo-demo">待办</a><a href="#shots">截图</a><a href="#start">快速开始</a>
       <a href="https://github.com/Luchutong/powercontext/tree/2026-competition-ecosystem/qoder" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
@@ -91,7 +94,7 @@
 <header class="hero">
   <div class="wrap">
     <h1>资料散落各处？<br><span>一句话</span>找到原文</h1>
-    <p>知库把组会纪要、论文笔记、周报、规章制度收进一个本地资料库，用 seekdb 的「全文 + 语义」混合检索，帮你在几秒内找到那句话出现在哪份文件的哪一段。</p>
+    <p>知库把组会纪要、论文笔记、周报、规章制度收进本地资料库，用 seekdb 混合检索定位原文，并从纪要中提取待办，持续跟踪负责人、截止日期和完成状态。</p>
     <a class="btn" href="#demo">在线体验</a>
     <a class="btn ghost" href="#start">本地运行</a>
     <a class="btn ghost" href="https://github.com/Luchutong/powercontext/tree/2026-competition-ecosystem/qoder" target="_blank" rel="noopener">代码仓库</a>
@@ -119,6 +122,8 @@
       <div class="card"><h3>🧠 混合检索</h3><p>关键词精确命中 + 语义相近召回，两路结果融合排序，换个说法也能找到。</p></div>
       <div class="card"><h3>🏷️ 按类别筛选</h3><p>子文件夹自动成为类别（科研 / 工作 / 行政 / 学习），一键缩小范围。</p></div>
       <div class="card"><h3>📍 定位到段落</h3><p>结果直接给出文件名和第几段，并高亮关键词，不用再打开整份文件。</p></div>
+      <div class="card"><h3>纪要待办</h3><p>从 Markdown 任务列表提取内容、负责人和截止日期，缺失信息明确显示“未指定”。</p></div>
+      <div class="card"><h3>状态持久化</h3><p>按负责人、状态和日期筛选；勾选写入 seekdb，重启和重复导入后仍保留。</p></div>
     </div>
   </div>
 </section>
@@ -163,6 +168,22 @@
   </div>
 </section>
 
+<section class="alt" id="todo-demo">
+  <div class="wrap">
+    <h2>从纪要到可持续跟踪的待办</h2>
+    <p class="sub">导入时提取，修改状态后写入 seekdb，重新导入不重复</p>
+    <div class="demo">
+      <div class="table-scroll">
+        <table class="todo-table">
+          <thead><tr><th>任务</th><th>负责人</th><th>截止日期</th><th>状态</th><th>出处</th></tr></thead>
+          <tbody id="todo-rows"></tbody>
+        </table>
+      </div>
+      <p class="note">这是 <code>python -m zhiku export-demo</code> 导出的预生成数据，用于静态展示，不会在网页上修改数据库。勾选、筛选和持久化请在本地应用中体验。</p>
+    </div>
+  </div>
+</section>
+
 <section id="shots">
   <div class="wrap">
     <h2>界面截图</h2>
@@ -170,6 +191,7 @@
     <div class="shots">
       <figure><img src="assets/search.png" alt="知库搜索界面：输入问题后返回最相关的段落与出处" loading="lazy"><figcaption>换个说法也能搜到：问"发票什么时候要交给财务"，命中"当月 25 日前提交给财务"</figcaption></figure>
       <figure><img src="assets/filter.png" alt="按类别筛选：只在科研资料中检索" loading="lazy"><figcaption>按类别筛选：只在「科研」资料里找"谁负责"，由 seekdb 元数据过滤完成</figcaption></figure>
+      <figure><img src="assets/todos.png" alt="纪要待办：筛选、出处和完成状态持久化" loading="lazy"><figcaption>本轮 Qoder 开发的待办看板：三项任务来自示例纪要，勾选后重新导入和服务重启仍保留</figcaption></figure>
     </div>
   </div>
 </section>
@@ -177,15 +199,18 @@
 <section class="alt" id="start">
   <div class="wrap steps">
     <h2>快速开始</h2>
-    <p class="sub">需要 Python 3.11+，Linux 或 macOS</p>
+    <p class="sub">需要 Python 3.11+ 和 Linux x86_64；Windows 使用 WSL2，数据库放在 Linux 原生目录</p>
 <pre>git clone -b 2026-competition-ecosystem https://github.com/Luchutong/powercontext.git
 cd powercontext/qoder
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+export ZHIKU_DB="$HOME/.zhiku_data"
 
 # 导入示例资料（首次会下载约 95MB 的中文向量模型）
 python -m zhiku ingest ./sample_docs
 
-# 运行验证样例，生成 seekdb 检索记录 docs/verify-log.md
+# 验证 7 个检索样例和完整待办流程，生成 docs/verify-log.md
 python -m zhiku verify
 
 # 打开网页界面：http://127.0.0.1:8000
@@ -197,13 +222,13 @@ python -m zhiku serve --docs ./sample_docs</pre>
       <tr><td>向量模型</td><td>bge-small-zh-v1.5（本地 ONNX）；可切换阿里云百炼 text-embedding-v4</td></tr>
       <tr><td>后端</td><td>Python · FastAPI</td></tr>
       <tr><td>前端</td><td>原生 HTML / CSS / JavaScript</td></tr>
-      <tr><td>开发与发布</td><td>Qoder · Qoder Sites</td></tr>
+      <tr><td>开发与发布</td><td>本轮待办功能由 Qoder 参与开发 · Qoder Sites</td></tr>
     </table>
   </div>
 </section>
 
 <footer>
-  知库 ZhiKu · 使用 Qoder 开发，基于 seekdb，通过 Qoder Sites 发布 ·
+  知库 ZhiKu · 初版检索原型由其他工具开发，本轮待办功能在 Qoder 中开发 · 基于 seekdb · Qoder Sites 托管 ·
   <a href="https://github.com/Luchutong/powercontext/tree/2026-competition-ecosystem/qoder" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
@@ -237,9 +262,19 @@ python -m zhiku serve --docs ./sample_docs</pre>
         <div class="text">${highlight(snippet(h.text, item.q), item.q)}</div>
       </div>`).join("");
   }
-  if (!demo) { $("#hits").textContent = "演示数据加载失败"; return; }
+  if (!demo) {
+    $("#hits").textContent = "演示数据加载失败";
+    $("#todo-rows").innerHTML = '<tr><td colspan="5">演示数据加载失败</td></tr>';
+    return;
+  }
   $("#chips").innerHTML = demo.queries.map((it, i) => `<button class="chip" data-i="${i}">${esc(it.q)}</button>`).join("");
   $("#chips").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) show(+c.dataset.i); });
+  $("#todo-rows").innerHTML = demo.todos.map((t) => `
+    <tr>
+      <td>${esc(t.text)}</td><td>${esc(t.owner)}</td><td>${esc(t.due)}</td>
+      <td${t.done ? ' class="todo-done"' : ""}>${t.done ? "已完成" : "未完成"}</td>
+      <td>${esc(t.source)} · 第 ${t.chunk + 1} 段</td>
+    </tr>`).join("");
   show(0);
 })();
 </script>
