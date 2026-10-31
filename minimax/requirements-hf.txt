@@ -1,0 +1,2 @@
+# Optional: only needed for `./sdd edit --mode hf-space` (MiniMax official Hugging Face Space).
+gradio_client==2.7.2

@@ -1,0 +1,159 @@
+{
+  "suite": "target+regression",
+  "label": "attempt1",
+  "command": "python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+  "cwd": "/tmp/cleanclone/minimax/.runtime/workspace/sample_app",
+  "exit_code": 1,
+  "started_at": "2026-10-28T04:38:06Z",
+  "duration_s": 0.25,
+  "git_commit": "eb0d57d3e53f11820b9652e64a72e2f8748debdb",
+  "git_dirty": true,
+  "code_digest": "90228770ab8b5759eb21fe9f4667d308b1aba987aacc4968d820a3b7622c33a7",
+  "tests_digest": "5e8790b10c4544dd075a477f41e3c463b893a9175318b03c9a0b8c56695d94d1",
+  "spec_digest": "84e4b299421f80cbed5c96c9928622317de140cf51f7d150243545dec8a93c00",
+  "total": 19,
+  "passed": 11,
+  "failed": 8,
+  "errors": 0,
+  "skipped": 0,
+  "failure_kinds": {
+    "taskboard.service.QueryError": 3,
+    "AssertionError": 5
+  },
+  "cases": [
+    {
+      "nodeid": "tests/test_tag_filter.py::test_blank_tag_is_rejected[]",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_blank_tag_is_rejected[   ]",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[Backend]",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[  backend  ]",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace[BACKEND]",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "outcome": "failed",
+      "failure_kind": "taskboard.service.QueryError",
+      "message": "taskboard.service.QueryError: tag must not be empty or whitespace",
+      "details": ">       result = search_tasks(tasks, {})\n>           raise QueryError(\"tag must not be empty or whitespace\")\nE           taskboard.service.QueryError: tag must not be empty or whitespace\ntaskboard/service.py:48: QueryError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_invalid_limit_raises_query_error[0]",
+      "outcome": "failed",
+      "failure_kind": "AssertionError",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'limit'\n  Actual message: 'tag must not be empty or whitespace'",
+      "details": ">       with pytest.raises(QueryError, match=\"limit\"):\nE       AssertionError: Regex pattern did not match.\nE         Expected regex: 'limit'\nE         Actual message: 'tag must not be empty or whitespace'\ntests/test_list_api.py:43: AssertionError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_invalid_limit_raises_query_error[101]",
+      "outcome": "failed",
+      "failure_kind": "AssertionError",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'limit'\n  Actual message: 'tag must not be empty or whitespace'",
+      "details": ">       with pytest.raises(QueryError, match=\"limit\"):\nE       AssertionError: Regex pattern did not match.\nE         Expected regex: 'limit'\nE         Actual message: 'tag must not be empty or whitespace'\ntests/test_list_api.py:43: AssertionError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_invalid_limit_raises_query_error[ten]",
+      "outcome": "failed",
+      "failure_kind": "AssertionError",
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'limit'\n  Actual message: 'tag must not be empty or whitespace'",
+      "details": ">       with pytest.raises(QueryError, match=\"limit\"):\nE       AssertionError: Regex pattern did not match.\nE         Expected regex: 'limit'\nE         Actual message: 'tag must not be empty or whitespace'\ntests/test_list_api.py:43: AssertionError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "outcome": "passed",
+      "failure_kind": null,
+      "message": null,
+      "details": null
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "outcome": "failed",
+      "failure_kind": "taskboard.service.QueryError",
+      "message": "taskboard.service.QueryError: tag must not be empty or whitespace",
+      "details": ">       result = search_tasks(tasks, {\"limit\": \"3\"})\n>           raise QueryError(\"tag must not be empty or whitespace\")\nE           taskboard.service.QueryError: tag must not be empty or whitespace\ntaskboard/service.py:48: QueryError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_response_shape_over_http",
+      "outcome": "failed",
+      "failure_kind": "AssertionError",
+      "message": "assert 400 == 200",
+      "details": ">       assert status == 200\nE       assert 400 == 200\ntests/test_list_api.py:50: AssertionError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "outcome": "failed",
+      "failure_kind": "taskboard.service.QueryError",
+      "message": "taskboard.service.QueryError: tag must not be empty or whitespace",
+      "details": ">       result = search_tasks(tasks, {\"status\": \"open\"})\n>           raise QueryError(\"tag must not be empty or whitespace\")\nE           taskboard.service.QueryError: tag must not be empty or whitespace\ntaskboard/service.py:48: QueryError"
+    },
+    {
+      "nodeid": "tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+      "outcome": "failed",
+      "failure_kind": "AssertionError",
+      "message": "assert 400 == 200",
+      "details": ">       assert status == 200\nE       assert 400 == 200\ntests/test_list_api.py:60: AssertionError"
+    }
+  ],
+  "log": "evidence/minimax/attempts/mmx-20261028T043730Z-94e11f/attempt1-target+regression.log"
+}

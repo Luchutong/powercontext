@@ -1,0 +1,9 @@
+# Development task handed to the context module (input of `sdd context` / `sdd edit`).
+id = "TASK-TAG-FILTER"
+title = "任务列表接口支持按标签过滤"
+project = "taskboard"
+description = """
+为任务看板的 GET /tasks 接口增加按标签（tag）过滤的查询参数：只返回带有指定标签的任务，
+匹配时忽略大小写和首尾空白，可以与现有的状态过滤、排序和 limit 分页组合使用，空标签作为非法输入返回 400。
+现有的列表排序、状态过滤、limit、响应结构以及未知查询参数被忽略的行为必须保持不变。
+"""

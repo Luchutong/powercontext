@@ -1,0 +1,1126 @@
+# demo_accept.sh started_at=2026-10-28T04:43:51Z
+# git_commit=5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f edit_mode=replay
+# host=Linux 6.12.94+ x86_64 python=3.12.3
+
+==> [reset] ./sdd reset
+{
+  "command": "reset",
+  "removed": "/workspace/minimax/.runtime",
+  "server": {
+    "stopped_pid": 22019,
+    "live": false
+  }
+}
+<== [reset] exit=0 (expected 0)
+
+==> [init] ./sdd init
+{
+  "command": "init",
+  "module": "sdd_context 1.0.0",
+  "python": "3.12.3",
+  "packages": {
+    "powercontext": "1.4.1",
+    "pylibseekdb": "1.4.0.post2",
+    "PyMySQL": "1.2.0",
+    "pytest": "9.2.0",
+    "httpx": "0.28.1"
+  },
+  "workspace": "/workspace/minimax/.runtime/workspace/sample_app",
+  "seekdb": {
+    "engine": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "mode": "embedded",
+    "path": "/workspace/minimax/.runtime/seekdb",
+    "database": "sdd_context"
+  },
+  "powercontext": {
+    "url": "http://127.0.0.1:17439",
+    "pid": 23012,
+    "live": true,
+    "env_file": "/workspace/minimax/.runtime/powercontext/server.env",
+    "log_file": "/workspace/minimax/.runtime/powercontext/server.log",
+    "database": "/workspace/minimax/.runtime/powercontext/powercontext.db",
+    "started": true,
+    "readiness": "ready"
+  }
+}
+<== [init] exit=0 (expected 0)
+
+==> [resume-empty] ./sdd resume --out evidence/state/resume_empty.json
+{
+  "command": "resume",
+  "server": "http://127.0.0.1:17439",
+  "server_pid": 23012,
+  "process_pid": 23024,
+  "state": {
+    "status": "empty",
+    "source": "powercontext",
+    "server": "http://127.0.0.1:17439",
+    "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
+    "done": [],
+    "todo": [],
+    "verification": [],
+    "memories": []
+  },
+  "next_step": null,
+  "note": "seekdb 中没有该项目的导入记录，请先运行 `sdd ingest`"
+}
+<== [resume-empty] exit=0 (expected 0)
+
+==> [ingest-v1] ./sdd ingest
+{
+  "command": "ingest",
+  "import_id": 1,
+  "project": "taskboard",
+  "root": "/workspace/minimax/.runtime/workspace/sample_app",
+  "stored": {
+    "spec_items": 14,
+    "code_symbols": 17,
+    "test_cases": 20,
+    "links": 61,
+    "documents": 16
+  },
+  "spec_changes": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 0
+  },
+  "first_import": true,
+  "engine": "5.7.25-OceanBase seekdb-v1.4.0.0"
+}
+<== [ingest-v1] exit=0 (expected 0)
+
+==> [context-v1] ./sdd context --out evidence/context_v1.json --md evidence/context_v1.md
+{
+  "command": "context",
+  "task": "TASK-TAG-FILTER",
+  "import_id": 1,
+  "specs": {
+    "change": [
+      "TAG-001@rev1 specs/tag-filter.md#L9-L13",
+      "TAG-002@rev1 specs/tag-filter.md#L15-L19",
+      "TAG-003@rev1 specs/tag-filter.md#L21-L25",
+      "TAG-004@rev1 specs/tag-filter.md#L27-L31"
+    ],
+    "preserve": [
+      "LIST-001@rev1 specs/tasks-list.md#L9-L13",
+      "LIST-002@rev1 specs/tasks-list.md#L15-L19",
+      "LIST-003@rev1 specs/tasks-list.md#L21-L25",
+      "LIST-004@rev1 specs/tasks-list.md#L27-L31",
+      "LIST-005@rev1 specs/tasks-list.md#L33-L37"
+    ]
+  },
+  "code_targets": [
+    "modify: taskboard/service.py::search_tasks taskboard/service.py#L35-L52",
+    "related: taskboard/service.py::QueryError taskboard/service.py#L14-L15",
+    "related: taskboard/api.py::list_tasks_view taskboard/api.py#L36-L42",
+    "related: taskboard/service.py::_parse_limit taskboard/service.py#L22-L32"
+  ],
+  "tests": {
+    "target": [
+      "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+      "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+      "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+    ],
+    "regression": [
+      "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+      "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "tests/test_list_api.py::test_response_shape_over_http",
+      "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+    ]
+  },
+  "state": {
+    "status": "empty",
+    "scope_id": null,
+    "handoff": null,
+    "done": [],
+    "todo": [
+      {
+        "step": "baseline",
+        "text": "运行修改前的目标测试与回归测试并记录基线",
+        "origin": "workflow"
+      },
+      {
+        "step": "edit",
+        "text": "把上下文交给 MiniMax 修改代码",
+        "origin": "workflow"
+      },
+      {
+        "step": "verify",
+        "text": "运行修改后的目标测试、回归测试和全量测试",
+        "origin": "workflow"
+      }
+    ],
+    "next_step": "baseline"
+  },
+  "verification": [],
+  "coverage_gaps": [],
+  "seekdb_queries": [
+    "Q0 rows=1",
+    "Q1 rows=14",
+    "Q2 rows=9",
+    "Q3 rows=16",
+    "Q4 rows=11",
+    "Q5 rows=6",
+    "Q6 rows=15",
+    "Q7 rows=5",
+    "Q8 rows=9",
+    "Q9 rows=6"
+  ],
+  "out": "evidence/context_v1.json"
+}
+<== [context-v1] exit=0 (expected 0)
+
+==> [test-before-target] ./sdd test --suite target --label before --expect fail
+{
+  "command": "test",
+  "suite": "target",
+  "label": "before",
+  "pytest_exit_code": 1,
+  "result": {
+    "total": 10,
+    "passed": 0,
+    "failed": 10,
+    "errors": 0,
+    "skipped": 0,
+    "failure_kinds": {
+      "DidNotRaise": 2,
+      "AssertionError": 8
+    }
+  },
+  "expect": "fail",
+  "meets_expectation": true,
+  "reason": "10 个用例全部因目标行为未实现而失败 {'DidNotRaise': 2, 'AssertionError': 8}",
+  "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
+  "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+  "log": "evidence/tests/before-target.log"
+}
+<== [test-before-target] exit=0 (expected 0)
+
+==> [test-before-regression] ./sdd test --suite regression --label before --expect pass
+{
+  "command": "test",
+  "suite": "regression",
+  "label": "before",
+  "pytest_exit_code": 0,
+  "result": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "failure_kinds": {}
+  },
+  "expect": "pass",
+  "meets_expectation": true,
+  "reason": "全部通过",
+  "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
+  "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+  "log": "evidence/tests/before-regression.log"
+}
+<== [test-before-regression] exit=0 (expected 0)
+
+==> [save-baseline] ./sdd save-state --phase baseline
+{
+  "command": "save-state",
+  "server": "http://127.0.0.1:17439",
+  "server_pid": 23012,
+  "log": "evidence/state/save-baseline.json",
+  "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+  "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
+  "phase": "baseline",
+  "memories": [
+    {
+      "kind": "decision",
+      "text": "[TASK-TAG-FILTER] 上下文选择：变更规格 TAG-001, TAG-002, TAG-003, TAG-004；必须保持 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；目标测试 7 个、回归测试 7 个（seekdb import #1）。",
+      "artifact": {
+        "family": "atomic-memory",
+        "artifact_id": "art_80a7de1b6adc429cba2b9f4c3b531786",
+        "revision": 1
+      }
+    },
+    {
+      "kind": "constraint",
+      "text": "[TASK-TAG-FILTER] 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。",
+      "artifact": {
+        "family": "atomic-memory",
+        "artifact_id": "art_05476940db794688a15e10d99f26f57f",
+        "revision": 1
+      }
+    }
+  ],
+  "sources": {
+    "verification": "src_9e986391a5ff4a719a88c8161417dcac",
+    "work_contract": "contract-task-tag-filter-cf4569c0"
+  },
+  "edit_session": null,
+  "handoff": {
+    "family": "handoff",
+    "artifact_id": "handoff",
+    "revision": 1
+  }
+}
+<== [save-baseline] exit=0 (expected 0)
+
+==> [context-baseline] ./sdd context --out evidence/context_baseline.json
+{
+  "command": "context",
+  "task": "TASK-TAG-FILTER",
+  "import_id": 1,
+  "specs": {
+    "change": [
+      "TAG-001@rev1 specs/tag-filter.md#L9-L13",
+      "TAG-002@rev1 specs/tag-filter.md#L15-L19",
+      "TAG-003@rev1 specs/tag-filter.md#L21-L25",
+      "TAG-004@rev1 specs/tag-filter.md#L27-L31"
+    ],
+    "preserve": [
+      "LIST-001@rev1 specs/tasks-list.md#L9-L13",
+      "LIST-002@rev1 specs/tasks-list.md#L15-L19",
+      "LIST-003@rev1 specs/tasks-list.md#L21-L25",
+      "LIST-004@rev1 specs/tasks-list.md#L27-L31",
+      "LIST-005@rev1 specs/tasks-list.md#L33-L37"
+    ]
+  },
+  "code_targets": [
+    "modify: taskboard/service.py::search_tasks taskboard/service.py#L35-L52",
+    "related: taskboard/service.py::QueryError taskboard/service.py#L14-L15",
+    "related: taskboard/api.py::list_tasks_view taskboard/api.py#L36-L42",
+    "related: taskboard/service.py::_parse_limit taskboard/service.py#L22-L32"
+  ],
+  "tests": {
+    "target": [
+      "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+      "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+      "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+    ],
+    "regression": [
+      "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+      "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "tests/test_list_api.py::test_response_shape_over_http",
+      "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+    ]
+  },
+  "state": {
+    "status": "restored",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+    "handoff": {
+      "reference": {
+        "family": "handoff",
+        "artifact_id": "handoff",
+        "revision": 1
+      },
+      "resolution": "resolved",
+      "disposition": "continuable",
+      "objective": "TASK-TAG-FILTER 任务列表接口支持按标签过滤"
+    },
+    "done": [
+      {
+        "step": "ingest",
+        "kind": "DONE",
+        "text": "导入规格、代码和测试到 seekdb（import #1，spec_digest 84e4b299421f）"
+      },
+      {
+        "step": "context",
+        "kind": "DONE",
+        "text": "选出规格 TAG-001, TAG-002, TAG-003, TAG-004, LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks"
+      },
+      {
+        "step": "baseline",
+        "kind": "VERIFIED",
+        "text": "修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败"
+      }
+    ],
+    "todo": [
+      {
+        "step": "edit",
+        "text": "把上下文交给 MiniMax 修改代码",
+        "origin": "workflow"
+      },
+      {
+        "step": "verify",
+        "text": "运行修改后的目标测试、回归测试和全量测试",
+        "origin": "workflow"
+      }
+    ],
+    "next_step": "edit"
+  },
+  "verification": [
+    {
+      "phase": "baseline",
+      "recorded_at": "2026-10-28T04:44:15Z",
+      "still_valid": true,
+      "spec_changed_since": [],
+      "spec_added_since": [],
+      "suites": {
+        "regression": "9/9",
+        "target": "0/10"
+      }
+    }
+  ],
+  "coverage_gaps": [],
+  "seekdb_queries": [
+    "Q0 rows=1",
+    "Q1 rows=14",
+    "Q2 rows=9",
+    "Q3 rows=16",
+    "Q4 rows=11",
+    "Q5 rows=6",
+    "Q6 rows=15",
+    "Q7 rows=5",
+    "Q8 rows=9",
+    "Q9 rows=6"
+  ],
+  "out": "evidence/context_baseline.json"
+}
+<== [context-baseline] exit=0 (expected 0)
+
+==> [edit] ./sdd edit --mode replay
+{
+  "command": "edit",
+  "skipped": false,
+  "mode": "replay",
+  "session_id": "mmx-20261028T041139Z-e4c76c",
+  "transport": "hf-space",
+  "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
+  "files": [
+    "taskboard/service.py"
+  ],
+  "attempts": 1,
+  "attempt_checks": [
+    "attempt 1: 19/19 通过"
+  ],
+  "final_check_passed": true,
+  "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+  "prompt_sha256": "de92e0542ccf6246aa801a3c89464ad13ba8e9e24bc45e7125b9b56399d8f2eb",
+  "replay_check": {
+    "prompt_matches_recording": true,
+    "diff_matches_recording": true
+  }
+}
+<== [edit] exit=0 (expected 0)
+
+==> [test-after-target] ./sdd test --suite target --label after --expect pass
+{
+  "command": "test",
+  "suite": "target",
+  "label": "after",
+  "pytest_exit_code": 0,
+  "result": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "failure_kinds": {}
+  },
+  "expect": "pass",
+  "meets_expectation": true,
+  "reason": "全部通过",
+  "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
+  "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+  "log": "evidence/tests/after-target.log"
+}
+<== [test-after-target] exit=0 (expected 0)
+
+==> [test-after-regression] ./sdd test --suite regression --label after --expect pass
+{
+  "command": "test",
+  "suite": "regression",
+  "label": "after",
+  "pytest_exit_code": 0,
+  "result": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "failure_kinds": {}
+  },
+  "expect": "pass",
+  "meets_expectation": true,
+  "reason": "全部通过",
+  "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
+  "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+  "log": "evidence/tests/after-regression.log"
+}
+<== [test-after-regression] exit=0 (expected 0)
+
+==> [test-after-full] ./sdd test --suite full --label after --expect pass
+{
+  "command": "test",
+  "suite": "full",
+  "label": "after",
+  "pytest_exit_code": 0,
+  "result": {
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "failure_kinds": {}
+  },
+  "expect": "pass",
+  "meets_expectation": true,
+  "reason": "全部通过",
+  "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
+  "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+  "log": "evidence/tests/after-full.log"
+}
+<== [test-after-full] exit=0 (expected 0)
+
+==> [save-verified] ./sdd save-state --phase verified
+{
+  "command": "save-state",
+  "server": "http://127.0.0.1:17439",
+  "server_pid": 23012,
+  "log": "evidence/state/save-verified.json",
+  "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+  "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
+  "phase": "verified",
+  "memories": [
+    {
+      "kind": "working_note",
+      "text": "[TASK-TAG-FILTER] MiniMax 修改已验证：mmx-20261028T041139Z-e4c76c 修改 taskboard/service.py；修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过。",
+      "artifact": {
+        "family": "atomic-memory",
+        "artifact_id": "art_073b6b7aa9e14ce0ae60e728a1ec0d2a",
+        "revision": 1
+      }
+    }
+  ],
+  "sources": {
+    "verification": "src_d3ce37f889a045b9ac6ae406093962ec",
+    "edit": "src_d0be464b279f42458c6ad791672b4807",
+    "task_outcome": "outcome-task-tag-filter-a6a7bba7"
+  },
+  "edit_session": "mmx-20261028T041139Z-e4c76c",
+  "handoff": {
+    "family": "handoff",
+    "artifact_id": "handoff",
+    "revision": 2
+  }
+}
+<== [save-verified] exit=0 (expected 0)
+
+==> [server-status-before-restart] ./sdd --save evidence/state/server_before_restart.json server status
+{
+  "command": "server status",
+  "url": "http://127.0.0.1:17439",
+  "pid": 23012,
+  "live": true,
+  "env_file": "/workspace/minimax/.runtime/powercontext/server.env",
+  "log_file": "/workspace/minimax/.runtime/powercontext/server.log",
+  "database": "/workspace/minimax/.runtime/powercontext/powercontext.db"
+}
+<== [server-status-before-restart] exit=0 (expected 0)
+
+==> [server-stop] ./sdd --save evidence/state/server_stop.json server stop
+{
+  "command": "server stop",
+  "stopped_pid": 23012,
+  "live": false
+}
+<== [server-stop] exit=0 (expected 0)
+
+==> [server-start] ./sdd --save evidence/state/server_start.json server start
+{
+  "command": "server start",
+  "url": "http://127.0.0.1:17439",
+  "pid": 24107,
+  "live": true,
+  "env_file": "/workspace/minimax/.runtime/powercontext/server.env",
+  "log_file": "/workspace/minimax/.runtime/powercontext/server.log",
+  "database": "/workspace/minimax/.runtime/powercontext/powercontext.db",
+  "started": true,
+  "readiness": "ready"
+}
+<== [server-start] exit=0 (expected 0)
+
+==> [resume-after-restart] ./sdd resume --out evidence/state/resume_after_restart.json
+{
+  "command": "resume",
+  "server": "http://127.0.0.1:17439",
+  "server_pid": 24107,
+  "process_pid": 24119,
+  "state": {
+    "status": "restored",
+    "source": "powercontext",
+    "server": "http://127.0.0.1:17439",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+    "scope_title": "minimax-sdd · taskboard · TASK-TAG-FILTER",
+    "memories": [
+      {
+        "kind": "constraint",
+        "text": "[TASK-TAG-FILTER] 约束：只修改 taskboard/service.py；不得修改 tests/ 与 specs/；必须继续满足 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005（含未知查询参数被忽略）。",
+        "artifact": {
+          "family": "atomic-memory",
+          "artifact_id": "art_05476940db794688a15e10d99f26f57f",
+          "revision": 1
+        }
+      },
+      {
+        "kind": "working_note",
+        "text": "[TASK-TAG-FILTER] MiniMax 修改已验证：mmx-20261028T041139Z-e4c76c 修改 taskboard/service.py；修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过。",
+        "artifact": {
+          "family": "atomic-memory",
+          "artifact_id": "art_073b6b7aa9e14ce0ae60e728a1ec0d2a",
+          "revision": 1
+        }
+      },
+      {
+        "kind": "decision",
+        "text": "[TASK-TAG-FILTER] 上下文选择：变更规格 TAG-001, TAG-002, TAG-003, TAG-004；必须保持 LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks；目标测试 7 个、回归测试 7 个（seekdb import #1）。",
+        "artifact": {
+          "family": "atomic-memory",
+          "artifact_id": "art_80a7de1b6adc429cba2b9f4c3b531786",
+          "revision": 1
+        }
+      }
+    ],
+    "memory_search": {
+      "query": "TASK-TAG-FILTER",
+      "mode": "text",
+      "hits": 3
+    },
+    "done": [
+      {
+        "step": "ingest",
+        "kind": "DONE",
+        "text": "导入规格、代码和测试到 seekdb（import #1）"
+      },
+      {
+        "step": "context",
+        "kind": "DONE",
+        "text": "选出规格 TAG-001, TAG-002, TAG-003, TAG-004, LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks"
+      },
+      {
+        "step": "baseline",
+        "kind": "VERIFIED",
+        "text": "修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败"
+      },
+      {
+        "step": "edit",
+        "kind": "DONE",
+        "text": "MiniMax 会话 mmx-20261028T041139Z-e4c76c（hf-space / MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定））修改 taskboard/service.py，diff sha256 07e5fffecaaf"
+      },
+      {
+        "step": "verify",
+        "kind": "VERIFIED",
+        "text": "修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过"
+      }
+    ],
+    "todo": [],
+    "verification": [
+      {
+        "source_id": "src_9e986391a5ff4a719a88c8161417dcac",
+        "phase": "baseline",
+        "label": "before",
+        "recorded_at": "2026-10-28T04:44:15Z",
+        "code_digest": "f03d254362752c332ae481bbfa8a7519cf06bdc623a5b45150396def5168aace",
+        "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+        "suites": {
+          "regression": {
+            "command": "python -m pytest -q -rfE tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+            "errors": 0,
+            "exit_code": 0,
+            "failed": 0,
+            "failure_kinds": {},
+            "passed": 9,
+            "skipped": 0,
+            "total": 9
+          },
+          "target": {
+            "command": "python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result",
+            "errors": 0,
+            "exit_code": 1,
+            "failed": 10,
+            "failure_kinds": {
+              "AssertionError": 8,
+              "DidNotRaise": 2
+            },
+            "passed": 0,
+            "skipped": 0,
+            "total": 10
+          }
+        },
+        "spec_items": {
+          "LIST-001": "2997209d18c79f84e4b5f878dcc0742c03a065367741e90d2e1cbe2a44e00fb9",
+          "LIST-002": "2e1325df42a261d077268052aafe072816a870200a04bb9100c63d97d4ace71c",
+          "LIST-003": "d469b027ddcec045c9bb91a3f239d369c8253e37fd62c7836b46288973d7a810",
+          "LIST-004": "7cb1f05d37ddfb4859ff4a2fbf5f29dbb4b9245082227c6d881c60e66a2eeab9",
+          "LIST-005": "9d5b4ed01cc5b200b92d2100c95561954b8c1e29dbf6ffe7aef402840e924c35",
+          "TAG-001": "b0f1cb106241f896d5335babd30d7b6beefe28b73d9c682dee8bb2df5a14fd69",
+          "TAG-002": "65bba3cacb12e4c667771047d53383eaed9480f9cef5f731ddd7e10824927919",
+          "TAG-003": "f780a1ef2c6e1436e8979a31f8b2ffb229e3c059b384549de1e044421077ceeb",
+          "TAG-004": "8f6e45ed583eceb2d43798c66315be2bebc726a84c36885560e26c764adfd1f1"
+        },
+        "logs": {
+          "regression": "evidence/tests/before-regression.log",
+          "target": "evidence/tests/before-target.log"
+        }
+      },
+      {
+        "source_id": "src_d3ce37f889a045b9ac6ae406093962ec",
+        "phase": "verified",
+        "label": "after",
+        "recorded_at": "2026-10-28T04:44:31Z",
+        "code_digest": "3a538c8634e75abacf77e050880747b9a74f8874ffd79d369a48bae06da17464",
+        "git_commit": "5bf2dcf238fe2c45ef7c0c3160ee8d6dfa5e597f",
+        "suites": {
+          "full": {
+            "command": "python -m pytest -q -rfE tests",
+            "errors": 0,
+            "exit_code": 0,
+            "failed": 0,
+            "failure_kinds": {},
+            "passed": 27,
+            "skipped": 0,
+            "total": 27
+          },
+          "regression": {
+            "command": "python -m pytest -q -rfE tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id tests/test_list_api.py::test_invalid_limit_raises_query_error tests/test_list_api.py::test_invalid_status_is_rejected_with_400 tests/test_list_api.py::test_limit_truncates_items_but_not_total tests/test_list_api.py::test_response_shape_over_http tests/test_list_api.py::test_status_filter_returns_matching_tasks tests/test_list_api.py::test_unknown_query_parameters_are_ignored",
+            "errors": 0,
+            "exit_code": 0,
+            "failed": 0,
+            "failure_kinds": {},
+            "passed": 9,
+            "skipped": 0,
+            "total": 9
+          },
+          "target": {
+            "command": "python -m pytest -q -rfE tests/test_tag_filter.py::test_blank_tag_is_rejected tests/test_tag_filter.py::test_blank_tag_returns_400_over_http tests/test_tag_filter.py::test_get_tasks_with_tag_over_http tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace tests/test_tag_filter.py::test_unknown_tag_returns_empty_result",
+            "errors": 0,
+            "exit_code": 0,
+            "failed": 0,
+            "failure_kinds": {},
+            "passed": 10,
+            "skipped": 0,
+            "total": 10
+          }
+        },
+        "spec_items": {
+          "LIST-001": "2997209d18c79f84e4b5f878dcc0742c03a065367741e90d2e1cbe2a44e00fb9",
+          "LIST-002": "2e1325df42a261d077268052aafe072816a870200a04bb9100c63d97d4ace71c",
+          "LIST-003": "d469b027ddcec045c9bb91a3f239d369c8253e37fd62c7836b46288973d7a810",
+          "LIST-004": "7cb1f05d37ddfb4859ff4a2fbf5f29dbb4b9245082227c6d881c60e66a2eeab9",
+          "LIST-005": "9d5b4ed01cc5b200b92d2100c95561954b8c1e29dbf6ffe7aef402840e924c35",
+          "TAG-001": "b0f1cb106241f896d5335babd30d7b6beefe28b73d9c682dee8bb2df5a14fd69",
+          "TAG-002": "65bba3cacb12e4c667771047d53383eaed9480f9cef5f731ddd7e10824927919",
+          "TAG-003": "f780a1ef2c6e1436e8979a31f8b2ffb229e3c059b384549de1e044421077ceeb",
+          "TAG-004": "8f6e45ed583eceb2d43798c66315be2bebc726a84c36885560e26c764adfd1f1"
+        },
+        "logs": {
+          "full": "evidence/tests/after-full.log",
+          "regression": "evidence/tests/after-regression.log",
+          "target": "evidence/tests/after-target.log"
+        }
+      }
+    ],
+    "handoff": {
+      "reference": {
+        "family": "handoff",
+        "artifact_id": "handoff",
+        "revision": 2
+      },
+      "resolution": "resolved",
+      "disposition": "complete",
+      "objective": "TASK-TAG-FILTER 任务列表接口支持按标签过滤"
+    },
+    "baseline_line": "修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败",
+    "omissions": [],
+    "edit": {
+      "session_id": "mmx-20261028T041139Z-e4c76c",
+      "transport": "hf-space",
+      "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
+      "files": [
+        "taskboard/service.py"
+      ],
+      "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+      "mode": "replay",
+      "recorded_at": "2026-10-28T04:44:31Z",
+      "source_id": "src_d0be464b279f42458c6ad791672b4807"
+    }
+  },
+  "next_step": null,
+  "todo": []
+}
+<== [resume-after-restart] exit=0 (expected 0)
+
+==> [context-resume] ./sdd context --out evidence/context_resume.json --md evidence/context_resume.md
+{
+  "command": "context",
+  "task": "TASK-TAG-FILTER",
+  "import_id": 1,
+  "specs": {
+    "change": [
+      "TAG-001@rev1 specs/tag-filter.md#L9-L13",
+      "TAG-002@rev1 specs/tag-filter.md#L15-L19",
+      "TAG-003@rev1 specs/tag-filter.md#L21-L25",
+      "TAG-004@rev1 specs/tag-filter.md#L27-L31"
+    ],
+    "preserve": [
+      "LIST-001@rev1 specs/tasks-list.md#L9-L13",
+      "LIST-002@rev1 specs/tasks-list.md#L15-L19",
+      "LIST-003@rev1 specs/tasks-list.md#L21-L25",
+      "LIST-004@rev1 specs/tasks-list.md#L27-L31",
+      "LIST-005@rev1 specs/tasks-list.md#L33-L37"
+    ]
+  },
+  "code_targets": [
+    "modify: taskboard/service.py::search_tasks taskboard/service.py#L35-L52",
+    "related: taskboard/service.py::QueryError taskboard/service.py#L14-L15",
+    "related: taskboard/api.py::list_tasks_view taskboard/api.py#L36-L42",
+    "related: taskboard/service.py::_parse_limit taskboard/service.py#L22-L32"
+  ],
+  "tests": {
+    "target": [
+      "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+      "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+      "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+    ],
+    "regression": [
+      "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+      "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "tests/test_list_api.py::test_response_shape_over_http",
+      "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+    ]
+  },
+  "state": {
+    "status": "restored",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+    "handoff": {
+      "reference": {
+        "family": "handoff",
+        "artifact_id": "handoff",
+        "revision": 2
+      },
+      "resolution": "resolved",
+      "disposition": "complete",
+      "objective": "TASK-TAG-FILTER 任务列表接口支持按标签过滤"
+    },
+    "done": [
+      {
+        "step": "ingest",
+        "kind": "DONE",
+        "text": "导入规格、代码和测试到 seekdb（import #1）"
+      },
+      {
+        "step": "context",
+        "kind": "DONE",
+        "text": "选出规格 TAG-001, TAG-002, TAG-003, TAG-004, LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks"
+      },
+      {
+        "step": "baseline",
+        "kind": "VERIFIED",
+        "text": "修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败"
+      },
+      {
+        "step": "edit",
+        "kind": "DONE",
+        "text": "MiniMax 会话 mmx-20261028T041139Z-e4c76c（hf-space / MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定））修改 taskboard/service.py，diff sha256 07e5fffecaaf"
+      },
+      {
+        "step": "verify",
+        "kind": "VERIFIED",
+        "text": "修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过"
+      }
+    ],
+    "todo": [],
+    "next_step": null
+  },
+  "verification": [
+    {
+      "phase": "baseline",
+      "recorded_at": "2026-10-28T04:44:15Z",
+      "still_valid": false,
+      "spec_changed_since": [],
+      "spec_added_since": [],
+      "suites": {
+        "regression": "9/9",
+        "target": "0/10"
+      }
+    },
+    {
+      "phase": "verified",
+      "recorded_at": "2026-10-28T04:44:31Z",
+      "still_valid": true,
+      "spec_changed_since": [],
+      "spec_added_since": [],
+      "suites": {
+        "full": "27/27",
+        "regression": "9/9",
+        "target": "10/10"
+      }
+    }
+  ],
+  "coverage_gaps": [],
+  "seekdb_queries": [
+    "Q0 rows=1",
+    "Q1 rows=14",
+    "Q2 rows=9",
+    "Q3 rows=16",
+    "Q4 rows=11",
+    "Q5 rows=6",
+    "Q6 rows=15",
+    "Q7 rows=5",
+    "Q8 rows=9",
+    "Q9 rows=6"
+  ],
+  "out": "evidence/context_resume.json"
+}
+<== [context-resume] exit=0 (expected 0)
+
+==> [edit-after-restart] ./sdd --save evidence/state/edit_after_restart.json edit --mode replay
+{
+  "command": "edit",
+  "skipped": true,
+  "reason": "PowerContext 记录显示该任务已由 MiniMax 修改并通过验证，且规格与代码未变化；使用 --force 重新修改",
+  "edit": {
+    "session_id": "mmx-20261028T041139Z-e4c76c",
+    "transport": "hf-space",
+    "model": "MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定）",
+    "files": [
+      "taskboard/service.py"
+    ],
+    "diff_sha256": "07e5fffecaaf8966a136985c2a21ec941a3aedbe5297dc76b2dd1d3c79e5c662",
+    "mode": "replay",
+    "recorded_at": "2026-10-28T04:44:31Z",
+    "source_id": "src_d0be464b279f42458c6ad791672b4807"
+  },
+  "verified_at": "2026-10-28T04:44:31Z"
+}
+<== [edit-after-restart] exit=0 (expected 0)
+
+==> [spec-update-v2] ./sdd spec-update --version v2
+{
+  "command": "spec-update",
+  "from": "sample_task/spec_updates/v2",
+  "to": "/workspace/minimax/.runtime/workspace/sample_app/specs",
+  "files": [
+    "tag-filter.md"
+  ]
+}
+<== [spec-update-v2] exit=0 (expected 0)
+
+==> [ingest-v2] ./sdd ingest
+{
+  "command": "ingest",
+  "import_id": 2,
+  "project": "taskboard",
+  "root": "/workspace/minimax/.runtime/workspace/sample_app",
+  "stored": {
+    "spec_items": 15,
+    "code_symbols": 17,
+    "test_cases": 20,
+    "links": 65,
+    "documents": 16
+  },
+  "spec_changes": {
+    "added": [
+      "TAG-005"
+    ],
+    "modified": [
+      "TAG-001"
+    ],
+    "removed": [],
+    "unchanged": 13
+  },
+  "first_import": false,
+  "engine": "5.7.25-OceanBase seekdb-v1.4.0.0"
+}
+<== [ingest-v2] exit=0 (expected 0)
+
+==> [context-v2] ./sdd context --out evidence/context_v2.json --md evidence/context_v2.md
+{
+  "command": "context",
+  "task": "TASK-TAG-FILTER",
+  "import_id": 2,
+  "specs": {
+    "change": [
+      "TAG-001@rev2 specs/tag-filter.md#L9-L13",
+      "TAG-002@rev1 specs/tag-filter.md#L15-L19",
+      "TAG-003@rev1 specs/tag-filter.md#L21-L25",
+      "TAG-004@rev1 specs/tag-filter.md#L27-L31",
+      "TAG-005@rev1 specs/tag-filter.md#L33-L37"
+    ],
+    "preserve": [
+      "LIST-001@rev1 specs/tasks-list.md#L9-L13",
+      "LIST-002@rev1 specs/tasks-list.md#L15-L19",
+      "LIST-003@rev1 specs/tasks-list.md#L21-L25",
+      "LIST-004@rev1 specs/tasks-list.md#L27-L31",
+      "LIST-005@rev1 specs/tasks-list.md#L33-L37"
+    ]
+  },
+  "code_targets": [
+    "modify: taskboard/service.py::search_tasks taskboard/service.py#L35-L77",
+    "related: taskboard/service.py::QueryError taskboard/service.py#L14-L15",
+    "related: taskboard/api.py::list_tasks_view taskboard/api.py#L36-L42",
+    "related: taskboard/service.py::_parse_limit taskboard/service.py#L22-L32"
+  ],
+  "tests": {
+    "target": [
+      "tests/test_tag_filter.py::test_blank_tag_is_rejected",
+      "tests/test_tag_filter.py::test_blank_tag_returns_400_over_http",
+      "tests/test_tag_filter.py::test_get_tasks_with_tag_over_http",
+      "tests/test_tag_filter.py::test_search_tasks_returns_only_tasks_with_tag",
+      "tests/test_tag_filter.py::test_tag_combines_with_status_and_keeps_order_limit_and_total",
+      "tests/test_tag_filter.py::test_tag_match_ignores_case_and_surrounding_whitespace",
+      "tests/test_tag_filter.py::test_unknown_tag_returns_empty_result"
+    ],
+    "regression": [
+      "tests/test_list_api.py::test_default_listing_sorted_by_priority_then_id",
+      "tests/test_list_api.py::test_invalid_limit_raises_query_error",
+      "tests/test_list_api.py::test_invalid_status_is_rejected_with_400",
+      "tests/test_list_api.py::test_limit_truncates_items_but_not_total",
+      "tests/test_list_api.py::test_response_shape_over_http",
+      "tests/test_list_api.py::test_status_filter_returns_matching_tasks",
+      "tests/test_list_api.py::test_unknown_query_parameters_are_ignored"
+    ]
+  },
+  "state": {
+    "status": "restored",
+    "scope_id": "scp_1aabk41rsm799rb9eqw4g0k0zw",
+    "handoff": {
+      "reference": {
+        "family": "handoff",
+        "artifact_id": "handoff",
+        "revision": 2
+      },
+      "resolution": "resolved",
+      "disposition": "complete",
+      "objective": "TASK-TAG-FILTER 任务列表接口支持按标签过滤"
+    },
+    "done": [
+      {
+        "step": "ingest",
+        "kind": "DONE",
+        "text": "导入规格、代码和测试到 seekdb（import #1）"
+      },
+      {
+        "step": "context",
+        "kind": "DONE",
+        "text": "选出规格 TAG-001, TAG-002, TAG-003, TAG-004, LIST-001, LIST-002, LIST-003, LIST-004, LIST-005；修改目标 taskboard/service.py::search_tasks"
+      },
+      {
+        "step": "baseline",
+        "kind": "VERIFIED",
+        "text": "修改前: target 0/10 通过，regression 9/9 通过；目标测试失败均为断言失败"
+      },
+      {
+        "step": "edit",
+        "kind": "DONE",
+        "text": "MiniMax 会话 mmx-20261028T041139Z-e4c76c（hf-space / MiniMax-Text-01（MiniMax 官方 Space 后端，模型由 Space 配置决定））修改 taskboard/service.py，diff sha256 07e5fffecaaf"
+      },
+      {
+        "step": "verify",
+        "kind": "VERIFIED",
+        "text": "修改后: target 10/10 通过，regression 9/9 通过，full 27/27 通过"
+      }
+    ],
+    "todo": [
+      {
+        "step": "respec",
+        "text": "TAG-001 在验证之后被修改（当前 rev 2），需按新规格修改代码并重新验证",
+        "origin": "spec-change"
+      },
+      {
+        "step": "respec",
+        "text": "TAG-005 是验证之后新增的规格条目，需补充实现与测试",
+        "origin": "spec-change"
+      },
+      {
+        "step": "tests",
+        "text": "TAG-005 没有覆盖测试",
+        "origin": "coverage"
+      }
+    ],
+    "next_step": "respec"
+  },
+  "verification": [
+    {
+      "phase": "baseline",
+      "recorded_at": "2026-10-28T04:44:15Z",
+      "still_valid": false,
+      "spec_changed_since": [
+        "TAG-001"
+      ],
+      "spec_added_since": [
+        "TAG-005"
+      ],
+      "suites": {
+        "regression": "9/9",
+        "target": "0/10"
+      }
+    },
+    {
+      "phase": "verified",
+      "recorded_at": "2026-10-28T04:44:31Z",
+      "still_valid": false,
+      "spec_changed_since": [
+        "TAG-001"
+      ],
+      "spec_added_since": [
+        "TAG-005"
+      ],
+      "suites": {
+        "full": "27/27",
+        "regression": "9/9",
+        "target": "10/10"
+      }
+    }
+  ],
+  "coverage_gaps": [
+    "TAG-005"
+  ],
+  "seekdb_queries": [
+    "Q0 rows=1",
+    "Q1 rows=15",
+    "Q2 rows=10",
+    "Q3 rows=16",
+    "Q4 rows=15",
+    "Q5 rows=6",
+    "Q6 rows=15",
+    "Q7 rows=9",
+    "Q8 rows=11",
+    "Q9 rows=6"
+  ],
+  "out": "evidence/context_v2.json"
+}
+<== [context-v2] exit=0 (expected 0)
+
+==> [accept] ./sdd accept
+
+六项验收：
+  1. 能够运行         PASS
+  2. MiniMax 实际参与 PASS
+  3. 上下文正确        PASS
+  4. 数据库实际参与      PASS
+  5. 状态能够复用       PASS
+  6. 代码修改有效       PASS
+
+总体：PASS（六项全部通过）；明细见 evidence/验收结果.md
+<== [accept] exit=0 (expected 0)
+# demo_accept.sh finished_at=2026-10-28T04:44:52Z failed_steps=0
+# PowerContext Server 仍在运行，可用 ./sdd resume 或 http://127.0.0.1:17439/dashboard/home 查看状态；结束后运行 ./sdd server stop 或 bash scripts/reset.sh

@@ -1,0 +1,9 @@
+{
+  "command": "server status",
+  "url": "http://127.0.0.1:17439",
+  "pid": 23012,
+  "live": true,
+  "env_file": "/workspace/minimax/.runtime/powercontext/server.env",
+  "log_file": "/workspace/minimax/.runtime/powercontext/server.log",
+  "database": "/workspace/minimax/.runtime/powercontext/powercontext.db"
+}

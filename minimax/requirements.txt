@@ -1,0 +1,428 @@
+# Generated with: uv pip compile requirements.in --universal --python-version 3.11 -o requirements.txt --no-header
+aiofile==3.12.3
+    # via py-key-value-aio
+aiomysql==0.3.2
+    # via pyobvector
+aiosqlite==0.22.1
+    # via powercontext
+alembic==1.20.1
+    # via powercontext
+annotated-doc==0.0.5
+    # via
+    #   fastapi
+    #   typer
+annotated-types==0.8.0
+    # via pydantic
+anthropic==2.3.0
+    # via pydantic-ai-slim
+anyio==4.15.1
+    # via
+    #   anthropic
+    #   httpx
+    #   httpx2
+    #   mcp
+    #   openai
+    #   py-key-value-aio
+    #   pydantic-ai-slim
+    #   pydantic-graph
+    #   sse-starlette
+    #   starlette
+    #   watchfiles
+apscheduler==3.11.3
+    # via powercontext
+attrs==26.1.0
+    # via
+    #   cyclopts
+    #   jsonschema
+    #   jsonschema-path
+    #   referencing
+authlib==1.9.1
+    # via fastmcp-slim
+backports-tarfile==1.2.0 ; python_full_version < '3.12'
+    # via jaraco-context
+beartype==0.23.1
+    # via py-key-value-aio
+bracex==3.2
+    # via wcmatch
+cachetools==7.2.6
+    # via py-key-value-aio
+caio==0.12.10
+    # via aiofile
+certifi==2026.10.23
+    # via
+    #   fastmcp-slim
+    #   httpcore
+    #   httpx
+    #   requests
+cffi==2.1.1 ; platform_python_implementation != 'PyPy'
+    # via cryptography
+charset-normalizer==3.5.2
+    # via requests
+click==8.5.0
+    # via
+    #   powercontext
+    #   uvicorn
+colorama==0.4.6 ; sys_platform == 'win32'
+    # via
+    #   pytest
+    #   typer
+cryptography==50.0.2
+    # via
+    #   authlib
+    #   joserfc
+    #   pyjwt
+    #   secretstorage
+cyclopts==5.3.2
+    # via fastmcp-slim
+dnspython==2.9.0
+    # via email-validator
+docstring-parser==0.18.0
+    # via
+    #   anthropic
+    #   cyclopts
+email-validator==2.3.0
+    # via pydantic
+exceptiongroup==1.3.1
+    # via fastmcp-slim
+fastapi==0.162.0
+    # via
+    #   powercontext
+    #   scalar-fastapi
+fastmcp==3.4.11
+    # via powercontext
+fastmcp-slim==3.4.11
+    # via fastmcp
+filelock==3.32.7
+    # via powercontext
+genai-prices==0.1.13
+    # via pydantic-ai-slim
+greenlet==3.5.6
+    # via sqlalchemy
+griffelib==2.4.1
+    # via
+    #   fastmcp-slim
+    #   pydantic-ai-slim
+h11==0.16.0
+    # via
+    #   httpcore
+    #   httpcore2
+    #   uvicorn
+httpcore==1.0.9
+    # via httpx
+httpcore2==2.16.0 ; sys_platform != 'emscripten'
+    # via httpx2
+httpx==0.28.1
+    # via
+    #   -r requirements.in
+    #   fastmcp-slim
+    #   mcp
+    #   powercontext
+httpx-sse==0.4.3
+    # via mcp
+httpx2==2.16.0
+    # via
+    #   anthropic
+    #   genai-prices
+    #   openai
+    #   pydantic-ai-slim
+httpx2-jsfetch==1.0 ; python_full_version >= '3.12' and sys_platform == 'emscripten'
+    # via httpx2
+idna==3.20
+    # via
+    #   anyio
+    #   email-validator
+    #   httpx
+    #   httpx2
+    #   requests
+importlib-metadata==10.1.0 ; python_full_version < '3.12'
+    # via keyring
+iniconfig==2.3.1
+    # via pytest
+inquirerpy==0.3.4
+    # via powercontext
+jaraco-classes==3.4.0
+    # via keyring
+jaraco-context==6.1.2
+    # via keyring
+jaraco-functools==4.6.0
+    # via keyring
+jeepney==0.9.0 ; sys_platform == 'linux'
+    # via
+    #   keyring
+    #   secretstorage
+jieba==0.42.1
+    # via powercontext
+jinja2==3.1.6
+    # via powercontext
+jiter==0.18.0
+    # via
+    #   anthropic
+    #   openai
+joserfc==1.7.7
+    # via
+    #   authlib
+    #   fastmcp-slim
+jsonref==1.1.0
+    # via fastmcp-slim
+jsonschema==4.26.0
+    # via
+    #   mcp
+    #   powercontext
+jsonschema-path==0.5.0
+    # via fastmcp-slim
+jsonschema-specifications==2025.9.1
+    # via jsonschema
+keyring==25.7.0
+    # via py-key-value-aio
+logfire-api==5.4.0
+    # via pydantic-graph
+mako==1.4.3
+    # via alembic
+markdown-it-py==4.2.0
+    # via
+    #   powercontext
+    #   rich
+markupsafe==3.0.4
+    # via
+    #   jinja2
+    #   mako
+mcp==1.30.0
+    # via fastmcp-slim
+mdurl==0.1.2
+    # via markdown-it-py
+more-itertools==11.2.1
+    # via
+    #   jaraco-classes
+    #   jaraco-functools
+numpy==2.4.6 ; python_full_version < '3.12'
+    # via pyobvector
+numpy==2.5.4 ; python_full_version >= '3.12'
+    # via pyobvector
+openai==3.40.0
+    # via pydantic-ai-slim
+openapi-pydantic==0.6.0
+    # via fastmcp-slim
+opentelemetry-api==1.45.1
+    # via
+    #   anthropic
+    #   fastapi
+    #   fastmcp-slim
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+    #   powercontext
+    #   pydantic-ai-slim
+opentelemetry-sdk==1.45.1
+    # via powercontext
+opentelemetry-semantic-conventions==0.66b1
+    # via opentelemetry-sdk
+packaging==26.3
+    # via
+    #   fastmcp-slim
+    #   powercontext
+    #   pytest
+pathable==0.6.0
+    # via jsonschema-path
+pfzy==0.3.4
+    # via inquirerpy
+platformdirs==4.13.6
+    # via
+    #   fastmcp-slim
+    #   powercontext
+pluggy==1.7.0
+    # via pytest
+powercontext==1.4.1
+    # via -r requirements.in
+prometheus-client==0.26.0
+    # via powercontext
+prompt-toolkit==3.0.53
+    # via inquirerpy
+py-key-value-aio==0.4.6
+    # via fastmcp-slim
+pycasbin==2.8.0
+    # via powercontext
+pycparser==3.12 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+    # via cffi
+pydantic==2.14.1
+    # via
+    #   anthropic
+    #   fastapi
+    #   fastmcp-slim
+    #   genai-prices
+    #   mcp
+    #   openai
+    #   openapi-pydantic
+    #   powercontext
+    #   pydantic-ai-slim
+    #   pydantic-graph
+    #   pydantic-settings
+    #   pyobvector
+    #   scalar-fastapi
+pydantic-ai-slim==2.63.0
+    # via powercontext
+pydantic-core==2.50.1
+    # via pydantic
+pydantic-graph==2.63.0
+    # via pydantic-ai-slim
+pydantic-settings==2.16.1
+    # via
+    #   fastmcp-slim
+    #   mcp
+    #   powercontext
+pygments==2.21.0
+    # via
+    #   pytest
+    #   rich
+    #   rich-rst
+pyjwt==2.15.1
+    # via mcp
+pylibseekdb==1.4.0.post2
+    # via -r requirements.in
+pymysql==1.2.0
+    # via
+    #   -r requirements.in
+    #   aiomysql
+    #   powercontext
+    #   pylibseekdb
+    #   pyobvector
+pyobvector==0.2.29
+    # via powercontext
+pyperclip==1.11.0
+    # via fastmcp-slim
+pytest==9.2.0
+    # via -r requirements.in
+python-dotenv==1.2.4
+    # via
+    #   fastmcp-slim
+    #   pydantic-settings
+python-multipart==0.0.32
+    # via
+    #   fastmcp-slim
+    #   mcp
+pywin32==312 ; sys_platform == 'win32'
+    # via mcp
+pywin32-ctypes==0.2.3 ; sys_platform == 'win32'
+    # via keyring
+pyyaml==6.0.3
+    # via
+    #   fastmcp-slim
+    #   jsonschema-path
+    #   powercontext
+referencing==0.37.0
+    # via
+    #   jsonschema
+    #   jsonschema-path
+    #   jsonschema-specifications
+regex==2026.9.29
+    # via tiktoken
+requests==2.34.2
+    # via tiktoken
+rfc8785==0.1.4
+    # via powercontext
+rich==15.0.0
+    # via
+    #   cyclopts
+    #   fastmcp-slim
+    #   rich-rst
+    #   typer
+rich-rst==2.2.0
+    # via cyclopts
+rpds-py==2026.9.1
+    # via
+    #   jsonschema
+    #   referencing
+scalar-fastapi==1.9.1
+    # via powercontext
+secretstorage==3.5.0 ; sys_platform == 'linux'
+    # via keyring
+shellingham==1.5.4
+    # via typer
+simpleeval==1.0.8
+    # via pycasbin
+sniffio==1.3.1
+    # via
+    #   anthropic
+    #   openai
+socksio==1.0.0
+    # via httpx
+sqlalchemy==2.1.6
+    # via
+    #   alembic
+    #   powercontext
+    #   pyobvector
+sqlglot==30.25.0
+    # via pyobvector
+sqlite-vec==0.1.9
+    # via powercontext
+sse-starlette==3.6.0
+    # via mcp
+starlette==1.10.0
+    # via
+    #   fastapi
+    #   fastmcp-slim
+    #   mcp
+    #   sse-starlette
+tiktoken==0.14.0
+    # via pydantic-ai-slim
+truststore==0.10.5 ; sys_platform != 'emscripten'
+    # via
+    #   httpcore2
+    #   httpx2
+typer==0.27.3
+    # via powercontext
+typing-extensions==4.16.0
+    # via
+    #   alembic
+    #   anthropic
+    #   anyio
+    #   exceptiongroup
+    #   fastapi
+    #   fastmcp-slim
+    #   httpx2
+    #   mcp
+    #   openai
+    #   opentelemetry-api
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+    #   powercontext
+    #   py-key-value-aio
+    #   pydantic
+    #   pydantic-core
+    #   pydantic-settings
+    #   referencing
+    #   scalar-fastapi
+    #   sqlalchemy
+    #   starlette
+    #   typing-inspection
+typing-inspection==0.4.4
+    # via
+    #   fastapi
+    #   mcp
+    #   pydantic
+    #   pydantic-ai-slim
+    #   pydantic-graph
+    #   pydantic-settings
+tzdata==2026.5
+    # via
+    #   powercontext
+    #   tzlocal
+tzlocal==5.4.5
+    # via apscheduler
+uncalled-for==0.4.1
+    # via fastmcp-slim
+urllib3==2.8.0
+    # via requests
+uvicorn==0.54.0
+    # via
+    #   fastmcp-slim
+    #   mcp
+    #   powercontext
+watchfiles==1.3.0
+    # via fastmcp-slim
+wcmatch==11.2
+    # via pycasbin
+wcwidth==0.9.4
+    # via prompt-toolkit
+websockets==17.3
+    # via fastmcp-slim
+zipp==4.1.2 ; python_full_version < '3.12'
+    # via importlib-metadata
